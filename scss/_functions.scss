@@ -1,0 +1,193 @@
+@use 'sass:math';
+@use 'sass:string';
+@use 'sass:list';
+@use 'sass:map';
+@use 'sass:meta';
+
+
+// /**
+//  * Get gutter width
+//  * @param {string} $type
+//  * @param {boolean} $invert
+//  * @return {number/string}
+//  */
+@function gutter($type, $invert: false) {
+	$gutter_value: map.get($gutter, $type);
+	@if meta.type_of($gutter_value) != list {
+		@return if($invert, calc($gutter_value * -1), $gutter_value);
+	}
+	
+	@if not $invert {
+		@return clamp(
+			list.nth($gutter_value, 1),
+			list.nth($gutter_value, 2),
+			list.nth($gutter_value, 3)
+		);
+	}
+	
+	@return clamp(
+		(list.nth($gutter_value, 3) * -1),
+		(list.nth($gutter_value, 2) * -1),
+		(list.nth($gutter_value, 1) * -1)
+	);
+}
+
+
+// /**
+//  * Get max gutter width
+//  * @param {string} $type
+//  * @param {boolean} $invert
+//  * @return {number/string}
+//  */
+@function gutter_max($type, $invert: false) {
+	$gutter_value: map.get($gutter, $type);
+	@if meta.type_of($gutter_value) != list {
+		@return if($invert, calc($gutter_value * -1), $gutter_value);
+	}
+	
+	@if not $invert {
+		@return list.nth($gutter_value, 3);
+	}
+	
+	@return (list.nth($gutter_value, 3) * -1);
+}
+
+
+// /**
+//  * Get gutter value for extending beyond max width, either to edge of
+//  * viewport or stopping at $gutter_base_outer_extended
+//  * 
+//  * Alternate expressions:
+//  * - calc(((100vw - ($content_max_width - (gutter_max(x) * 2))) / -2));
+//  * - calc(((100vw - $content_max_width) / -2) - gutter_max(x));
+//  * 
+//  * @param {boolean} $to_viewport_edge
+//  * @param {boolean} $invert
+//  * @param {number} $offset
+//  * @return {string}
+//  */
+@function gutter_extended($to_viewport_edge: true, $invert: true, $offset: 0px) {
+	$inversion: if($invert, -1, 1);
+	@if $to_viewport_edge {
+		@return calc((50vw * $inversion) - (
+			(($content_max_width / 2) - gutter_max(x) + $offset) * $inversion)
+		);
+	}
+	
+	// TODO: check this with all gutter types
+	@return clamp(
+		($gutter_base_outer_extended * -1),
+		calc((50vw * $inversion) + (($content_max_width / 2) - gutter_max(x) + $offset)),
+		(gutter_max(x) * -1)
+	);
+}
+
+
+// /**
+//  * Calculate width of element within grid system
+//  * 
+//  * Usage:
+//  * margin-right: grid_element_width(
+//  *   3, 1, $gutter_base_x, $include_external_gutter: true
+//  * );
+//  * 
+//  * @param {int} $total_columns
+//  * @param {int} $column_span
+//  * @param {number} $gutter_width
+//  * @param {boolean} $is_negative
+//  * @param {boolean} $include_external_gutter
+//  * @return {type}
+//  */
+@function grid_element_width(
+	$total_columns: 12,
+	$column_span,
+	$gutter_width,
+	$is_negative: false,
+	$include_external_gutter: false
+) {
+	// Sometimes it's necessary to include one more gutter in addition to the
+	// ones in between the columns
+	// $include_external_gutter: false;
+	
+	// TODO: none of this math works when clamp() or CSS variables are used
+	
+	// Width of all gutters combined (px)
+	$total_gutter_width: (($total_columns - 1) * $gutter_width);
+	
+	// Share of width occupied by spanned columns (float)
+	$multiplier: calc($column_span / $total_columns);
+	
+	// Width remaining for spanned columns after gutters have been removed (% + px)
+	$total_column_space: quote(#{truncate(100% * $multiplier)} - #{truncate($total_gutter_width * $multiplier)});
+	
+	// If there's no space around math operators, it doesn't work
+	$total_column_space: replace($total_column_space, '%-', '% - ');
+	
+	// Width of gutters between spanned columns, plus optionally one more (px)
+	$total_gutter_space: ($gutter_width * ($column_span - if($include_external_gutter, 0, 1)));
+	
+	@return if($is_negative,
+		calc((unquote($total_column_space) + $total_gutter_space) * -1),
+		calc(unquote($total_column_space) + $total_gutter_space)
+	);
+}
+
+
+// /**
+//  * Round number to nearest multiple of 2
+//  * @param {number} $value
+//  * @return {int}
+//  */
+@function round_even($value) {
+  @return (round(calc($value / 2)) * 2);
+}
+
+
+// /**
+//  * Round number to nearest multiple of 4
+//  * @param {number} $value
+//  * @return {int}
+//  */
+@function round_four($value) {
+  @return (round(calc($value / 4)) * 4);
+}
+
+
+// /**
+//  * Is this value a percentage?
+//  * @param {number} $value
+//  * @return {boolean}
+//  */
+@function is_percent($value) {
+  @return unit($value) == '%';
+}
+
+
+// /**
+//  * Truncate decimal to specified number of places
+//  * @param {number} $value
+//  * @param {int} $places
+//  * @return {number}
+//  */
+@function truncate($value, $places: 4) {
+	@return calc(round($value * math.pow(10, $places)) / math.pow(10, $places));
+}
+
+
+// /**
+//  * Replace in string
+//  * @param {string} $input
+//  * @param {string} $search
+//  * @param {string} $replace
+//  * @return {string}
+//  */
+@function replace($input, $search, $replace: '') {
+  $index: string.index($input, $search);
+  @if not $index {
+		@return $input;
+	}
+	
+	@return string.slice($input, 1, $index - 1) + $replace + replace(
+		string.slice($input, $index + string.length($search)), $search, $replace
+	);
+}

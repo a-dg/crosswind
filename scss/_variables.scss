@@ -1,0 +1,88 @@
+@use 'sass:map';
+
+$breakpoints: (
+	zo: 0px,
+	tn: 384px,
+	sm: 512px,
+	md: 640px,
+	av: 768px,
+	ch: 960px,
+	lg: 1152px,
+	xl: 1344px,
+	yl: 1536px,
+);
+
+$content_max_width: map.get($breakpoints, lg);
+$content_max_width_extended: map.get($breakpoints, xl);
+
+$gutter_base_x: 20px;
+$gutter_base_y: 48px;
+$gutter_base_outer: 48px;
+$gutter_base_outer_extended: 240px;
+
+$gutter_stepped_scale: (
+	zo: 0.5,
+	// tn: 0.5,
+	sm: 1.0,
+	// md: 1.0,
+	av: 1.25,
+	// ch: 1.25,
+	lg: 1.75,
+	// xl: 1.75,
+	// yl: 1.75,
+);
+
+:root {
+	--gutter-x: #{$gutter_base_x};
+	--gutter-y: #{$gutter_base_y};
+	--gutter-outer: #{$gutter_base_outer};
+	
+	@if $gutter_type == stepped {
+		@each $breakpoint in map.keys($gutter_stepped_scale) {
+			@include b($breakpoint) {
+				$scale: map.get($gutter_stepped_scale, $breakpoint);
+				--gutter-x: #{round_four($gutter_base_x * $scale)};
+				--gutter-y: #{round_four($gutter_base_y * $scale)};
+				--gutter-outer: #{round_four($gutter_base_outer * $scale)};
+			}
+		}
+	}
+}
+
+$gutter_fixed: (
+	x: var(--gutter-x),
+	y: var(--gutter-y),
+	outer: var(--gutter-outer),
+);
+
+$gutter_flexible_min_x: 20px;
+$gutter_flexible_max_x: 48px;
+$gutter_flexible: (
+	x: (
+		$gutter_flexible_min_x,
+		#{truncate(calc($gutter_flexible_max_x / $content_max_width)) * 100vw},
+		$gutter_flexible_max_x,
+	),
+	y: (
+		20px,
+		8vw,
+		48px,
+	),
+	outer: (
+		20px,
+		6vw,
+		48px
+	),
+);
+
+$gutter_type: flexible !default;
+
+$gutter: map.get((
+	fixed: $gutter_fixed,
+	stepped: $gutter_fixed,
+	flexible: $gutter_flexible,
+), $gutter_type);
+
+$label_padding_x: 48px;
+$label_padding_y: 40px;
+$label_border_width: 4px;

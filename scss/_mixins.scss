@@ -1,0 +1,200 @@
+@use 'sass:list';
+@use 'sass:map';
+@use 'sass:meta';
+
+
+// /**
+//  * Define responsive layout
+//  * 
+//  * Specify column span and offset for one item:
+//  * @include layout((
+//  *   sm: 6,   // 6 columns wide
+//  *   lg: 8 3, // 8 columns wide, starting on column 3
+//  * ));
+//  * 
+//  * Specify column span and offset for multiple items, separated by commas:
+//  * @include layout((
+//  *   sm: (6, 6),
+//  *   md: (7 2, 5),
+//  *   lg: (8, 4),
+//  * ));
+//  * 
+//  * @param {map} $set
+//  */
+@mixin layout($set) {
+	@each $breakpoint in map.keys($set) {
+		$elements: map.get($set, $breakpoint);
+		@if
+			meta.type_of($elements) != list
+			or list.separator($elements) != comma
+		{
+			$elements: ($elements,);
+		}
+		
+		@for $i from 1 through length($elements) {
+			$column_span: list.nth($elements, $i);
+			@if
+				meta.type_of($column_span) == list
+				and list.separator($column_span) == space
+			{
+				@include b($breakpoint) {
+					> :nth-child(#{$i}n) {
+						grid-column: list.nth($column_span, 2) / span list.nth($column_span, 1);
+					}
+				}
+			} @else {
+				@include b($breakpoint) {
+					> :nth-child(#{$i}n) {
+						grid-column: auto / span $column_span;
+					}
+				}
+			}
+		}
+	}
+}
+
+
+/*
+@mixin madre_stat() {
+	.tm-statistic-float {
+		@apply 
+			ml-gutter mb-gutter-half
+			tn:ml-gutter-tn tn:mb-gutter-half-tn
+			sm:ml-gutter-sm sm:mb-gutter-half-sm
+			av:ml-gutter-av av:mb-gutter-half-av 
+			lg:ml-gutter-lg lg:mb-gutter-half-lg av:float-right
+		;
+		
+		// Formula:
+		// A = (# of stat columns / # of content columns) * 100%
+		// B = ((# of content columns - # of stat columns) / # of content columns)
+		// C = (0 - D) expressed as percentage
+		// D = ((12 - # of content columns) / 2) / # of content columns)
+		// w-[calc(A%-(theme(spacing.gutter)*B))]
+		// av:w-[calc(A%-(theme(spacing.gutter-av)*B))]
+		// lg:w-[calc(A%-(theme(spacing.gutter-lg)*B))]
+		// mr-[calc(C%-(theme(spacing.gutter)*D))]
+		// av:mr-[calc(C%-(theme(spacing.gutter-av)*D))]
+		// lg:mr-[calc(C%-(theme(spacing.gutter-lg)*D))]
+		
+		// Note:
+		// - margin-right is unneccessary for 12-column container
+		// - margin-left calculation is not accurate, but close enough for
+		//   left-justified text
+		
+		.tm-center-12 & {
+			// @apply
+			// 	w-[calc(((6/12)*100%)-(theme(spacing.gutter)*(6/12)))]
+			// 	av:w-[calc(((6/12)*100%)-(theme(spacing.gutter-av)*(6/12)))]
+			// 	lg:w-[calc(((6/12)*100%)-(theme(spacing.gutter-lg)*(6/12)))]
+			// 	ml-[calc((100%/12)+theme(spacing.gutter))]
+			// 	av:ml-[calc((100%/12)+theme(spacing.gutter-av))]
+			// 	lg:ml-[calc((100%/12)+theme(spacing.gutter-lg))]
+			// ;
+			
+			// 5-column stat
+			// TODO: add gutter for all breakpoints
+			@apply
+				tn:w-full tn:ml-5
+				w-[calc(((5/6)*100%)-(theme(spacing.gutter)*(1/6)))]
+				av:w-[calc(((5/12)*100%)-(theme(spacing.gutter-av)*(7/12)))]
+				lg:w-[calc(((5/12)*100%)-(theme(spacing.gutter-lg)*(7/12)))]
+				ml-[calc((100%/12)+theme(spacing.gutter))]
+				av:ml-[calc((100%/12)+theme(spacing.gutter-av))]
+				lg:ml-[calc((100%/12)+theme(spacing.gutter-lg))]
+			;
+		}
+		.tm-center-10 & {
+			// @apply
+			// 	w-[calc(((6/10)*100%)-(theme(spacing.gutter)*(4/10)))]
+			// 	av:w-[calc(((6/10)*100%)-(theme(spacing.gutter-av)*(4/10)))]
+			// 	lg:w-[calc(((6/10)*100%)-(theme(spacing.gutter-lg)*(4/10)))]
+			// 	mr-[calc(-10%-(theme(spacing.gutter)*(1/10)))]
+			// 	av:mr-[calc(-10%-(theme(spacing.gutter-av)*(1/10)))]
+			// 	lg:mr-[calc(-10%-(theme(spacing.gutter-lg)*(1/10)))]
+			// 	ml-[calc((100%/10)+(theme(spacing.gutter)/(11/12)))]
+			// 	av:ml-[calc((100%/10)+(theme(spacing.gutter-av)/(11/12)))]
+			// 	lg:ml-[calc((100%/10)+(theme(spacing.gutter-lg)/(11/12)))]
+			// ;
+			
+			// 5-column stat
+			// TODO: add gutter for all breakpoints
+			@apply
+				w-[calc(((5/6)*100%)-(theme(spacing.gutter)*(1/6)))]
+				tn:w-full tn:ml-0
+				av:w-[calc(((5/10)*100%)-(theme(spacing.gutter-av)*(5/10)))]
+				lg:w-[calc(((5/10)*100%)-(theme(spacing.gutter-lg)*(5/10)))]
+				mr-[calc(-10%-(theme(spacing.gutter)*(1/10)))]
+				av:mr-[calc(-10%-(theme(spacing.gutter-av)*(1/10)))]
+				lg:mr-[calc(-10%-(theme(spacing.gutter-lg)*(1/10)))]
+				ml-[calc((100%/10)+(theme(spacing.gutter)/(11/12)))]
+				av:ml-[calc((100%/10)+(theme(spacing.gutter-av)/(11/12)))]
+				lg:ml-[calc((100%/10)+(theme(spacing.gutter-lg)/(11/12)))]
+			;
+		}
+		.tm-center-8 & {
+			// @apply
+			// 	w-[calc(((6/8)*100%)-(theme(spacing.gutter)*(2/8)))]
+			// 	av:w-[calc(((6/8)*100%)-(theme(spacing.gutter-av)*(2/8)))]
+			// 	lg:w-[calc(((6/8)*100%)-(theme(spacing.gutter-lg)*(2/8)))]
+			// 	mr-[calc(-25%-(theme(spacing.gutter)*(2/8)))]
+			// 	av:mr-[calc(-25%-(theme(spacing.gutter-av)*(2/8)))]
+			// 	lg:mr-[calc(-25%-(theme(spacing.gutter-lg)*(2/8)))]
+			// 	ml-[calc((100%/8)+(theme(spacing.gutter)/(10/12)))]
+			// 	av:ml-[calc((100%/8)+(theme(spacing.gutter-av)/(10/12)))]
+			// 	lg:ml-[calc((100%/8)+(theme(spacing.gutter-lg)/(10/12)))]
+			// ;
+			
+			// 5-column stat
+			// TODO: add gutter for all breakpoints
+			@apply
+				tn:ml-0 tn:w-full
+				w-[calc(((5/6)*100%)-(theme(spacing.gutter)*(1/6)))]
+				av:w-[calc(((5/8)*100%)-(theme(spacing.gutter-av)*(3/8)))]
+				lg:w-[calc(((5/8)*100%)-(theme(spacing.gutter-lg)*(3/8)))]
+				mr-[calc(-25%-(theme(spacing.gutter)*(2/8)))]
+				av:mr-[calc(-25%-(theme(spacing.gutter-av)*(2/8)))]
+				lg:mr-[calc(-25%-(theme(spacing.gutter-lg)*(2/8)))]
+				ml-[calc((100%/8)+(theme(spacing.gutter)/(10/12)))]
+				av:ml-[calc((100%/8)+(theme(spacing.gutter-av)/(10/12)))]
+				lg:ml-[calc((100%/8)+(theme(spacing.gutter-lg)/(10/12)))]
+			;
+		}
+		.tm-center-6 & {
+			// @apply w-full
+			// 	mr-[calc(-50%-(theme(spacing.gutter)*(3/6)))]
+			// 	av:mr-[calc(-50%-(theme(spacing.gutter-av)*(3/6)))]
+			// 	lg:mr-[calc(-50%-(theme(spacing.gutter-lg)*(3/6)))]
+			// 	ml-[calc((100%/6)+(theme(spacing.gutter)/(9/12)))]
+			// 	av:ml-[calc((100%/6)+(theme(spacing.gutter-av)/(9/12)))]
+			// 	lg:ml-[calc((100%/6)+(theme(spacing.gutter-lg)/(9/12)))]
+			// ;
+			
+			// 5-column stat
+			// TODO: add gutter for all breakpoints
+			@apply
+				tn:ml-0 tn:w-full
+				w-[calc(((5/6)*100%)-(theme(spacing.gutter)*(1/6)))]
+				av:w-[calc(((5/6)*100%)-(theme(spacing.gutter-av)*(1/6)))]
+				lg:w-[calc(((5/6)*100%)-(theme(spacing.gutter-lg)*(1/6)))]
+				mr-[calc(-50%-(theme(spacing.gutter)*(3/6)))]
+				av:mr-[calc(-50%-(theme(spacing.gutter-av)*(3/6)))]
+				lg:mr-[calc(-50%-(theme(spacing.gutter-lg)*(3/6)))]
+				ml-[calc((100%/6)+(theme(spacing.gutter)/(9/12)))]
+				av:ml-[calc((100%/6)+(theme(spacing.gutter-av)/(9/12)))]
+				lg:ml-[calc((100%/6)+(theme(spacing.gutter-lg)/(9/12)))]
+			;
+		}
+		
+		+ * {
+			@apply mt-0;
+		}
+		h2 {
+			@apply relative mt-[-0.1em] mb-m0.125 font-medium tm-size-stat text-pink uppercase tracking-tight before:absolute before:-left-8 ch:before:-left-12 before:top-[calc(50%-16px)] before:border-l-[24px] before:border-t-[24px] before:border-b-[24px] before:border-l-orange before:border-t-transparent before:border-b-transparent;
+		}
+		p {
+			@apply tm-size-large;
+		}
+	}
+}
+*/
