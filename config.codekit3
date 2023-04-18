@@ -37,6 +37,32 @@
       "oF" : 0,
       "pg" : 0
     },
+    "\/examples\/clinging-items.png" : {
+      "ft" : 32768,
+      "iS" : 249139,
+      "oA" : 0,
+      "oAP" : "\/examples\/clinging-items.png",
+      "oF" : 0,
+      "oIPL" : 0,
+      "opt" : 0,
+      "oT" : 1,
+      "ou" : "lpckwebp-none",
+      "q" : 100,
+      "rq" : 75
+    },
+    "\/examples\/flush-grid.png" : {
+      "ft" : 32768,
+      "iS" : 1865342,
+      "oA" : 0,
+      "oAP" : "\/examples\/flush-grid.png",
+      "oF" : 0,
+      "oIPL" : 0,
+      "opt" : 0,
+      "oT" : 1,
+      "ou" : "lpckwebp-none",
+      "q" : 100,
+      "rq" : 75
+    },
     "\/incl\/footer.php" : {
       "cB" : 0,
       "ft" : 8192,
