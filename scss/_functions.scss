@@ -75,6 +75,7 @@
 	}
 	
 	// TODO: check this with all gutter types
+	// TODO: does not use $content_max_width_extended?
 	@return clamp(
 		($gutter_base_outer_extended * -1),
 		calc((50vw * $inversion) + (($content_max_width / 2) - gutter_max(x) + $offset)),
@@ -99,7 +100,7 @@
 //  * @return {type}
 //  */
 @function grid_element_width(
-	$total_columns: 12,
+	$total_columns: $grid_columns,
 	$column_span,
 	$gutter_width,
 	$is_negative: false,
@@ -139,7 +140,7 @@
 //  * @return {int}
 //  */
 @function round_even($value) {
-  @return (round(calc($value / 2)) * 2);
+  @return (math.round(calc($value / 2)) * 2);
 }
 
 
@@ -149,7 +150,7 @@
 //  * @return {int}
 //  */
 @function round_four($value) {
-  @return (round(calc($value / 4)) * 4);
+  @return (math.round(calc($value / 4)) * 4);
 }
 
 
@@ -159,7 +160,7 @@
 //  * @return {boolean}
 //  */
 @function is_percent($value) {
-  @return unit($value) == '%';
+  @return math.unit($value) == '%';
 }
 
 
@@ -170,7 +171,9 @@
 //  * @return {number}
 //  */
 @function truncate($value, $places: 4) {
-	@return calc(round($value * math.pow(10, $places)) / math.pow(10, $places));
+	// TODO: verify that flooring does not cause elements to accidentally reflow
+	// when using negative numbers
+	@return calc(math.floor($value * math.pow(10, $places)) / math.pow(10, $places));
 }
 
 

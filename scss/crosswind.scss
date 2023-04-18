@@ -1,3 +1,4 @@
+@use 'sass:math';
 @use 'sass:string';
 @use 'sass:list';
 @use 'sass:map';
@@ -22,16 +23,29 @@ body {
 	font-size: 24px;
 }
 
-p {
+h2 {
+	margin: $label_margin;
+	padding: $label_padding;
+	border-bottom: $label_border_width solid $label_border_color;
+	// background: #eee;
+	font-weight: 400;
+	font-size: 24px;
+	text-align: center;
+}
+span.g-label {
+	display: block;
 	margin: 0;
-	padding: $label_padding_y $label_padding_x;
-	border: 1px solid #09f;
-	border-width: 0 $label_border_width;
+	padding: $item_label_padding;
+	// border: 1px solid #09f;
+	// border-width: 0 $label_border_width;
 	background: #eee;
 }
 
 .c {
 	margin: gutter(y) auto;
+	> .c {
+		margin: 0 auto;
+	}
 }
 
 .c-full-width {
@@ -49,6 +63,13 @@ p {
 	display: grid;
 	gap: gutter(x);
 	margin: gutter(x) 0;
+}
+
+.g-3 {
+	grid-template: auto / repeat(1, 1fr);
+	@include b(md) {
+		grid-template-columns: repeat(3, 1fr);
+	}
 }
 
 .g-4 {
@@ -93,26 +114,18 @@ p {
 	grid-template: auto / repeat(auto-fill, minmax(200px, auto));
 }
 
+// TODO: consider renaming to .i or no name at all, since all children of grids
+// might be grid items (or might not, think about this)
 .g-item {
-	p {
-		// padding-left: ($label_padding_x + $label_border_width);
-		// padding-right: ($label_padding_x + $label_border_width);
-		padding-left: 0;
-		padding-right: 0;
-		border-width: 0;
-		// border-color: #07c;
-		background: #bbb;
+	span.g-label {
+		display: block;
+		background: #999;
 		color: #fff;
 		font-weight: 300;
 		text-transform: uppercase;
-		letter-spacing: 0.1em;
+		letter-spacing: 0.05em;
 		text-align: center;
 	}
-}
-
-
-.g-flush-c {
-	// overflow: hidden;
 }
 
 
@@ -144,32 +157,36 @@ p {
 		&::after {
 			bottom: ($border_width * -1);
 		}
-		
-		&:nth-child(6n),
-		&:nth-child(6n+1) {
-			&::before,
-			&::after {
-				content: '';
-				// TODO: use CSS variable to set offset and possibly this whole width
-				width: gutter_extended(
-					$invert: false,
-					$offset: ($content_inset + gutter_max(x))
-				);
+	}
+	
+	&.g-6 {
+		.g-item {
+			&:nth-child(6n),
+			&:nth-child(6n+1) {
+				&::before,
+				&::after {
+					content: '';
+					// TODO: use CSS variable to set offset and possibly this whole width
+					width: gutter_extended(
+						$invert: false,
+						$offset: ($content_inset + gutter_max(x))
+					);
+				}
 			}
-		}
-		&:nth-child(6n) {
-			margin-right: 0;
-			border-right: none;
-			&::before,
-			&::after {
-				left: 100%;
+			&:nth-child(6n) {
+				margin-right: 0;
+				border-right: none;
+				&::before,
+				&::after {
+					left: 100%;
+				}
 			}
-		}
-		&:nth-child(6n+1) {
-			border-left: none;
-			&::before,
-			&::after {
-				right: 100%;
+			&:nth-child(6n+1) {
+				border-left: none;
+				&::before,
+				&::after {
+					right: 100%;
+				}
 			}
 		}
 	}
@@ -192,49 +209,56 @@ p {
 }
 
 .g-flush {
-	$border_width: 4px;
+	$flush_border_width: 2px;
+	$flush_border_color: #ccc;
+	
 	display: grid;
-	margin: 0 0 0 ($border_width * -1);
+	margin: 0 0 0 ($flush_border_width * -1);
 	overflow: hidden;
-	border-top: $border_width solid #f00;
+	border-top: $flush_border_width solid $flush_border_color;
+	
+	.c-max-width & {
+		// TODO: this shouldn't really be true, because we should be able to use a
+		// flush grid within a container, and have its borders line up nicely
+		// TODO: change this to style flush grid without borders on sides when in
+		// a full-width container, but with borders when in a max-width container
+		@include warning('.g-flush may not be used within .c-max-width, as its container must be allowed to use the full width of the viewport');
+	}
+	
 	.g-item {
-		margin: ($border_width * -1) ($border_width * -1) 0 0;
-		border: $border_width solid #f00;
+		margin: ($flush_border_width * -1) ($flush_border_width * -1) 0 0;
+		border: $flush_border_width solid $flush_border_color;
 		// border-width: 1px 1px 0 0;
 		
+		/*
+		border-width: 0 1px 1px 0;
 		
-			/*
-			border-width: 0 1px 1px 0;
-			
-			// Left column
-			&:nth-child(2n+1) {
-				padding-left: 0;
-			}
-			
-			// Right column
-			&:nth-child(2n+2) {
-				padding-right: 0;
-				border-right: none;
-			}
-			
-			// First row
-			&:nth-child(-n+2) {
-				padding-top: 0;
-			}
-			
-			// Last row
-			&:nth-last-child(-n+2):nth-child(2n+1) {
-				&, & ~ div {
-					padding-bottom: 0;
-					border-bottom: none;
-				}
-			}
-			*/
+		// Left column
+		&:nth-child(2n+1) {
+			padding-left: 0;
+		}
 		
+		// Right column
+		&:nth-child(2n+2) {
+			padding-right: 0;
+			border-right: none;
+		}
 		
+		// First row
+		&:nth-child(-n+2) {
+			padding-top: 0;
+		}
 		
+		// Last row
+		&:nth-last-child(-n+2):nth-child(2n+1) {
+			&, & ~ div {
+				padding-bottom: 0;
+				border-bottom: none;
+			}
+		}
+		*/
 	}
-	p {
+	span.g-label {
 		background: none;
 		color: #000;
 	}
@@ -243,9 +267,9 @@ p {
 
 
 .g-layout {
-	grid-template: auto / repeat(6, 1fr);
+	grid-template: auto / repeat(calc($grid_columns / 2), 1fr);
 	@include b(md) {
-		grid-template-columns: repeat(12, 1fr);
+		grid-template-columns: repeat($grid_columns, 1fr);
 	}
 }
 
@@ -256,6 +280,15 @@ p {
 			display: none;
 		}
 	}
+}
+
+.col-6 {
+	@include layout((
+		zo: 6,
+		md: 10 2,
+		av: 8 3,
+		ch: 6 4,
+	));
 }
 
 .col-8-4 {
@@ -270,15 +303,6 @@ p {
 	> :nth-child(2) {
 		// right: grid_element_width(3, 1, $gutter_base_x, $include_external_gutter: true);
 	}
-}
-
-.col-6 {
-	@include layout((
-		zo: 6,
-		md: 10 2,
-		av: 8 3,
-		ch: 6 4,
-	));
 }
 
 @each $direction in (left, right) {
@@ -306,8 +330,28 @@ p {
 .content-at-edges {
 	display: flex;
 	justify-content: space-between;
-	p {
-		padding-left: 60px;
-		padding-right: 60px;
+	gap: gutter(x);
+	padding-top: gutter(y);
+	padding-bottom: gutter(y);
+	background: #eee;
+	
+	// TODO: container is not .g, so this should not be .g-item
+	.g-item {
+		flex: 0 1 160px;
+	}
+}
+
+
+.g-float {
+	@include grid_float(
+		$direction: right,
+		$content_column_count: 6,
+		$float_column_count: 5
+	);
+	
+	+ p {
+		margin-top: 0;
+		text-align: justify;
+		hyphens: auto;
 	}
 }

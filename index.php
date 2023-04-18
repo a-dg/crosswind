@@ -3,61 +3,108 @@ require __DIR__.'/config.php';
 include __DIR__.'/incl/header.php';
 ?>
 
-<div class="c c-max-fwidth">
-	<p>Full-width container with grid</p>
+
+<div class="c c-max-width outer-padding">
+	<div class="g g-layout">
+		<? foreach (range(1, 12) as $index): ?>
+			<div class="g-item g-guide"></div>
+		<? endforeach; ?>
+	</div>
 	
-	<div class="g-flush-c">
-		<div class="g-flush g-auto">
-			<? foreach(range(1, 30) as $index): ?>
-				<div class="g-item"><p><?= $index ?></p></div>
-			<? endforeach; ?>
+	<div class="g g-layout col-6">
+		<div class="g-item">
+			<div class="g-float">
+				<span class="g-label">Float</span>
+			</div>
+			<p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Nostrum ipsam voluptate quod. Odio expedita numquam voluptatem! Voluptatem laboriosam sequi distinctio, voluptas eaque et assumenda ab, nostrum, saepe voluptates quo autem? Est, in? Rerum consequatur totam veniam tempora dignissimos tempore odio earum in consequuntur dolores, ab quasi eum eligendi. Voluptatem nemo porro omnis!</p>
 		</div>
 	</div>
 </div>
-
-
-<div class="c c-max-width outer-padding">
-	<p>Full-width container with grid</p>
-	
-	<div class="g g-wire g-6">
-		<? foreach(range(1, 13) as $index): ?>
-			<div class="g-item"><p><?= $index ?></p></div>
-		<? endforeach; ?>
-	</div>
-</div>
-
 
 
 <div class="c c-full-width">
-	<p>Full-width container</p>
+	<h2>Full-width container</h2>
 </div>
+
 
 <div class="c c-max-width">
-	<p>Container with max-width applied</p>
+	<h2>Container with max-width applied</h2>
 </div>
 
+
 <div class="c c-max-width outer-padding">
-	<p>Container with max-width and outer margins applied</p>
+	<h2>Container with max-width and outer margins applied</h2>
+</div>
+
+
+<div class="c c-max-width outer-padding">
+	<h2>3-up explicit grid (max-width container)</h2>
+	
+	<div class="g g-3">
+		<? foreach(range(1, 10) as $index): ?>
+			<div class="g-item"><span class="g-label"><?= $index ?></span></div>
+		<? endforeach; ?>
+	</div>
+</div>
+
+
+<div class="c c-max-width outer-padding">
+	<h2>4-up explicit grid (max-width container)</h2>
 	
 	<div class="g g-4">
 		<? foreach(range(1, 10) as $index): ?>
-			<div class="g-item"><p><?= $index ?></p></div>
+			<div class="g-item"><span class="g-label"><?= $index ?></span></div>
 		<? endforeach; ?>
 	</div>
 </div>
 
-<div class="c c-max-width outer-padding">
-	<p>Container with max-width and outer margins applied</p>
+
+<div class="c c-full-width outer-padding">
+	<h2>Auto grid (full-width container)</h2>
 	
 	<div class="g g-auto">
 		<? foreach(range(1, 10) as $index): ?>
-			<div class="g-item"><p><?= $index ?></p></div>
+			<div class="g-item"><span class="g-label"><?= $index ?></span></div>
 		<? endforeach; ?>
 	</div>
 </div>
 
+
 <div class="c c-max-width outer-padding">
-	<p>Container with max-width and outer margins applied</p>
+	<h2>Auto grid (max-width container)</h2>
+	
+	<div class="g g-auto">
+		<? foreach(range(1, 10) as $index): ?>
+			<div class="g-item"><span class="g-label"><?= $index ?></span></div>
+		<? endforeach; ?>
+	</div>
+</div>
+
+
+<div class="c c-full-width">
+	<h2>Flush grid (full-width container)</h2>
+	
+	<div class="g-flush g-auto">
+		<? foreach(range(1, 30) as $index): ?>
+			<div class="g-item"><span class="g-label"><?= $index ?></span></div>
+		<? endforeach; ?>
+	</div>
+</div>
+
+
+<div class="c c-max-width outer-padding">
+	<h2>Wire grid (max-width container)</h2>
+	
+	<div class="g g-wire g-6">
+		<? foreach(range(1, 13) as $index): ?>
+			<div class="g-item"><span class="g-label"><?= $index ?></span></div>
+		<? endforeach; ?>
+	</div>
+</div>
+
+
+<div class="c c-max-width outer-padding">
+	<h2>8/4 split layout (max-width container)</h2>
 	
 	<div class="g g-layout">
 		<? foreach (range(1, 12) as $index): ?>
@@ -66,25 +113,27 @@ include __DIR__.'/incl/header.php';
 	</div>
 	
 	<div class="g g-layout col-8-4">
-		<div class="g-item"><p>1</p></div>
-		<div class="g-item"><p>2</p></div>
+		<div class="g-item"><span class="g-label">1</span></div>
+		<div class="g-item"><span class="g-label">2</span></div>
 	</div>
 </div>
 
+
 <div class="c c-max-width outer-padding">
-	<p>Container with max-width and outer margins applied</p>
+	<h2>8/4 split layout with hanging elements (max-width container)</h2>
 	
 	<div class="g g-layout col-8-4">
-		<div class="g-item"><p>Item</p></div>
-		<div class="g-item hang-r hang-extended"><p>Hanging item</p></div>
-		<div class="g-item hang-l hang-full"><p>Hanging item</p></div>
-		<div class="g-item"><p>Item</p></div>
+		<div class="g-item"><span class="g-label">Item</span></div>
+		<div class="g-item hang-r hang-extended"><span class="g-label">Hanging item</span></div>
+		<div class="g-item hang-l hang-full"><span class="g-label">Hanging item</span></div>
+		<div class="g-item"><span class="g-label">Item</span></div>
 	</div>
 </div>
+
 
 <div class="c c-max-width outer-padding">
 	<div class="g g-layout col-6">
-		<div class="g-item"><p>Item</p></div>
+		<div class="g-item"><span class="g-label">Item</span></div>
 	</div>
 	
 	<div class="g g-layout">
@@ -95,32 +144,22 @@ include __DIR__.'/incl/header.php';
 </div>
 
 
-<div class="bg c c-full-width">
-	<p>Full-width container with elements at edges</p>
+<div class="c c-full-width">
+	<h2>Clinging to edges (full-width container)</h2>
+	<div class="content-at-edges c c-full-width outer-padding">
+		<div class="g-item"><span class="g-label">1</span></div>
+		<div class="g-item"><span class="g-label">2</span></div>
+	</div>
+</div>
+
+
+<div class="c c-max-width">
+	<h2>Clinging to edges (max-width container)</h2>
 	<div class="content-at-edges c c-max-width outer-padding">
-		<div class="g-item"><p>1</p></div>
-		<div class="g-item"><p>2</p></div>
+		<div class="g-item"><span class="g-label">1</span></div>
+		<div class="g-item"><span class="g-label">2</span></div>
 	</div>
 </div>
-
-
-<!-- 
-<hr>
-
-<div class="tm-grid pb-0">
-	<div class="tm-center-6">
-		<div class="tm-statistic-float">
-			<h2>10,000%</h2>
-			<p>Praesent commodo cursus magna, vel scelerisque nisl consectetur et</p>
-		</div>
-		<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Eu sem integer vitae justo eget magna fermentum iaculis. Mi Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh Fusce dapibus, tellus ac cursus sed posuere consectetur est at condimentum nibh Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo.</p>
-		<ol>
-			<li>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt pellentesque ornare sem lacinia.</li>
-			<li>Labore et dolore magna aliqua. Eu sem integer vitae justo eget magna fermentum iaculis pellentesque ornare sem lacinia quam venenatis vestibulum.</li>
-		</ol>
-	</div>
-</div>
- -->
 
 
 <?

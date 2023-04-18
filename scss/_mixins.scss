@@ -1,3 +1,4 @@
+@use 'sass:math';
 @use 'sass:list';
 @use 'sass:map';
 @use 'sass:meta';
@@ -31,7 +32,7 @@
 			$elements: ($elements,);
 		}
 		
-		@for $i from 1 through length($elements) {
+		@for $i from 1 through list.length($elements) {
 			$column_span: list.nth($elements, $i);
 			@if
 				meta.type_of($column_span) == list
@@ -54,147 +55,78 @@
 }
 
 
-/*
-@mixin madre_stat() {
-	.tm-statistic-float {
-		@apply 
-			ml-gutter mb-gutter-half
-			tn:ml-gutter-tn tn:mb-gutter-half-tn
-			sm:ml-gutter-sm sm:mb-gutter-half-sm
-			av:ml-gutter-av av:mb-gutter-half-av 
-			lg:ml-gutter-lg lg:mb-gutter-half-lg av:float-right
-		;
-		
-		// Formula:
-		// A = (# of stat columns / # of content columns) * 100%
-		// B = ((# of content columns - # of stat columns) / # of content columns)
-		// C = (0 - D) expressed as percentage
-		// D = ((12 - # of content columns) / 2) / # of content columns)
-		// w-[calc(A%-(theme(spacing.gutter)*B))]
-		// av:w-[calc(A%-(theme(spacing.gutter-av)*B))]
-		// lg:w-[calc(A%-(theme(spacing.gutter-lg)*B))]
-		// mr-[calc(C%-(theme(spacing.gutter)*D))]
-		// av:mr-[calc(C%-(theme(spacing.gutter-av)*D))]
-		// lg:mr-[calc(C%-(theme(spacing.gutter-lg)*D))]
-		
-		// Note:
-		// - margin-right is unneccessary for 12-column container
-		// - margin-left calculation is not accurate, but close enough for
-		//   left-justified text
-		
-		.tm-center-12 & {
-			// @apply
-			// 	w-[calc(((6/12)*100%)-(theme(spacing.gutter)*(6/12)))]
-			// 	av:w-[calc(((6/12)*100%)-(theme(spacing.gutter-av)*(6/12)))]
-			// 	lg:w-[calc(((6/12)*100%)-(theme(spacing.gutter-lg)*(6/12)))]
-			// 	ml-[calc((100%/12)+theme(spacing.gutter))]
-			// 	av:ml-[calc((100%/12)+theme(spacing.gutter-av))]
-			// 	lg:ml-[calc((100%/12)+theme(spacing.gutter-lg))]
-			// ;
-			
-			// 5-column stat
-			// TODO: add gutter for all breakpoints
-			@apply
-				tn:w-full tn:ml-5
-				w-[calc(((5/6)*100%)-(theme(spacing.gutter)*(1/6)))]
-				av:w-[calc(((5/12)*100%)-(theme(spacing.gutter-av)*(7/12)))]
-				lg:w-[calc(((5/12)*100%)-(theme(spacing.gutter-lg)*(7/12)))]
-				ml-[calc((100%/12)+theme(spacing.gutter))]
-				av:ml-[calc((100%/12)+theme(spacing.gutter-av))]
-				lg:ml-[calc((100%/12)+theme(spacing.gutter-lg))]
-			;
-		}
-		.tm-center-10 & {
-			// @apply
-			// 	w-[calc(((6/10)*100%)-(theme(spacing.gutter)*(4/10)))]
-			// 	av:w-[calc(((6/10)*100%)-(theme(spacing.gutter-av)*(4/10)))]
-			// 	lg:w-[calc(((6/10)*100%)-(theme(spacing.gutter-lg)*(4/10)))]
-			// 	mr-[calc(-10%-(theme(spacing.gutter)*(1/10)))]
-			// 	av:mr-[calc(-10%-(theme(spacing.gutter-av)*(1/10)))]
-			// 	lg:mr-[calc(-10%-(theme(spacing.gutter-lg)*(1/10)))]
-			// 	ml-[calc((100%/10)+(theme(spacing.gutter)/(11/12)))]
-			// 	av:ml-[calc((100%/10)+(theme(spacing.gutter-av)/(11/12)))]
-			// 	lg:ml-[calc((100%/10)+(theme(spacing.gutter-lg)/(11/12)))]
-			// ;
-			
-			// 5-column stat
-			// TODO: add gutter for all breakpoints
-			@apply
-				w-[calc(((5/6)*100%)-(theme(spacing.gutter)*(1/6)))]
-				tn:w-full tn:ml-0
-				av:w-[calc(((5/10)*100%)-(theme(spacing.gutter-av)*(5/10)))]
-				lg:w-[calc(((5/10)*100%)-(theme(spacing.gutter-lg)*(5/10)))]
-				mr-[calc(-10%-(theme(spacing.gutter)*(1/10)))]
-				av:mr-[calc(-10%-(theme(spacing.gutter-av)*(1/10)))]
-				lg:mr-[calc(-10%-(theme(spacing.gutter-lg)*(1/10)))]
-				ml-[calc((100%/10)+(theme(spacing.gutter)/(11/12)))]
-				av:ml-[calc((100%/10)+(theme(spacing.gutter-av)/(11/12)))]
-				lg:ml-[calc((100%/10)+(theme(spacing.gutter-lg)/(11/12)))]
-			;
-		}
-		.tm-center-8 & {
-			// @apply
-			// 	w-[calc(((6/8)*100%)-(theme(spacing.gutter)*(2/8)))]
-			// 	av:w-[calc(((6/8)*100%)-(theme(spacing.gutter-av)*(2/8)))]
-			// 	lg:w-[calc(((6/8)*100%)-(theme(spacing.gutter-lg)*(2/8)))]
-			// 	mr-[calc(-25%-(theme(spacing.gutter)*(2/8)))]
-			// 	av:mr-[calc(-25%-(theme(spacing.gutter-av)*(2/8)))]
-			// 	lg:mr-[calc(-25%-(theme(spacing.gutter-lg)*(2/8)))]
-			// 	ml-[calc((100%/8)+(theme(spacing.gutter)/(10/12)))]
-			// 	av:ml-[calc((100%/8)+(theme(spacing.gutter-av)/(10/12)))]
-			// 	lg:ml-[calc((100%/8)+(theme(spacing.gutter-lg)/(10/12)))]
-			// ;
-			
-			// 5-column stat
-			// TODO: add gutter for all breakpoints
-			@apply
-				tn:ml-0 tn:w-full
-				w-[calc(((5/6)*100%)-(theme(spacing.gutter)*(1/6)))]
-				av:w-[calc(((5/8)*100%)-(theme(spacing.gutter-av)*(3/8)))]
-				lg:w-[calc(((5/8)*100%)-(theme(spacing.gutter-lg)*(3/8)))]
-				mr-[calc(-25%-(theme(spacing.gutter)*(2/8)))]
-				av:mr-[calc(-25%-(theme(spacing.gutter-av)*(2/8)))]
-				lg:mr-[calc(-25%-(theme(spacing.gutter-lg)*(2/8)))]
-				ml-[calc((100%/8)+(theme(spacing.gutter)/(10/12)))]
-				av:ml-[calc((100%/8)+(theme(spacing.gutter-av)/(10/12)))]
-				lg:ml-[calc((100%/8)+(theme(spacing.gutter-lg)/(10/12)))]
-			;
-		}
-		.tm-center-6 & {
-			// @apply w-full
-			// 	mr-[calc(-50%-(theme(spacing.gutter)*(3/6)))]
-			// 	av:mr-[calc(-50%-(theme(spacing.gutter-av)*(3/6)))]
-			// 	lg:mr-[calc(-50%-(theme(spacing.gutter-lg)*(3/6)))]
-			// 	ml-[calc((100%/6)+(theme(spacing.gutter)/(9/12)))]
-			// 	av:ml-[calc((100%/6)+(theme(spacing.gutter-av)/(9/12)))]
-			// 	lg:ml-[calc((100%/6)+(theme(spacing.gutter-lg)/(9/12)))]
-			// ;
-			
-			// 5-column stat
-			// TODO: add gutter for all breakpoints
-			@apply
-				tn:ml-0 tn:w-full
-				w-[calc(((5/6)*100%)-(theme(spacing.gutter)*(1/6)))]
-				av:w-[calc(((5/6)*100%)-(theme(spacing.gutter-av)*(1/6)))]
-				lg:w-[calc(((5/6)*100%)-(theme(spacing.gutter-lg)*(1/6)))]
-				mr-[calc(-50%-(theme(spacing.gutter)*(3/6)))]
-				av:mr-[calc(-50%-(theme(spacing.gutter-av)*(3/6)))]
-				lg:mr-[calc(-50%-(theme(spacing.gutter-lg)*(3/6)))]
-				ml-[calc((100%/6)+(theme(spacing.gutter)/(9/12)))]
-				av:ml-[calc((100%/6)+(theme(spacing.gutter-av)/(9/12)))]
-				lg:ml-[calc((100%/6)+(theme(spacing.gutter-lg)/(9/12)))]
-			;
-		}
-		
-		+ * {
-			@apply mt-0;
-		}
-		h2 {
-			@apply relative mt-[-0.1em] mb-m0.125 font-medium tm-size-stat text-pink uppercase tracking-tight before:absolute before:-left-8 ch:before:-left-12 before:top-[calc(50%-16px)] before:border-l-[24px] before:border-t-[24px] before:border-b-[24px] before:border-l-orange before:border-t-transparent before:border-b-transparent;
-		}
-		p {
-			@apply tm-size-large;
-		}
+@mixin warning($message) {
+	position: relative;
+	overflow: auto;
+	&::before {
+		content: $message;
+		position: absolute;
+		z-index: 9999;
+		left: 12px;
+		top: 12px;
+		padding: 24px 28px;
+		width: 300px;
+		// border: 8px solid #f09;
+		border-radius: 24px;
+		background: $color_warning;
+		font-size: 24px;
+		color: #fff;
+		box-shadow: 8px 0 24px rgb(0 0 0 / 0.5);
 	}
 }
-*/
+
+
+// /**
+//  * Float element within grid
+//  * @param {string} $direction
+//  * @param {int} $content_column_count
+//  * @param {int} $float_column_count
+//  * @param {int} $float_offset_columns
+//  */
+@mixin grid_float(
+	$direction,
+	$content_column_count,
+	$float_column_count,
+	$float_offset_columns: -1
+) {
+	// TODO: add support for responsive params
+	// $content_column_count: (
+	// 	md: 8,
+	// 	lg: 6,
+	// ),
+	// $float_column_count: (
+	// 	md: 4,
+	// 	lg: 3,
+	// ),
+	
+	$opposite_direction: if($direction == right, left, right);
+	
+	// Calculate width of floated element
+	$float_width: truncate(
+		calc(($float_column_count / $content_column_count) * 100%)
+	);
+	$float_width_factor: truncate(
+		calc(($content_column_count - $float_column_count) / $content_column_count)
+	);
+	
+	// TODO: consider removing this auto calculation and making it a required parameter
+	// Set float offset automatically when not specified, assuming the content
+	// area is centered, and we want to send the floated element all the way to
+	// the edge of the grid
+	@if $float_offset_columns == -1 {
+		$float_offset_columns: math.floor(
+			calc(($grid_columns - $content_column_count) / 2)
+		);
+	}
+	
+	// What percentage of the content area width is the float offset?
+	$float_offset_factor: calc($float_offset_columns / $content_column_count);
+	$float_offset_percentage: truncate($float_offset_factor * -100%);
+	
+	float: $direction;
+	width: calc($float_width - (gutter(x) * $float_width_factor));
+	margin-#{$opposite_direction}: gutter(x);
+	
+	// TODO: margin-#{direction} is unneccessary for 12-column container
+	margin-#{$direction}: calc($float_offset_percentage - (gutter(x) * truncate($float_offset_factor)));
+}
