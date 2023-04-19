@@ -119,17 +119,15 @@
 	$multiplier: calc($column_span / $total_columns);
 	
 	// Width remaining for spanned columns after gutters have been removed (% + px)
-	$total_column_space: quote(#{truncate(100% * $multiplier)} - #{truncate($total_gutter_width * $multiplier)});
-	
-	// If there's no space around math operators, it doesn't work
-	$total_column_space: replace($total_column_space, '%-', '% - ');
+	$remaining_column_space: truncate(100% * $multiplier);
+	$remaining_gutter_space: truncate($total_gutter_width * $multiplier);
 	
 	// Width of gutters between spanned columns, plus optionally one more (px)
 	$total_gutter_space: ($gutter_width * ($column_span - if($include_external_gutter, 0, 1)));
 	
 	@return if($is_negative,
-		calc((unquote($total_column_space) + $total_gutter_space) * -1),
-		calc(unquote($total_column_space) + $total_gutter_space)
+		calc(($remaining_column_space + ($total_gutter_space - $remaining_gutter_space)) * -1),
+		calc($remaining_column_space + ($total_gutter_space - $remaining_gutter_space))
 	);
 }
 
