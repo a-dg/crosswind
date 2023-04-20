@@ -162,18 +162,31 @@ include __DIR__.'/incl/header.php';
 
 <div class="c c-full-width">
 	<h2>Clinging to edges (full-width container)</h2>
-	<div class="content-at-edges c c-full-width outer-padding">
-		<div class="g-item"><span class="g-label">1</span></div>
-		<div class="g-item"><span class="g-label">2</span></div>
+	<div class="content-at-edges">
+		<div class="c c-full-width outer-padding">
+			<div class="g-item"><span class="i-label">1</span></div>
+			<div class="g-item"><span class="i-label">2</span></div>
+		</div>
 	</div>
 </div>
 
 
-<div class="c c-max-width">
+<div class="c c-full-width">
 	<h2>Clinging to edges (max-width container)</h2>
-	<div class="content-at-edges c c-max-width outer-padding">
-		<div class="g-item"><span class="g-label">1</span></div>
-		<div class="g-item"><span class="g-label">2</span></div>
+	<div class="content-at-edges">
+		<div class="c c-max-width outer-padding">
+			<div class="g-item"><span class="i-label">1</span></div>
+			<div class="g-item"><span class="i-label">2</span></div>
+		</div>
+	</div>
+</div>
+
+
+<div class="c c-max-width outer-padding">
+	<div class="g g-layout">
+		<? foreach (range(1, 12) as $index): ?>
+			<div class="g-item g-guide"></div>
+		<? endforeach; ?>
 	</div>
 </div>
 
