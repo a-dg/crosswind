@@ -1,4 +1,5 @@
 @use 'sass:math';
+@use 'sass:string';
 @use 'sass:list';
 @use 'sass:map';
 @use 'sass:meta';
@@ -21,22 +22,53 @@
 // /**
 //  * Define responsive layout
 //  * 
-//  * Specify column span and offset for one item:
+//  * For any one item, the parameters can be any combination of:
+//  * 6,     // 6 columns wide
+//  * 8 3,   // 8 columns wide, starting on column 3
+//  * r 2,   // 2 rows tall
+//  * r 1 4, // 1 row tall, starting on row 4
+//  * o -2,  // order -2
+//  * 
+//  * Parameters must be specified in this order:
+//  * - column span [column start]
+//  * - row span [row start]
+//  * - order
+//  * 
+//  * Specify parameters for one item using space-delimited lists:
 //  * @include layout((
-//  *   sm: 6,   // 6 columns wide
-//  *   lg: 8 3, // 8 columns wide, starting on column 3
+//  *   sm: 6,
+//  *   md: 10 1 r 2,
+//  *   lg: 8 3,
 //  * ));
 //  * 
-//  * Specify column span and offset for multiple items, separated by commas:
+//  * Specify parameters for multiple items, separated by commas:
 //  * @include layout((
-//  *   sm: (6, 6),
-//  *   md: (7 2, 5),
+//  *   sm: (6, 6, 6),
+//  *   md: (7 2, 5 r 2, 6 o -2),
 //  *   lg: (8, 4),
 //  * ));
 //  * 
+//  * Enabling repeat causes parameters to affect all items, using
+//  * multipliers for CSS selectors:
+//  * - Repeat off: :nth-child(2)
+//  * - Repeat on:  :nth-child(2n)
+//  * 
+//  * Repeat enabled: odd-numbered items will be 8 columns wide, and
+//  * even-numbered items will be 4 columns wide:
+//  * @include layout((
+//  *   lg: (8, 4),
+//  * ), $repeat: true);
+//  * 
+//  * Repeat disabled: any items past the second one will not inherit their
+//  * settings from smaller breakpoints, or not have any settings:
+//  * @include layout((
+//  *   lg: (8, 4),
+//  * ), $repeat: false);
+//  * 
 //  * @param {map} $set
+//  * @param {boolean} $repeat
 //  */
-@mixin layout($set) {
+@mixin layout($set, $repeat: true) {
 	@each $breakpoint in map.keys($set) {
 		$elements: map.get($set, $breakpoint);
 		@if
@@ -46,25 +78,75 @@
 			$elements: ($elements,);
 		}
 		
-		@for $i from 1 through list.length($elements) {
-			$column_span: list.nth($elements, $i);
-			@if
-				meta.type_of($column_span) == list
-				and list.separator($column_span) == space
-			{
-				@include b($breakpoint) {
-					> :nth-child(#{$i}n) {
-						grid-column: list.nth($column_span, 2) / span list.nth($column_span, 1);
+		@for $index from 1 through list.length($elements) {
+			$list: list.nth($elements, $index);
+			
+			// Split params to separate order from column and row
+			$split_column_row_order: split_list($list, o);
+			$column_row: map.get($split_column_row_order, a);
+			$order: map.get($split_column_row_order, b);
+			
+			// Split params to separate row from column
+			$split_column_row: split_list($column_row, r);
+			$column: map.get($split_column_row, a);
+			$row: map.get($split_column_row, b);
+			
+			@if $column {
+				@include grid_plot(column, $breakpoint, $index, $column, $repeat);
 			}
+			@if $row {
+				@include grid_plot(row, $breakpoint, $index, $row, $repeat);
 			}
-			} @else {
-	@include b($breakpoint) {
-					> :nth-child(#{$i}n) {
-						grid-column: auto / span $column_span;
+			@if $order {
+				@include grid_plot_order($breakpoint, $index, $order, $repeat);
 			}
 		}
 	}
 }
+
+
+// /**
+//  * Grid plot
+//  * @param {string} $type (row or column)
+//  * @param {string} $breakpoint
+//  * @param {int} $index
+//  * @param {int / list} $params
+//  * @param {boolean} $repeat
+//  */
+@mixin grid_plot($type, $breakpoint, $index, $params, $repeat: true) {
+	@include b($breakpoint) {
+		// TODO: see if you can group all of the rules for a single breakpoint
+		// together, to minimize the number of media queries
+		
+		$has_start: (
+			meta.type_of($params) == list
+			and list.length($params) > 1
+		);
+		
+		// TODO: if $index == 1, don't do :nth-child
+		> :nth-child(#{$index}#{if($repeat, n, '')}) {
+			@if $has_start {
+				grid-#{$type}: list.nth($params, 2) / span list.nth($params, 1);
+			} @else {
+				grid-#{$type}: auto / span $params;
+			}
+		}
+	}
+}
+
+
+// /**
+//  * Grid plot order
+//  * @param {string} $breakpoint
+//  * @param {int} $index
+//  * @param {int} $order
+//  * @param {boolean} $repeat
+//  */
+@mixin grid_plot_order($breakpoint, $index, $order, $repeat: true) {
+	@include b($breakpoint) {
+		> :nth-child(#{$index}#{if($repeat, n, '')}) {
+			order: $order;
+		}
 	}
 }
 

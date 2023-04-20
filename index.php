@@ -10,7 +10,22 @@ include __DIR__.'/incl/header.php';
 			<div class="g-item g-guide"></div>
 		<? endforeach; ?>
 	</div>
+</div>
+
+
+<div class="c c-max-width outer-padding">
+	<h2>Layout with columns, rows, and order (max-width container)</h2>
 	
+	<div class="g g-layout crazy">
+		<? foreach (range(1, 7) as $index): ?>
+			<div class="g-item"><span class="i-label"><?= $index ?></span></div>
+		<? endforeach; ?>
+	</div>
+</div>
+
+
+<div class="c c-max-width outer-padding">
+	<h2>Floating item outside of grid</h2>
 	<div class="g g-layout col-6">
 		<div class="g-item">
 			<div class="g-float">

@@ -192,3 +192,50 @@
 		string.slice($input, $index + string.length($search)), $search, $replace
 	);
 }
+
+
+// /**
+//  * Split list
+//  * @param {list} $input
+//  * @param {string} $delimiter
+//  * @return {map}
+//  */
+@function split_list($input, $delimiter) {
+	@if
+		type_of($input) != list
+		or not list.index($input, $delimiter)
+	{
+		@return (
+			a: $input,
+			b: null,
+		);
+	}
+	
+	$list_a: ();
+	$list_b: ();
+	$is_before_split: true;
+	
+	@each $item in $input {
+		@if $item == $delimiter {
+			$is_before_split: false;
+		} @else {
+			@if $is_before_split {
+				$list_a: list.append($list_a, $item, $separator: space);
+			} @else {
+				$list_b: list.append($list_b, $item, $separator: space);
+			}
+		}
+	}
+	
+	// TODO: consider this method of splitting lists
+	// $list: 3 4 r 1 o -2;
+	// $string: meta.inspect($list);
+	// $split_list: string.split($string, o);
+	// @debug $split_list;
+	// @debug meta.type_of($split_list);
+	
+	@return (
+		a: $list_a,
+		b: $list_b,
+	);
+}
