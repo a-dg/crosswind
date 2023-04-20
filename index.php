@@ -14,7 +14,7 @@ include __DIR__.'/incl/header.php';
 	<div class="g g-layout col-6">
 		<div class="g-item">
 			<div class="g-float">
-				<span class="g-label">Float</span>
+				<span class="i-label">Float</span>
 			</div>
 			<p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Nostrum ipsam voluptate quod. Odio expedita numquam voluptatem! Voluptatem laboriosam sequi distinctio, voluptas eaque et assumenda ab, nostrum, saepe voluptates quo autem? Est, in? Rerum consequatur totam veniam tempora dignissimos tempore odio earum in consequuntur dolores, ab quasi eum eligendi. Voluptatem nemo porro omnis!</p>
 		</div>
@@ -42,7 +42,7 @@ include __DIR__.'/incl/header.php';
 	
 	<div class="g g-3">
 		<? foreach(range(1, 10) as $index): ?>
-			<div class="g-item"><span class="g-label"><?= $index ?></span></div>
+			<div class="g-item"><span class="i-label"><?= $index ?></span></div>
 		<? endforeach; ?>
 	</div>
 </div>
@@ -53,7 +53,7 @@ include __DIR__.'/incl/header.php';
 	
 	<div class="g g-4">
 		<? foreach(range(1, 10) as $index): ?>
-			<div class="g-item"><span class="g-label"><?= $index ?></span></div>
+			<div class="g-item"><span class="i-label"><?= $index ?></span></div>
 		<? endforeach; ?>
 	</div>
 </div>
@@ -64,7 +64,7 @@ include __DIR__.'/incl/header.php';
 	
 	<div class="g g-auto">
 		<? foreach(range(1, 10) as $index): ?>
-			<div class="g-item"><span class="g-label"><?= $index ?></span></div>
+			<div class="g-item"><span class="i-label"><?= $index ?></span></div>
 		<? endforeach; ?>
 	</div>
 </div>
@@ -75,7 +75,7 @@ include __DIR__.'/incl/header.php';
 	
 	<div class="g g-auto">
 		<? foreach(range(1, 10) as $index): ?>
-			<div class="g-item"><span class="g-label"><?= $index ?></span></div>
+			<div class="g-item"><span class="i-label"><?= $index ?></span></div>
 		<? endforeach; ?>
 	</div>
 </div>
@@ -86,7 +86,7 @@ include __DIR__.'/incl/header.php';
 	
 	<div class="g-flush g-auto">
 		<? foreach(range(1, 30) as $index): ?>
-			<div class="g-item"><span class="g-label"><?= $index ?></span></div>
+			<div class="g-item"><span class="i-label"><?= $index ?></span></div>
 		<? endforeach; ?>
 	</div>
 </div>
@@ -97,7 +97,7 @@ include __DIR__.'/incl/header.php';
 	
 	<div class="g g-wire g-6">
 		<? foreach(range(1, 13) as $index): ?>
-			<div class="g-item"><span class="g-label"><?= $index ?></span></div>
+			<div class="g-item"><span class="i-label"><?= $index ?></span></div>
 		<? endforeach; ?>
 	</div>
 </div>
@@ -113,8 +113,8 @@ include __DIR__.'/incl/header.php';
 	</div>
 	
 	<div class="g g-layout col-8-4">
-		<div class="g-item"><span class="g-label">1</span></div>
-		<div class="g-item"><span class="g-label">2</span></div>
+		<div class="g-item"><span class="i-label">1</span></div>
+		<div class="g-item"><span class="i-label">2</span></div>
 	</div>
 </div>
 
@@ -123,17 +123,18 @@ include __DIR__.'/incl/header.php';
 	<h2>8/4 split layout with hanging elements (max-width container)</h2>
 	
 	<div class="g g-layout col-8-4">
-		<div class="g-item"><span class="g-label">Item</span></div>
-		<div class="g-item hang-r hang-extended"><span class="g-label">Hanging item</span></div>
-		<div class="g-item hang-l hang-full"><span class="g-label">Hanging item</span></div>
-		<div class="g-item"><span class="g-label">Item</span></div>
+		<div class="g-item"><span class="i-label">Item</span></div>
+		<div class="g-item hang-r hang-extended"><span class="i-label">Hanging item</span></div>
+		<div class="g-item hang-l hang-full"><span class="i-label">Hanging item</span></div>
+		<div class="g-item"><span class="i-label">Item</span></div>
 	</div>
 </div>
 
 
 <div class="c c-max-width outer-padding">
+	<h2>Centered 6-column item</h2>
 	<div class="g g-layout col-6">
-		<div class="g-item"><span class="g-label">Item</span></div>
+		<div class="g-item"><span class="i-label">6-column</span></div>
 	</div>
 	
 	<div class="g g-layout">
