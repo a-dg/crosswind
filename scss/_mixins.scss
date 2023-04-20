@@ -137,6 +137,7 @@
 	$float_offset_factor: calc($float_offset_columns / $content_column_count);
 	$float_offset_percentage: truncate($float_offset_factor * -100%);
 	
+	display: block;
 	float: $direction;
 	width: calc($float_width - (gutter(x) * $float_width_factor));
 	margin-#{$opposite_direction}: gutter(x);
