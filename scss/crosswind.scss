@@ -66,26 +66,19 @@ span.g-label {
 }
 
 .g-3 {
-	grid-template: auto / repeat(1, 1fr);
-	@include b(md) {
-		grid-template-columns: repeat(3, 1fr);
-	}
+	@include grid_setup((
+		zo: 1,
+		md: 3,
+	));
 }
 
 .g-4 {
-	grid-template: auto / repeat(1, 1fr);
-	@include b(sm) {
-		grid-template-columns: repeat(2, 1fr);
-	}
-	@include b(av) {
-		grid-template-columns: repeat(3, 1fr);
-	}
-	@include b(lg) {
-		grid-template-columns: repeat(4, 1fr);
-	}
-	@include b(yl) {
-		// grid-template-columns: repeat(5, 1fr);
-	}
+	@include grid_setup((
+		zo: 1,
+		sm: 2,
+		av: 3,
+		lg: 4,
+	));
 }
 
 // TODO: any grid that has changes past the max width will either need to

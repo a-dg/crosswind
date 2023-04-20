@@ -5,6 +5,20 @@
 
 
 // /**
+//  * Define column counts
+//  * @param {map} $set
+//  */
+@mixin grid_setup($set) {
+	@each $breakpoint in map.keys($set) {
+		$column_count: map.get($set, $breakpoint);
+		@include b($breakpoint) {
+			grid-template-columns: repeat($column_count, 1fr);
+		}
+	}
+}
+
+
+// /**
 //  * Define responsive layout
 //  * 
 //  * Specify column span and offset for one item:
@@ -41,16 +55,16 @@
 				@include b($breakpoint) {
 					> :nth-child(#{$i}n) {
 						grid-column: list.nth($column_span, 2) / span list.nth($column_span, 1);
-					}
-				}
+			}
+			}
 			} @else {
-				@include b($breakpoint) {
+	@include b($breakpoint) {
 					> :nth-child(#{$i}n) {
 						grid-column: auto / span $column_span;
-					}
-				}
 			}
 		}
+	}
+}
 	}
 }
 
