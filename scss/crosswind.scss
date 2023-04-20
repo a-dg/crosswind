@@ -70,6 +70,7 @@ span.i-label {
 	display: grid;
 	gap: gutter(x);
 	margin: gutter(x) 0;
+	grid-auto-rows: minmax(120px, auto);
 }
 
 .g-3 {
@@ -92,40 +93,25 @@ span.i-label {
 // always be within a full-width container, or will have to have its responsive
 // changes past the max width suppressed when it's in a max-width container
 .g-6 {
-	grid-template: auto / repeat(1, 1fr);
-	@include b(sm) {
-		grid-template-columns: repeat(2, 1fr);
-	}
-	@include b(av) {
-		grid-template-columns: repeat(3, 1fr);
-	}
-	@include b(ch) {
-		grid-template-columns: repeat(4, 1fr);
-	}
-	@include b(lg) {
-		grid-template-columns: repeat(5, 1fr);
-	}
-	@include b(yl) {
-		grid-template-columns: repeat(6, 1fr);
-	}
+	@include grid_setup((
+		zo: 1,
+		sm: 2,
+		av: 3,
+		ch: 4,
+		lg: 5,
+		yl: 6,
+	));
 }
 
+
 .g-auto {
-	grid-template: auto / repeat(auto-fill, minmax(200px, auto));
+	grid-template-columns: repeat(auto-fill, minmax(200px, auto));
 }
 
 // TODO: consider renaming to .i or no name at all, since all children of grids
 // might be grid items (or might not, think about this)
 .g-item {
-	span.g-label {
-		display: block;
-		background: #999;
-		color: #fff;
-		font-weight: 300;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		text-align: center;
-	}
+	// display: flex; // TODO: this fucks up floating
 }
 
 
@@ -301,8 +287,29 @@ span.i-label {
 	));
 	
 	> :nth-child(2) {
-		// right: grid_element_width(3, 1, $gutter_base_x, $include_external_gutter: true);
+		// position: relative;
+		// left: grid_element_width(4, 1, $gutter_flexible_max_x, $include_external_gutter: true);
 	}
+}
+
+.col-9-3 {
+	@include layout((
+		zo: (6, 6),
+		md: (7, 5),
+		av: (8, 4),
+		ch: (9, 3),
+		// lg: (10, 2),
+	));
+}
+
+.col-10-2 {
+	@include layout((
+		zo: (6, 6),
+		md: (7, 5),
+		av: (8, 4),
+		ch: (9, 3),
+		lg: (10, 2),
+	));
 }
 
 @each $direction in (left, right) {
@@ -327,14 +334,16 @@ span.i-label {
 	background: #eee;
 }
 
+// TODO: this should probably be folded into something like .f and .f-item
 .content-at-edges {
+	background: #eee;
+	.c {
 	display: flex;
 	justify-content: space-between;
 	gap: gutter(x);
 	padding-top: gutter(y);
 	padding-bottom: gutter(y);
-	background: #eee;
-	
+	}
 	// TODO: container is not .g, so this should not be .g-item
 	.g-item {
 		flex: 0 1 160px;
