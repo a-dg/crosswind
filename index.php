@@ -162,10 +162,12 @@ include __DIR__.'/incl/header.php';
 
 <div class="c c-full-width">
 	<h2>Clinging to edges (full-width container)</h2>
-	<div class="content-at-edges">
+	<div class="bg">
 		<div class="c c-full-width outer-padding">
-			<div class="g-item"><span class="i-label">1</span></div>
-			<div class="g-item"><span class="i-label">2</span></div>
+			<div class="f">
+				<div class="f-item"><span class="i-label">1</span></div>
+				<div class="f-item"><span class="i-label">2</span></div>
+			</div>
 		</div>
 	</div>
 </div>
@@ -173,10 +175,12 @@ include __DIR__.'/incl/header.php';
 
 <div class="c c-full-width">
 	<h2>Clinging to edges (max-width container)</h2>
-	<div class="content-at-edges">
+	<div class="bg">
 		<div class="c c-max-width outer-padding">
-			<div class="g-item"><span class="i-label">1</span></div>
-			<div class="g-item"><span class="i-label">2</span></div>
+			<div class="f">
+				<div class="f-item"><span class="i-label">1</span></div>
+				<div class="f-item"><span class="i-label">2</span></div>
+			</div>
 		</div>
 	</div>
 </div>

@@ -82,10 +82,10 @@ span.i-label {
 
 .g-4 {
 	@include grid_setup((
-		zo: 1,
-		sm: 2,
-		av: 3,
-		lg: 4,
+	zo: 1,
+	sm: 2,
+	av: 3,
+	lg: 4,
 	));
 }
 
@@ -248,8 +248,8 @@ span.i-label {
 		background: none;
 		color: #000;
 	}
-}
-
+		}
+		
 
 
 .g-layout {
@@ -343,20 +343,15 @@ span.i-label {
 	background: #eee;
 }
 
-// TODO: this should probably be folded into something like .f and .f-item
-.content-at-edges {
-	background: #eee;
-	.c {
-		display: flex;
-		justify-content: space-between;
-		gap: gutter(x);
-		padding-top: gutter(y);
-		padding-bottom: gutter(y);
-	}
-	// TODO: container is not .g, so this should not be .g-item
-	.g-item {
-		flex: 0 1 160px;
-	}
+.f {
+	display: flex;
+	justify-content: space-between;
+	gap: gutter(x);
+	padding-top: gutter(y);
+	padding-bottom: gutter(y);
+}
+.f-item {
+	flex: 0 1 160px;
 }
 
 
