@@ -80,13 +80,14 @@ span.i-label {
 	));
 }
 
-.g-4 {
-	@include grid_setup((
+$grid_setup_4: (
 	zo: 1,
 	sm: 2,
 	av: 3,
 	lg: 4,
-	));
+);
+.g-4 {
+	@include grid_setup($grid_setup_4);
 }
 
 // TODO: any grid that has changes past the max width will either need to
@@ -203,14 +204,6 @@ span.i-label {
 	overflow: hidden;
 	border-top: $flush_border_width solid $flush_border_color;
 	
-	.c-max-width & {
-		// TODO: this shouldn't really be true, because we should be able to use a
-		// flush grid within a container, and have its borders line up nicely
-		// TODO: change this to style flush grid without borders on sides when in
-		// a full-width container, but with borders when in a max-width container
-		@include warning('.g-flush may not be used within .c-max-width, as its container must be allowed to use the full width of the viewport');
-	}
-	
 	.g-item {
 		margin: ($flush_border_width * -1) ($flush_border_width * -1) 0 0;
 		border: $flush_border_width solid $flush_border_color;
@@ -248,8 +241,27 @@ span.i-label {
 		background: none;
 		color: #000;
 	}
+	
+	.c-max-width & {
+		// @include warning('.g-flush may not be used within .c-max-width, as its container must be allowed to use the full width of the viewport');
+		margin-left: 0;
+		
+		&.g-4 {
+			$grid_setup_keys: map.keys($grid_setup_4);
+			@each $breakpoint in $grid_setup_keys {
+				$next_smallest_breakpoint: find_next_smallest_breakpoint($grid_setup_keys, $breakpoint);
+				.g-item {
+					@include b('>< #{$breakpoint} #{$next_smallest_breakpoint}') {
+						&:nth-child(#{map.get($grid_setup_4, $breakpoint)}n) {
+							margin-right: 0;
+						}
+					}
+				}
+			}
 		}
 		
+	}
+}
 
 
 .g-layout {
@@ -267,6 +279,16 @@ span.i-label {
 		}
 	}
 }
+
+// TODO: refactor maps, instead of map.keys()
+// @each $name, $glyph in $icons {
+//   .icon-#{$name}:before {
+//     display: inline-block;
+//     font-family: "Icon Font";
+//     content: $glyph;
+//   }
+// }
+
 
 .crazy {
 	@include layout((

@@ -108,6 +108,17 @@ include __DIR__.'/incl/header.php';
 
 
 <div class="c c-max-width outer-padding">
+	<h2>Flush grid (max-width container)</h2>
+	
+	<div class="g-flush g-4">
+		<? foreach(range(1, 30) as $index): ?>
+			<div class="g-item"><span class="i-label"><?= $index ?></span></div>
+		<? endforeach; ?>
+	</div>
+</div>
+
+
+<div class="c c-max-width outer-padding">
 	<h2>Wire grid (max-width container)</h2>
 	
 	<div class="g g-wire g-6">
