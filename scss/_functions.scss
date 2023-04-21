@@ -195,7 +195,48 @@
 
 
 // /**
-//  * Split list
+//  * Find next smallest breakpoint for range
+//  * 
+//  * Start with a breakpoint in a subset of breakpoints, find the next
+//  * breakpoint in the subset, then find next smallest breakpoint in all
+//  * breakpoints. This is useful for creating a media query where you don't
+//  * want to define unique (and perhaps redundant) parameters for every
+//  * single breakpoint.
+//  * 
+//  * For example, if complex grid styles are too tedious to override
+//  * using ">=" media queries, it's better to use "=" media queries. However,
+//  * all parameters for the grid must be explicitly defined for every
+//  * breakpoint, even if they don't change at every breakpoint, because they
+//  * won't be inherited from smaller breakpoints. With this function, it's
+//  * possible to define only non-redundant parameters, and create range
+//  * breakpoints (using the "><" operator). This simplifies configuration and
+//  * reduces the number of media queries required.
+//  * 
+//  * Example:
+//  * - All breakpoints: sm, md, lg, xl, xxl
+//  * - Subset: sm, xl, xxl
+//  * - Next smallest breakpoint for "sm" in subset: lg (one down from xl)
+//  * 
+//  * @param {list} $breakpoint_subset_keys
+//  * @param {string} $breakpoint
+//  * @return {string}
+//  */
+@function find_next_smallest_breakpoint($breakpoint_subset_keys, $breakpoint) {
+	$all_breakpoint_keys: map.keys($breakpoints);
+	
+	$current_setup_index: list.index($breakpoint_subset_keys, $breakpoint);
+	$next_setup_index: math.min(($current_setup_index + 1), list.length($breakpoint_subset_keys));
+	$next_setup_breakpoint: list.nth($breakpoint_subset_keys, $next_setup_index);
+	
+	$next_all_index: list.index($all_breakpoint_keys, $next_setup_breakpoint);
+	$next_smallest_index: math.max(1, $next_all_index - 1);
+	$next_smallest_breakpoint: list.nth($all_breakpoint_keys, $next_smallest_index);
+	@return $next_smallest_breakpoint;
+}
+
+
+// /**
+//  * Split list at first occurrence of delimiter
 //  * @param {list} $input
 //  * @param {string} $delimiter
 //  * @return {map}
