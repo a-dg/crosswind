@@ -10,8 +10,7 @@
 //  * @param {map} $set
 //  */
 @mixin grid_setup($set) {
-	@each $breakpoint in map.keys($set) {
-		$column_count: map.get($set, $breakpoint);
+	@each $breakpoint, $column_count in $set {
 		@include b($breakpoint) {
 			grid-template-columns: repeat($column_count, 1fr);
 		}
@@ -69,8 +68,7 @@
 //  * @param {boolean} $repeat
 //  */
 @mixin layout($set, $repeat: true) {
-	@each $breakpoint in map.keys($set) {
-		$elements: map.get($set, $breakpoint);
+	@each $breakpoint, $elements in $set {
 		@if
 			meta.type_of($elements) != list
 			or list.separator($elements) != comma
@@ -93,6 +91,13 @@
 				$row: map.get($split_column_row, b);
 				
 				// TODO: consider using selector like .i, instead of * and :nth-child
+				
+				// TODO: if repeat and all elements have the same config, only spit out
+				// the rules once
+				// Example: sm: (6, 6, 6) => sm: (6)
+				
+				// TODO: allow defining full-width element without specifying column
+				// count, example: sm: (x, 4) or maybe sm: (0, 4)
 				@if $index == 1 and $repeat {
 					> * {
 						@include grid_plot($column, $row, $order);

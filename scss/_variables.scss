@@ -40,9 +40,8 @@ $gutter_stepped_scale: (
 	--gutter-outer: #{$gutter_base_outer};
 	
 	@if $gutter_type == stepped {
-		@each $breakpoint in map.keys($gutter_stepped_scale) {
+		@each $breakpoint, $scale in $gutter_stepped_scale {
 			@include b($breakpoint) {
-				$scale: map.get($gutter_stepped_scale, $breakpoint);
 				--gutter-x: #{round_four($gutter_base_x * $scale)};
 				--gutter-y: #{round_four($gutter_base_y * $scale)};
 				--gutter-outer: #{round_four($gutter_base_outer * $scale)};

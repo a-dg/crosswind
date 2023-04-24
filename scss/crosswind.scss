@@ -280,15 +280,6 @@ $grid_setup_4: (
 	}
 }
 
-// TODO: refactor maps, instead of map.keys()
-// @each $name, $glyph in $icons {
-//   .icon-#{$name}:before {
-//     display: inline-block;
-//     font-family: "Icon Font";
-//     content: $glyph;
-//   }
-// }
-
 
 .crazy {
 	@include layout((
