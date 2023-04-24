@@ -76,7 +76,14 @@
 			$elements: ($elements,);
 		}
 		
-		@include b($breakpoint) {
+		// Use next-smallest breakpoint to avoid creating over-zealous item styles
+		// that are difficult to override at larger breakpoints
+		$next_smallest_breakpoint: find_next_smallest_breakpoint(
+			map.keys($set), $breakpoint
+		);
+		
+		// @include b($breakpoint) {
+		@include b('>< #{$breakpoint} #{$next_smallest_breakpoint}') {
 			@for $index from 1 through list.length($elements) {
 				$list: list.nth($elements, $index);
 				
