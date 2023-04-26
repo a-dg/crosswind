@@ -4,6 +4,30 @@ include __DIR__.'/incl/header.php';
 ?>
 
 
+
+<div class="c c-max-width outer-padding">
+	<h2>8/4 split layout with one outlier (max-width container)</h2>
+	
+	<div class="g g-layout col-8-4 outlier">
+		<div class="g-item"><span class="i-label">1</span></div>
+		<div class="g-item"><span class="i-label">1</span></div>
+		<div class="g-item"><span class="i-label">1</span></div>
+		<div class="g-item"><span class="i-label">1</span></div>
+		<div class="g-item"><span class="i-label">outlier</span></div>
+		<div class="g-item bogus"></div>
+		<div class="g-item"><span class="i-label">1</span></div>
+		<div class="g-item"><span class="i-label">1</span></div>
+		<div class="g-item"><span class="i-label">1</span></div>
+		<div class="g-item"><span class="i-label">1</span></div>
+		<!--
+		<? foreach (range(1, 9) as $index): ?>
+			<div class="g-item"><span class="i-label"><?= $index ?></span></div>
+		<? endforeach; ?>
+		-->
+	</div>
+</div>
+
+
 <div class="c c-max-width outer-padding">
 	<div class="g g-layout">
 		<? foreach (range(1, 12) as $index): ?>

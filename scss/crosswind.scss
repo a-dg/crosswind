@@ -314,6 +314,18 @@ $grid_setup_4: (
 		// position: relative;
 		// left: grid_element_width(4, 1, $gutter_flexible_max_x, $include_external_gutter: true);
 	}
+	
+	&.outlier {
+		:nth-child(5) {
+			@include layout((
+				zo: 6,
+				md: 12,
+			), $self: true);
+		}
+	}
+	.bogus {
+		display: none;
+	}
 }
 
 .col-9-3 {

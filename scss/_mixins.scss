@@ -66,8 +66,9 @@
 //  * 
 //  * @param {map} $set
 //  * @param {boolean} $repeat
+//  * @param {boolean} $self
 //  */
-@mixin layout($set, $repeat: true) {
+@mixin layout($set, $repeat: true, $self: false) {
 	@each $breakpoint, $elements in $set {
 		@if
 			meta.type_of($elements) != list
@@ -105,13 +106,18 @@
 				
 				// TODO: allow defining full-width element without specifying column
 				// count, example: sm: (x, 4) or maybe sm: (0, 4)
-				@if $index == 1 and $repeat {
-					> * {
-						@include grid_plot($column, $row, $order);
-					}
+				@if $self {
+					// TODO: is there a better way to do this?
+					@include grid_plot($column, $row, $order);
 				} @else {
-					> :nth-child(#{$index}#{if($repeat, n, '')}) {
-						@include grid_plot($column, $row, $order);
+					@if $index == 1 and $repeat {
+						> * {
+							@include grid_plot($column, $row, $order);
+						}
+					} @else {
+						> :nth-child(#{$index}#{if($repeat, n, '')}) {
+							@include grid_plot($column, $row, $order);
+						}
 					}
 				}
 			}
