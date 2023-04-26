@@ -225,11 +225,14 @@
 @function find_next_smallest_breakpoint($breakpoint_subset_keys, $breakpoint) {
 	$all_breakpoint_keys: map.keys($breakpoints);
 	
-	$current_setup_index: list.index($breakpoint_subset_keys, $breakpoint);
-	$next_setup_index: math.min(($current_setup_index + 1), list.length($breakpoint_subset_keys));
-	$next_setup_breakpoint: list.nth($breakpoint_subset_keys, $next_setup_index);
+	$current_subset_index: list.index($breakpoint_subset_keys, $breakpoint);
+	$next_subset_index: math.min(($current_subset_index + 1), list.length($breakpoint_subset_keys));
+	$next_subset_breakpoint: list.nth($breakpoint_subset_keys, $next_subset_index);
+	@if $next_subset_breakpoint == $breakpoint {
+		@return list.nth($all_breakpoint_keys, list.length($all_breakpoint_keys));
+	}
 	
-	$next_all_index: list.index($all_breakpoint_keys, $next_setup_breakpoint);
+	$next_all_index: list.index($all_breakpoint_keys, $next_subset_breakpoint);
 	$next_smallest_index: math.max(1, $next_all_index - 1);
 	$next_smallest_breakpoint: list.nth($all_breakpoint_keys, $next_smallest_index);
 	@return $next_smallest_breakpoint;
