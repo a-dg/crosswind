@@ -8,6 +8,9 @@ $gutter_type: fixed;
 // $gutter_type: stepped;
 // $gutter_type: flexible;
 
+$max_width_type: stepped;
+// $max_width_type: flexible;
+
 @import 'breakbeat';
 @import 'functions';
 @import 'mixins';
@@ -61,7 +64,15 @@ span.i-label {
 }
 
 .c-max-width {
-	max-width: $content_max_width;
+	@if $max_width_type != stepped {
+		max-width: $content_max_width;
+	} @else {
+		@each $breakpoint, $width in $breakpoints {
+			@include b($breakpoint) {
+				max-width: ($width - 100px);
+			}
+		}
+	}
 }
 .outer-padding {
 	padding-left: gutter(outer);

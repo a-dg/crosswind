@@ -12,6 +12,8 @@ $breakpoints: (
 	yl: 1536px,
 );
 
+// Max width includes outer gutter, therefore content in a max-width container
+// appears to be narrower than the nominal max-width
 $content_max_width: map.get($breakpoints, lg);
 $content_max_width_extended: map.get($breakpoints, xl);
 
