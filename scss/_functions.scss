@@ -7,12 +7,13 @@
 
 // /**
 //  * Get gutter width
-//  * @param {string} $type
+//  * @param {string} $property: x, y, outer
 //  * @param {boolean} $invert
+//  * @param {map} $gutter_set
 //  * @return {number/string}
 //  */
-@function gutter($type, $invert: false) {
-	$gutter_value: map.get($gutter, $type);
+@function gutter($property, $invert: false, $gutter_set: $gutter) {
+	$gutter_value: map.get($gutter_set, $property);
 	@if meta.type_of($gutter_value) != list {
 		@return if($invert, calc($gutter_value * -1), $gutter_value);
 	}

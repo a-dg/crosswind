@@ -4,7 +4,9 @@
 @use 'sass:map';
 @use 'sass:meta';
 
-$gutter_type: flexible;
+$gutter_type: fixed;
+// $gutter_type: stepped;
+// $gutter_type: flexible;
 
 @import 'breakbeat';
 @import 'functions';
