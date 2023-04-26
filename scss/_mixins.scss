@@ -69,6 +69,9 @@
 //  * @param {boolean} $self
 //  */
 @mixin layout($set, $repeat: true, $self: false) {
+	$delimiter_row: r;
+	$delimiter_order: o;
+	
 	@each $breakpoint, $elements in $set {
 		@if
 			meta.type_of($elements) != list
@@ -79,22 +82,25 @@
 		
 		// Use next-smallest breakpoint to avoid creating over-zealous item styles
 		// that are difficult to override at larger breakpoints
+		// TODO: this may be unnecessary for many grid styles, it may be most
+		// useful when the number of items in a row is changing and the items on
+		// ends of each row have specific styles, such as the wire grid
 		$next_smallest_breakpoint: find_next_smallest_breakpoint(
 			map.keys($set), $breakpoint
 		);
 		
-		// @include b($breakpoint) {
-		@include b('>< #{$breakpoint} #{$next_smallest_breakpoint}') {
+		@include b($breakpoint) {
+		// @include b('>< #{$breakpoint} #{$next_smallest_breakpoint}') {
 			@for $index from 1 through list.length($elements) {
 				$list: list.nth($elements, $index);
 				
 				// Split params to separate order from column and row
-				$split_column_row_order: split_list($list, o);
+				$split_column_row_order: split_list($list, $delimiter_order);
 				$column_row: map.get($split_column_row_order, a);
 				$order: map.get($split_column_row_order, b);
 				
 				// Split params to separate row from column
-				$split_column_row: split_list($column_row, r);
+				$split_column_row: split_list($column_row, $delimiter_row);
 				$column: map.get($split_column_row, a);
 				$row: map.get($split_column_row, b);
 				
@@ -126,6 +132,12 @@
 }
 
 
+// /**
+//  * Grid plot
+//  * @param {int / list} $column
+//  * @param {int / list} $row
+//  * @param {int} $order
+//  */
 @mixin grid_plot($column, $row, $order) {
 	@if $column {
 		@include grid_plot_axis(column, $column);
@@ -213,6 +225,7 @@
 	);
 	
 	// TODO: consider removing this auto calculation and making it a required parameter
+	// TODO: $grid_columns will need to be responsive
 	// Set float offset automatically when not specified, assuming the content
 	// area is centered, and we want to send the floated element all the way to
 	// the edge of the grid

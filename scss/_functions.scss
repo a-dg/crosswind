@@ -70,8 +70,12 @@
 @function gutter_extended($to_viewport_edge: true, $invert: true, $offset: 0px) {
 	$inversion: if($invert, -1, 1);
 	@if $to_viewport_edge {
-		@return calc((50vw * $inversion) - (
-			(($content_max_width / 2) - gutter_max(x) + $offset) * $inversion)
+		@return calc(
+			(50vw * $inversion)
+			- (
+				(($content_max_width / 2) - gutter_max(x) + $offset)
+				* $inversion
+			)
 		);
 	}
 	
@@ -85,6 +89,7 @@
 }
 
 
+// TODO: make this work with $grid_columns as map
 // /**
 //  * Calculate width of element within grid system
 //  * 

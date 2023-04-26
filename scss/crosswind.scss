@@ -278,10 +278,16 @@ $grid_setup_4: (
 
 
 .g-layout {
-	grid-template: auto / repeat(calc($grid_columns / 2), 1fr);
+	grid-template-columns: repeat(calc($grid_columns / 2), 1fr);
 	@include b(md) {
 		grid-template-columns: repeat($grid_columns, 1fr);
 	}
+	// TODO: should be like this when $grid_columns is a map
+	// @each $breakpoint, $columns in $grid_columns {
+	// 	@include b($breakpoint) {
+	// 		grid-template-columns: repeat($columns, 1fr);
+	// 	}
+	// }
 }
 
 .g-guide {

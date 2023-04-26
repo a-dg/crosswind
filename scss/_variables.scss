@@ -12,14 +12,20 @@ $breakpoints: (
 	yl: 1536px,
 );
 
-// Max width includes outer gutter, therefore content in a max-width container
-// appears to be narrower than the nominal max-width
+// A max-width container includes outer gutter as padding, therefore its
+// content appears to be narrower than the nominal max-width specified here
 $content_max_width: map.get($breakpoints, lg);
 $content_max_width_extended: map.get($breakpoints, xl);
 
 $grid_columns: 12;
 
-$gutter_base_x: 20px;
+// TODO: make this work
+// $grid_columns: (
+// 	zo: 6,
+// 	md: 12,
+// );
+
+$gutter_base_x: 16px;
 $gutter_base_y: 48px;
 $gutter_base_outer: 48px;
 $gutter_base_outer_extended: 240px;
