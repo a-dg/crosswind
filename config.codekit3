@@ -37,6 +37,14 @@
       "oF" : 0,
       "pg" : 0
     },
+    "\/demo.php" : {
+      "cB" : 0,
+      "ft" : 8192,
+      "hM" : 0,
+      "oA" : 0,
+      "oAP" : "\/demo.php",
+      "oF" : 0
+    },
     "\/examples\/clinging-items.png" : {
       "ft" : 32768,
       "iS" : 249139,

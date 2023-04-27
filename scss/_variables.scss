@@ -32,14 +32,10 @@ $gutter_base_outer_extended: 240px;
 
 $gutter_stepped_scale: (
 	zo: 0.5,
-	// tn: 0.5,
-	sm: 1.0,
-	// md: 1.0,
-	av: 1.25,
-	// ch: 1.25,
-	lg: 1.75,
-	// xl: 1.75,
-	// yl: 1.75,
+	sm: 1,
+	av: 2.5,
+	lg: 4,
+	yl: 6,
 );
 
 :root {
@@ -100,7 +96,7 @@ $gutter: map.get((
 	flexible: $gutter_flexible,
 ), $gutter_type);
 
-$label_margin: 3em 0 1em 0;
+$label_margin: 0 0 1em 0;
 $label_padding: 1em 0.75em 0.5em 0.75em;
 $label_border_width: 4px;
 $label_border_color: #09f;

@@ -80,7 +80,9 @@ span.i-label {
 	display: grid;
 	gap: gutter(x);
 	margin: gutter(x) 0;
-	grid-auto-rows: minmax(120px, auto);
+	&:not(.compact) {
+		grid-auto-rows: minmax(120px, auto);
+	}
 }
 
 .g-3 {
@@ -407,5 +409,285 @@ $grid_setup_4: (
 		margin-top: 0;
 		text-align: justify;
 		hyphens: auto;
+	}
+}
+
+
+
+// ============================================================================
+
+
+
+.demo-guide {
+	background: #ddd;
+	@include b('< md') {
+		&:nth-child(6) ~ & {
+			display: none;
+		}
+	}
+}
+
+.demo-grid-setup {
+	.demo-inner {
+		position: relative;
+		height: 70vh;
+	}
+	.g {
+		position: absolute;
+		left: 0;
+		top: 0;
+		width: 100%;
+		height: 100%;
+	}
+	
+	.overlay {
+		height: 50%;
+		.g-item {
+			@include layout((
+				zo: 6,
+				md: 8,
+				av: 4,
+				ch: 6,
+				lg: 3,
+			), $self: true);
+		}
+	}
+}
+
+
+.demo-columns-gutters {
+	.g {
+		// height: 12vh;
+	}
+	.gutter-fixed {
+		gap: gutter(x, $gutter_set: $gutter_fixed);
+	}
+	.gutter-stepped {
+		gap: gutter(x, $gutter_set: $gutter_stepped);
+	}
+	.gutter-flexible {
+		gap: gutter(x, $gutter_set: $gutter_flexible);
+	}
+}
+
+
+.demo-rows {
+	.demo-inner {
+		position: relative;
+		height: 70vh;
+	}
+	.g {
+		position: absolute;
+		left: 0;
+		top: 0;
+		width: 100%;
+		height: 100%;
+	}
+	
+	.guide-grid {
+		@include layout((
+			zo: (12),
+		));
+		
+		.demo-guide {
+			@include b(md) {
+				&:nth-child(4) ~ * {
+					display: none;
+				}
+			}
+		}
+	}
+	
+	.overlay {
+		// height: 50%;
+		@include layout((
+			zo: (2, 2, 4, 4 r 2, 4),
+			md: (5, 5, 3 r 3 2, 7 r 2, 7),
+			av: (6 r 1 1, 6 r 1 1, 3 r 3 2, 9 r 2 2, 9 r 1 4),
+			ch: (6, 6, 3 r 3, 6 r 3, 3 r 3),
+			// md: (8),
+			// av: (4),
+			// ch: (6),
+			// lg: (3),
+		));
+		
+		
+		.g-item {
+			.i-label {
+				padding: 0;
+			}
+			&:nth-child(1) .i-label { background: #f09; }
+			&:nth-child(2) .i-label { background: #f09; }
+			&:nth-child(3) .i-label { background: #90f; }
+			&:nth-child(4) .i-label { background: #09f; }
+			&:nth-child(5) .i-label { background: #f09; }
+		}
+	}
+}
+
+
+.demo-max-width {
+	.g {
+		height: 30vh;
+	}
+}
+
+
+.demo-outer-margins {
+	.bg {
+		background: #5ec;
+	}
+	.i-label {
+		background: #09f;
+	}
+	
+	.c.empty {
+		.bg {
+			height: 200px;
+		}
+	}
+	
+	.g-basic {
+		@include layout((
+			zo: (6, 3, 3),
+			md: (12, 4, 8),
+		));
+	}
+	
+	&.outer-padding {
+		padding-left: gutter(outer);
+		padding-right: gutter(outer);
+	}
+	
+	&.gutter-outer-fixed {
+		padding-left: gutter(outer, $gutter_set: $gutter_fixed);
+		padding-right: gutter(outer, $gutter_set: $gutter_fixed);
+		.g {
+			gap: gutter(x, $gutter_set: $gutter_fixed);
+			height: 70vh;
+		}
+	}
+
+}
+
+
+.demo-flex {
+	.f {
+		flex-wrap: wrap;
+		justify-content: flex-start;
+		gap: gutter(x, $gutter_set: $gutter_fixed);
+	}
+	.f-item {
+		flex: 0 0 120px;
+		&:nth-child(3n) {
+			flex-basis: 80px;
+		}
+		&:nth-child(4n) {
+			flex-basis: 150px;
+		}
+		&:nth-child(5n) {
+			flex-basis: 200px;
+		}
+	}
+	.i-label {
+		padding: 1em 0;
+	}
+}
+
+
+.demo-reflow {
+	.i-label {
+		padding: 1em 0.5em;
+	}
+	
+	.g-11 {
+		@include grid_setup((
+			zo: 2,
+			sm: 3,
+			av: 5,
+			ch: 7,
+			lg: 9,
+			yl: 11,
+		));
+	}
+}
+
+
+.demo-into-gutter {
+	.demo-inner {
+		position: relative;
+		height: 70vh;
+	}
+	.g {
+		position: absolute;
+		left: 0;
+		top: 0;
+		width: 100%;
+		height: 100%;
+	}
+	
+	.overlay {
+		top: 10vh;
+		height: 50%;
+		@include layout((
+			zo: 6,
+		));
+		
+		.g-item {
+			&:nth-child(2) {
+				.i-label {
+					background: #5ec;
+				}
+			}
+		}
+		
+		// Left item crosses gutter
+		// .g-item {
+		// 	&:nth-child(1) {
+		// 		margin-right: gutter(x, $invert: true);
+		// 	}
+		// }
+		
+		// Meet in the middle
+		// .g-item {
+		// 	&:nth-child(1) {
+		// 		margin-right: calc(gutter(x, $invert: true) / 2);
+		// 	}
+		// 	&:nth-child(2) {
+		// 		margin-left: calc(gutter(x, $invert: true) / 2);
+		// 	}
+		// }
+		
+		&.divider {
+			.g-item {
+				&:nth-child(1) {
+					position: relative;
+					&::after {
+						$divider_width: 2px;
+						content: '';
+						position: absolute;
+						right: calc((gutter(x, $invert: true) / 2) - ($divider_width / 2));
+						top: 0;
+						width: $divider_width;
+						height: 100%;
+						background: #666;
+					}
+				}
+			}
+		}
+	}
+}
+
+
+.demo-hang {
+	.hang-r {
+		.i-label {
+			background: #90f;
+		}
+	}
+	.hang-l {
+		.i-label {
+			background: #09f;
+		}
 	}
 }
