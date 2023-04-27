@@ -1,7 +1,7 @@
 @use 'sass:map';
 
 $breakpoints: (
-	zo: 0px,
+	zo: 0,
 	tn: 384px,
 	sm: 512px,
 	md: 640px,
@@ -104,3 +104,15 @@ $label_border_color: #09f;
 $item_label_padding: 2em 1em;
 
 $color_warning: #f09;
+
+$color_white: #fff;
+$color_fog: #eee;
+$color_smoke: #ddd;
+$color_cement: #ccc;
+$color_gray: #666;
+$color_black: #000;
+
+$color_purple: #90f;
+$color_blue: #09f;
+$color_pink: #f09;
+$color_mint: #5ec;

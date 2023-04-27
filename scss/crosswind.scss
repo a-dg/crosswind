@@ -42,8 +42,8 @@ span.i-label {
 	height: 100%;
 	margin: 0;
 	padding: $item_label_padding;
-	background: #f09;
-	color: #fff;
+	background: $color_pink;
+	color: $color_white;
 	font-size: 32px;
 	text-transform: uppercase;
 	letter-spacing: 0.05em;
@@ -65,6 +65,9 @@ span.i-label {
 	
 	&.stepped-max-width {
 		@each $breakpoint, $width in $breakpoints {
+			@if $width == 0 {
+				$width: 100%;
+			}
 			@include b($breakpoint) {
 				max-width: $width;
 			}
@@ -129,14 +132,12 @@ $grid_setup_4: (
 
 
 .g-wire {
-	$border_color: #000;
+	$border_color: $color_black;
 	$border_width: 1px;
 	$content_inset: 10px;
 	display: grid;
 	gap: 0;
 	margin: 0 ($content_inset * -1) $border_width ($content_inset * -1);
-	// overflow: hidden;
-	// border-top: $border_width solid #f00;
 	.g-item {
 		margin: 0 ($border_width * -1) ($border_width * -1) 0;
 		padding: $content_inset;
@@ -209,7 +210,7 @@ $grid_setup_4: (
 
 .g-flush {
 	$flush_border_width: 2px;
-	$flush_border_color: #ccc;
+	$flush_border_color: $color_cement;
 	
 	display: grid;
 	margin: 0 0 0 ($flush_border_width * -1);
@@ -251,7 +252,7 @@ $grid_setup_4: (
 	}
 	span.i-label {
 		background: none;
-		color: #000;
+		color: $color_black;
 	}
 	
 	.c-max-width & {
@@ -290,7 +291,7 @@ $grid_setup_4: (
 }
 
 .g-guide {
-	border-bottom: 4px solid #000;
+	border-bottom: 4px solid $color_black;
 	@include b('< md') {
 		&:nth-child(6) ~ & {
 			display: none;
@@ -306,6 +307,15 @@ $grid_setup_4: (
 		md: (3, 3 r 2, 3 r 3, 3, 3, 3 r 2, 6),
 		av: (3 4 r 3, 6 r 1, 3 r 3, 6 r 2, 6 o -1, 3 4 r 1 o -2, 6 4),
 	), $repeat: false);
+	
+	.g-item {
+		&:nth-child(1) .i-label { background: $color_pink; }
+		&:nth-child(2) .i-label { background: $color_mint; }
+		&:nth-child(3) .i-label { background: $color_purple; }
+		&:nth-child(4) .i-label { background: $color_blue; }
+		&:nth-child(5) .i-label { background: $color_pink; }
+		&:nth-child(6) .i-label { background: $color_purple; }
+	}
 }
 
 .col-6 {
@@ -383,7 +393,7 @@ $grid_setup_4: (
 .bg {
 	padding-top: 30px;
 	padding-bottom: 30px;
-	background: #eee;
+	background: $color_fog;
 }
 
 .f {
@@ -414,12 +424,12 @@ $grid_setup_4: (
 
 
 
-// ============================================================================
+// =============================================================
 
 
 
 .demo-guide {
-	background: #ddd;
+	background: $color_smoke;
 	@include b('< md') {
 		&:nth-child(6) ~ & {
 			display: none;
@@ -433,14 +443,16 @@ $grid_setup_4: (
 		height: 70vh;
 	}
 	.g {
-		position: absolute;
-		left: 0;
-		top: 0;
 		width: 100%;
 		height: 100%;
+		gap: gutter(x, $gutter_set: $gutter_fixed);
 	}
 	
 	.overlay {
+		position: absolute;
+		left: 0;
+		top: 0;
+		margin: 0;
 		height: 50%;
 		.g-item {
 			@include layout((
@@ -477,9 +489,6 @@ $grid_setup_4: (
 		height: 70vh;
 	}
 	.g {
-		position: absolute;
-		left: 0;
-		top: 0;
 		width: 100%;
 		height: 100%;
 	}
@@ -499,28 +508,26 @@ $grid_setup_4: (
 	}
 	
 	.overlay {
-		// height: 50%;
+		position: absolute;
+		left: 0;
+		top: 0;
+		margin: 0;
 		@include layout((
 			zo: (2, 2, 4, 4 r 2, 4),
 			md: (5, 5, 3 r 3 2, 7 r 2, 7),
 			av: (6 r 1 1, 6 r 1 1, 3 r 3 2, 9 r 2 2, 9 r 1 4),
 			ch: (6, 6, 3 r 3, 6 r 3, 3 r 3),
-			// md: (8),
-			// av: (4),
-			// ch: (6),
-			// lg: (3),
 		));
-		
 		
 		.g-item {
 			.i-label {
 				padding: 0;
 			}
-			&:nth-child(1) .i-label { background: #f09; }
-			&:nth-child(2) .i-label { background: #f09; }
-			&:nth-child(3) .i-label { background: #90f; }
-			&:nth-child(4) .i-label { background: #09f; }
-			&:nth-child(5) .i-label { background: #f09; }
+			&:nth-child(1) .i-label { background: $color_pink; }
+			&:nth-child(2) .i-label { background: $color_pink; }
+			&:nth-child(3) .i-label { background: $color_purple; }
+			&:nth-child(4) .i-label { background: $color_blue; }
+			&:nth-child(5) .i-label { background: $color_pink; }
 		}
 	}
 }
@@ -535,10 +542,10 @@ $grid_setup_4: (
 
 .demo-outer-margins {
 	.bg {
-		background: #5ec;
+		background: $color_mint;
 	}
 	.i-label {
-		background: #09f;
+		background: $color_blue;
 	}
 	
 	.c.empty {
@@ -588,6 +595,16 @@ $grid_setup_4: (
 		&:nth-child(5n) {
 			flex-basis: 200px;
 		}
+		&:nth-child(3n) {
+			.i-label {
+				background: $color_mint;
+			}
+		}
+		&:nth-child(4n-1) {
+			.i-label {
+				background: $color_blue;
+			}
+		}
 	}
 	.i-label {
 		padding: 1em 0;
@@ -619,24 +636,25 @@ $grid_setup_4: (
 		height: 70vh;
 	}
 	.g {
-		position: absolute;
-		left: 0;
-		top: 0;
 		width: 100%;
 		height: 100%;
 	}
 	
 	.overlay {
+		position: absolute;
+		left: 0;
 		top: 10vh;
+		margin: 0;
 		height: 50%;
 		@include layout((
-			zo: 6,
+			zo: 3,
+			md: 6,
 		));
 		
 		.g-item {
 			&:nth-child(2) {
 				.i-label {
-					background: #5ec;
+					background: $color_mint;
 				}
 			}
 		}
@@ -670,7 +688,7 @@ $grid_setup_4: (
 						top: 0;
 						width: $divider_width;
 						height: 100%;
-						background: #666;
+						background: $color_gray;
 					}
 				}
 			}
@@ -682,12 +700,33 @@ $grid_setup_4: (
 .demo-hang {
 	.hang-r {
 		.i-label {
-			background: #90f;
+			background: $color_purple;
 		}
 	}
 	.hang-l {
 		.i-label {
-			background: #09f;
+			background: $color_blue;
+		}
+	}
+}
+
+
+.demo-nav {
+	display: flex;
+	justify-content: flex-end;
+	gap: 20px;
+	a {
+		padding: 0.25em 0.75em 0.35em 0.75em;
+		border: 1px solid $color_black;
+		color: $color_black;
+		font-size: 20px;
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
+		text-decoration: none;
+		&:hover {
+			border-color: $color_blue;
+			background: $color_blue;
+			color: $color_white;
 		}
 	}
 }
