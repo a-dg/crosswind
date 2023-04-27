@@ -24,7 +24,7 @@ $max_width_type: flexible;
 
 body {
 	margin: 0;
-	padding: 48px 0;
+	padding: 0;
 	font-size: 24px;
 }
 
@@ -32,7 +32,6 @@ h2 {
 	margin: $label_margin;
 	padding: $label_padding;
 	border-bottom: $label_border_width solid $label_border_color;
-	// background: #eee;
 	font-weight: 400;
 	font-size: 24px;
 	text-align: center;
@@ -43,11 +42,9 @@ span.i-label {
 	height: 100%;
 	margin: 0;
 	padding: $item_label_padding;
-	// border: 1px solid #09f;
-	// border-width: 0 $label_border_width;
-	background: #999;
+	background: #f09;
 	color: #fff;
-	font-weight: 300;
+	font-size: 32px;
 	text-transform: uppercase;
 	letter-spacing: 0.05em;
 	text-align: center;
