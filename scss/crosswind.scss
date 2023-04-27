@@ -4,12 +4,12 @@
 @use 'sass:map';
 @use 'sass:meta';
 
-$gutter_type: fixed;
+// $gutter_type: fixed;
 // $gutter_type: stepped;
-// $gutter_type: flexible;
+$gutter_type: flexible;
 
-$max_width_type: stepped;
-// $max_width_type: flexible;
+// $max_width_type: stepped;
+$max_width_type: flexible;
 
 @import 'breakbeat';
 @import 'functions';
@@ -64,12 +64,12 @@ span.i-label {
 }
 
 .c-max-width {
-	@if $max_width_type != stepped {
-		max-width: $content_max_width;
-	} @else {
+	max-width: $content_max_width;
+	
+	&.stepped-max-width {
 		@each $breakpoint, $width in $breakpoints {
 			@include b($breakpoint) {
-				max-width: ($width - 100px);
+				max-width: $width;
 			}
 		}
 	}
