@@ -4,26 +4,25 @@ include __DIR__.'/incl/header.php';
 ?>
 
 
-
-<div class="c c-max-width outer-padding">
+<div class="c c-full-width outer-padding">
 	<h2>8/4 split layout with one outlier (max-width container)</h2>
 	
-	<div class="g g-layout col-8-4 outlier">
-		<div class="g-item"><span class="i-label">1</span></div>
-		<div class="g-item"><span class="i-label">1</span></div>
-		<div class="g-item"><span class="i-label">1</span></div>
-		<div class="g-item"><span class="i-label">1</span></div>
-		<div class="g-item"><span class="i-label">outlier</span></div>
-		<div class="g-item bogus"></div>
-		<div class="g-item"><span class="i-label">1</span></div>
-		<div class="g-item"><span class="i-label">1</span></div>
-		<div class="g-item"><span class="i-label">1</span></div>
-		<div class="g-item"><span class="i-label">1</span></div>
-		<!--
-		<? foreach (range(1, 9) as $index): ?>
-			<div class="g-item"><span class="i-label"><?= $index ?></span></div>
+	<div class="g g-layout">
+		<? foreach (range(1, 12) as $index): ?>
+			<div class="g-item g-guide"></div>
 		<? endforeach; ?>
-		-->
+	</div>
+	
+	<div class="g g-layout col-8-4-custom">
+		<div class="g-item"><span class="i-label">1</span></div>
+		<div class="g-item"><span class="i-label">2</span></div>
+		<div class="g-item"><span class="i-label">3</span></div>
+		<div class="g-item"><span class="i-label">4</span></div>
+		<div class="g-item outlier"><span class="i-label">outlier</span></div>
+		<div class="g-item"><span class="i-label">5</span></div>
+		<div class="g-item"><span class="i-label">6</span></div>
+		<div class="g-item"><span class="i-label">7</span></div>
+		<div class="g-item"><span class="i-label">8</span></div>
 	</div>
 </div>
 

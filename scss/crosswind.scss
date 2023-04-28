@@ -344,6 +344,29 @@ $grid_setup_4: (
 	));
 }
 
+.col-8-4-custom {
+	
+	// TODO: can't use this until grid_element_width() supports clamp
+	@if $gutter_type == fixed {
+		grid-template-columns: grid_element_width(8, 12) auto;
+	}
+	
+	.g-item {
+		&:nth-child(2n) {
+			.i-label {
+				background: $color_blue;
+			}
+		}
+		
+		&.outlier {
+			// full width
+			@include layout((
+				zo: 2,
+			), $self: true);
+		}
+	}
+}
+
 .col-8-4 {
 	@include layout((
 		zo: (6, 6),
