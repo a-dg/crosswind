@@ -316,6 +316,25 @@ $grid_setup_4: (
 	}
 }
 
+
+.silly {
+	@include layout((
+		zo: (2, 2, 4, 4 r 2, 4),
+		md: (4, 4, 2 r 3 2, 6 r 2 2, 4),
+		av: (-1, 4, 3 r 2 2, 9 r 2 2, 4 o -1),
+		ch: (6, 6, 3 r 3, 6 r 3, 3 r 3),
+	));
+	
+	.g-item {
+		&:nth-child(1) .i-label { background: $color_pink; }
+		&:nth-child(2) .i-label { background: $color_pink; }
+		&:nth-child(3) .i-label { background: $color_purple; }
+		&:nth-child(4) .i-label { background: $color_blue; }
+		&:nth-child(5) .i-label { background: $color_pink; }
+	}
+}
+
+
 .col-6 {
 	@include layout((
 		zo: 6,

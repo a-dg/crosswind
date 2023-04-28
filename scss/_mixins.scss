@@ -24,6 +24,8 @@
 //  * For any one item, the parameters can be any combination of:
 //  * 6,     // 6 columns wide
 //  * 8 3,   // 8 columns wide, starting on column 3
+//  * -1,    // Full-width (same as -1 1)
+//  * -2 3,  // Start on column 3, end on the second column from the end
 //  * r 2,   // 2 rows tall
 //  * r 1 4, // 1 row tall, starting on row 4
 //  * o -2,  // order -2
@@ -157,15 +159,21 @@
 //  * @param {int / list} $params
 //  */
 @mixin grid_plot_axis($type, $params) {
-	$has_start: (
+	@if 
 		meta.type_of($params) == list
-		and list.length($params) > 1
-	);
+		and list.length($params) == 1
+	{
+		$params: list.nth($params, 1);
+	}
 	
+	$has_start: meta.type_of($params) == list;
 	@if $has_start {
-		grid-#{$type}: list.nth($params, 2) / span list.nth($params, 1);
+		$span: if(list.nth($params, 1) > 0, span, unquote(''));
+		grid-#{$type}: list.nth($params, 2) / $span list.nth($params, 1);
 	} @else {
-		grid-#{$type}: auto / span $params;
+		$start: if($params > 0, auto, 1);
+		$span: if($params > 0, span, unquote(''));
+		grid-#{$type}: $start / $span $params;
 	}
 }
 

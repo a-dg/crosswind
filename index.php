@@ -29,9 +29,11 @@ include __DIR__.'/incl/header.php';
 
 
 <div class="c c-max-width outer-padding">
-	<div class="g g-layout">
-		<? foreach (range(1, 12) as $index): ?>
-			<div class="g-item g-guide"></div>
+	<h2>Rows</h2>
+	
+	<div class="g g-layout silly">
+		<? foreach (range(1, 5) as $index): ?>
+			<div class="g-item"><span class="i-label"><?= $index ?></span></div>
 		<? endforeach; ?>
 	</div>
 </div>
