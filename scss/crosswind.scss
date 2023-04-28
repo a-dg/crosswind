@@ -84,6 +84,16 @@ span.i-label {
 	gap: gutter(x);
 	margin: gutter(x) 0;
 	grid-auto-rows: minmax(120px, auto);
+	
+	.gutter-fixed {
+		gap: gutter(x, $gutter_set: $gutter_fixed);
+	}
+	.gutter-stepped {
+		gap: gutter(x, $gutter_set: $gutter_stepped);
+	}
+	.gutter-flexible {
+		gap: gutter(x, $gutter_set: $gutter_flexible);
+	}
 }
 
 .g-3 {
