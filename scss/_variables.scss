@@ -55,10 +55,14 @@ $gutter_stepped_scale: (
 	}
 }
 
+// TODO: what is the advantage of using CSS variables?
 $gutter_fixed: (
-	x: var(--gutter-x),
-	y: var(--gutter-y),
-	outer: var(--gutter-outer),
+	x: $gutter_base_x,
+	y: $gutter_base_y,
+	outer: $gutter_base_outer,
+	// x: var(--gutter-x),
+	// y: var(--gutter-y),
+	// outer: var(--gutter-outer),
 );
 
 $gutter_stepped: (
