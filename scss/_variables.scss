@@ -45,6 +45,7 @@ $gutter_stepped_scale: (
 	--gutter-stepped-x: #{$gutter_base_x};
 	--gutter-stepped-y: #{$gutter_base_y};
 	--gutter-stepped-outer: #{$gutter_base_outer};
+	--content-width: 0;
 	
 	@each $breakpoint, $scale in $gutter_stepped_scale {
 		@include b($breakpoint) {

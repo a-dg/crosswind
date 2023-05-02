@@ -170,10 +170,16 @@
 	@if $has_start {
 		$span: if(list.nth($params, 1) > 0, span, unquote(''));
 		grid-#{$type}: list.nth($params, 2) / $span list.nth($params, 1);
+		@if $type == column {
+			--content-width: #{list.nth($params, 1)};
+		}
 	} @else {
 		$start: if($params > 0, auto, 1);
 		$span: if($params > 0, span, unquote(''));
 		grid-#{$type}: $start / $span $params;
+		@if $type == column {
+			--content-width: #{$params};
+		}
 	}
 }
 
@@ -201,17 +207,21 @@
 
 // /**
 //  * Float element within grid
+//  * - Explicit container width
+//  * - Optionally implicit float offset
+//  * 
 //  * @param {string} $direction
-//  * @param {int} $container_column_count
-//  * @param {int} $float_column_count
-//  * @param {int} $float_offset_columns
+//  * @param {int} $in ($container_column_count): Number of columns occupied
+//  *   by containing element
+//  * @param {int} $width ($float_column_count): Width of floated element
+//  * @param {int} $offset ($float_offset_columns): Positive integer, -1 = auto
 //  */
-@mixin grid_float(
-	$direction,
-	$container_column_count,
-	$float_column_count,
-	$float_offset_columns: -1
-) {
+@mixin grid_float($direction, $in, $width, $offset: -1) {
+	$opposite_direction: if($direction == right, left, right);
+	$container_column_count: $in;
+	$float_column_count: $width;
+	$float_offset_columns: $offset;
+	
 	// TODO: add support for responsive params
 	// $container_column_count: (
 	// 	md: 8,
@@ -224,7 +234,6 @@
 	
 	// TODO: $float_offset_columns doesn't really make sense, looks like it might have an off by one error
 	
-	$opposite_direction: if($direction == right, left, right);
 	
 	// Calculate width of floated element
 	$float_width: truncate(
@@ -248,6 +257,45 @@
 	// What percentage of the content area width is the float offset?
 	$float_offset_factor: calc($float_offset_columns / $container_column_count);
 	$float_offset_percentage: truncate($float_offset_factor * -100%);
+	
+	// TODO: make it work with clamp values for gutter
+	display: block;
+	float: $direction;
+	width: calc($float_width - (gutter(x) * $float_width_factor));
+	margin-#{$opposite_direction}: gutter(x);
+	
+	// TODO: margin-#{direction} is unneccessary for 12-column container
+	margin-#{$direction}: calc($float_offset_percentage - (gutter(x) * truncate($float_offset_factor)));
+}
+
+
+// /**
+//  * Float element within grid
+//  * - Implicit container width
+//  * - Explicit float offset
+//  * 
+//  * @param {string} $direction
+//  * @param {int} $float_column_count
+//  * @param {int} $float_offset_columns: Positive integer
+//  */
+@mixin grid_float_css($direction, $width, $offset) {
+	$opposite_direction: if($direction == right, left, right);
+	$float_column_count: $width;
+	$float_offset_columns: $offset;
+	
+	// TODO: add support for responsive params
+	// $float_column_count: (
+	// 	md: 4,
+	// 	lg: 3,
+	// ),
+	
+	// Calculate width of floated element
+	$float_width: calc(($float_column_count * 100%) / var(--content-width));
+	$float_width_factor: calc(1 - ($float_column_count / var(--content-width)));
+	
+	// What percentage of the content area width is the float offset?
+	$float_offset_factor: calc($float_offset_columns / var(--content-width));
+	$float_offset_percentage: calc(($float_offset_columns * -100%) / var(--content-width));
 	
 	// TODO: make it work with clamp values for gutter
 	display: block;
