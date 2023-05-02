@@ -222,7 +222,7 @@
 	// 	lg: 3,
 	// ),
 	
-	// TODO: $float_offset_columns doesn't really make sense
+	// TODO: $float_offset_columns doesn't really make sense, looks like it might have an off by one error
 	
 	$opposite_direction: if($direction == right, left, right);
 	

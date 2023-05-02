@@ -52,6 +52,12 @@ include __DIR__.'/incl/header.php';
 <div class="c c-max-width outer-padding">
 	<h2>Floating item outside of grid</h2>
 	
+	<div class="g g-layout">
+		<? foreach (range(1, 12) as $index): ?>
+			<div class="g-item g-guide"></div>
+		<? endforeach; ?>
+	</div>
+	
 	<div class="g g-layout col-6">
 		<div class="g-item">
 			<div class="g-float">

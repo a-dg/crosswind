@@ -494,17 +494,34 @@ $grid_setup_4: (
 
 
 .g-float {
-	@include grid_float(
-		$direction: right,
-		$container_column_count: 4,
-		$float_column_count: 5
-	);
 	
-	.g-item {
-		@include layout((
-			zo: 4,
-			md: 4,
-		), $self: true);
+	.col-6 & {
+		@include grid_float(
+			$direction: left,
+			$container_column_count: 6,
+			$float_column_count: 5
+		);
+		.g-item {
+			// @include layout((
+			// 	zo: 4,
+			// 	md: 4,
+			// ), $self: true);
+		}
+	}
+	
+	.col-4-left & {
+		@include grid_float(
+			$direction: right,
+			$container_column_count: 4,
+			$float_column_count: 3,
+			$float_offset_columns: 3
+		);
+		.g-item {
+			// @include layout((
+			// 	zo: 4,
+			// 	md: 4,
+			// ), $self: true);
+		}
 	}
 	
 	+ p {
