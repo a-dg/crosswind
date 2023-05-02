@@ -83,7 +83,7 @@ span.i-label {
 	display: grid;
 	gap: gutter(x);
 	margin: gutter(x) 0;
-	grid-auto-rows: minmax(120px, auto);
+	// grid-auto-rows: minmax(120px, auto);
 	
 	.gutter-fixed {
 		gap: gutter(x, $gutter_set: $gutter_fixed);
@@ -345,6 +345,12 @@ $grid_setup_4: (
 }
 
 
+.col-4-left {
+	@include layout((
+		zo: 4,
+	));
+}
+
 .col-6 {
 	@include layout((
 		zo: 6,
@@ -355,11 +361,7 @@ $grid_setup_4: (
 }
 
 .col-8-4-custom {
-	
-	// TODO: can't use this until grid_element_width() supports clamp
-	@if $gutter_type == fixed {
-		grid-template-columns: grid_element_width(8, 12) auto;
-	}
+	// grid-template-columns: grid_element_width(8, 12) auto;
 	
 	.g-item {
 		&:nth-child(2n) {
@@ -377,6 +379,38 @@ $grid_setup_4: (
 	}
 }
 
+.col-6-2-4 {
+	@include layout((
+		zo: (6, 6),
+		md: (7, 5),
+		av: (6, 2, 4),
+	));
+	
+	> :nth-child(1) {
+		position: relative;
+		z-index: 2;
+		left: grid_element_offset(3, 6);
+		.i-label {
+			background: $color_mint;
+			opacity: 0.9;
+		}
+	}
+	> :nth-child(2) {
+		.i-label {
+			background: $color_blue;
+		}
+		position: relative;
+		// left: grid_element_width(1, 3, $is_negative: false, $include_external_gutter: true);
+		
+		// left: grid_element_offset(-2, 2);
+
+	}
+	> :nth-child(3) {
+		position: relative;
+		// left: grid_element_offset(-1, 4);
+	}
+}
+
 .col-8-4 {
 	@include layout((
 		zo: (6, 6),
@@ -387,8 +421,9 @@ $grid_setup_4: (
 	));
 	
 	> :nth-child(2) {
+		// TODO: wtf is this, learn how to use it
 		// position: relative;
-		// left: grid_element_width(1, 4, $gutter_flexible_max_x, $include_external_gutter: true);
+		// left: grid_element_width(1, 4, $include_external_gutter: true);
 	}
 	
 	&.outlier {
@@ -461,9 +496,16 @@ $grid_setup_4: (
 .g-float {
 	@include grid_float(
 		$direction: right,
-		$content_column_count: 6,
+		$content_column_count: 4,
 		$float_column_count: 5
 	);
+	
+	.g-item {
+		@include layout((
+			zo: 4,
+			md: 4,
+		), $self: true);
+	}
 	
 	+ p {
 		margin-top: 0;
@@ -474,6 +516,9 @@ $grid_setup_4: (
 
 
 .crossing-into-gutter {
+	@include layout((
+		zo: 6,
+	));
 	
 	// Item crosses gutter to be flush with next
 	.g-item {
@@ -484,23 +529,33 @@ $grid_setup_4: (
 	
 	// Items meet in the middle of the gutter
 	.g-item {
+		$gutter_local: gutter(x, $invert: true, $as_list: true);
+		$gutter_local: operate_list($gutter_local, $multiply: 0.5);
 		&:nth-child(1) {
-			margin-right: calc(gutter(x, $invert: true) / 2);
+			margin-right: list_to_clamp($gutter_local);
 		}
 		&:nth-child(2) {
-			margin-left: calc(gutter(x, $invert: true) / 2);
+			margin-left: list_to_clamp($gutter_local);
 		}
 	}
 	
 	// Border in middle of gutter
 	.g-item {
-		&:nth-child(1) {
+		$divider_width: 2px;
+		$gutter_local: gutter(x, $invert: true, $as_list: true);
+		$gutter_local: operate_list(
+			$gutter_local,
+			$multiply: 0.5,
+			$add: ($divider_width * -0.5)
+		);
+		$gutter_local: list_to_clamp($gutter_local);
+		
+		&:nth-child(2n-1) {
 			position: relative;
 			&::after {
-				$divider_width: 2px;
 				content: '';
 				position: absolute;
-				right: calc((gutter(x, $invert: true) / 2) - ($divider_width / 2));
+				right: $gutter_local;
 				top: 0;
 				width: $divider_width;
 				height: 100%;

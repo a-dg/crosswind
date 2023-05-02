@@ -136,8 +136,8 @@
 
 // /**
 //  * Grid plot
-//  * @param {int / list} $column
-//  * @param {int / list} $row
+//  * @param {int/list} $column
+//  * @param {int/list} $row
 //  * @param {int} $order
 //  */
 @mixin grid_plot($column, $row, $order) {
@@ -156,7 +156,7 @@
 // /**
 //  * Grid plot axis
 //  * @param {string} $type (row or column)
-//  * @param {int / list} $params
+//  * @param {int/list} $params
 //  */
 @mixin grid_plot_axis($type, $params) {
 	@if 
@@ -221,6 +221,8 @@
 	// 	md: 4,
 	// 	lg: 3,
 	// ),
+	
+	// TODO: $float_offset_columns doesn't really make sense
 	
 	$opposite_direction: if($direction == right, left, right);
 	

@@ -77,7 +77,7 @@ $gutter_flexible_max_x: 48px;
 $gutter_flexible: (
 	x: (
 		$gutter_flexible_min_x,
-		#{truncate(calc($gutter_flexible_max_x / $content_max_width)) * 100vw},
+		(truncate(calc($gutter_flexible_max_x / $content_max_width)) * 100vw),
 		$gutter_flexible_max_x,
 	),
 	y: (

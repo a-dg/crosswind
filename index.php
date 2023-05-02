@@ -155,6 +155,23 @@ include __DIR__.'/incl/header.php';
 
 
 <div class="c c-max-width outer-padding">
+	<h2>6/2/4 layout with offset (max-width container)</h2>
+	
+	<div class="g g-layout">
+		<? foreach (range(1, 12) as $index): ?>
+			<div class="g-item g-guide"></div>
+		<? endforeach; ?>
+	</div>
+	
+	<div class="g g-layout col-6-2-4">
+		<div class="g-item"><span class="i-label">1</span></div>
+		<div class="g-item"><span class="i-label">2</span></div>
+		<div class="g-item"><span class="i-label">3</span></div>
+	</div>
+</div>
+
+
+<div class="c c-max-width outer-padding">
 	<h2>8/4 split layout (max-width container)</h2>
 	
 	<div class="g g-layout">

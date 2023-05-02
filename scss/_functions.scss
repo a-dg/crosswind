@@ -3,33 +3,121 @@
 @use 'sass:list';
 @use 'sass:map';
 @use 'sass:meta';
+@use 'breakbeat' as b;
 
+
+// TODO: keep clamp values separated as long as possible, so they can be used
+// individually for calculations (or figure out how to separate them)
 
 // /**
 //  * Get gutter width
 //  * @param {string} $property: x, y, outer
 //  * @param {boolean} $invert
+//  * @param {boolean} $as_list
 //  * @param {map} $gutter_set
-//  * @return {number/string}
+//  * @return {number/calculation}
 //  */
-@function gutter($property, $invert: false, $gutter_set: $gutter) {
+@function gutter($property, $invert: false, $as_list: false, $gutter_set: $gutter) {
 	$gutter_value: map.get($gutter_set, $property);
 	@if meta.type_of($gutter_value) != list {
 		@return if($invert, calc($gutter_value * -1), $gutter_value);
 	}
 	
+	@if $as_list {
+		@if not $invert {
+			@return $gutter_value;
+		}
+		
+		@return invert_clamp_list($gutter_value);
+	}
+	
 	@if not $invert {
-		@return clamp(
-			list.nth($gutter_value, 1),
-			list.nth($gutter_value, 2),
-			list.nth($gutter_value, 3)
-		);
+		@return list_to_clamp($gutter_value);
+	}
+	
+	// TODO: find all cases where performing calculations on the result of gutter()
+	// and refactor to perform calculations on individual values
+	
+	$gutter_value: invert_clamp_list($gutter_value);
+	@return list_to_clamp($gutter_value);
+}
+
+
+// /**
+//  * Invert and reverse list of arguments for clamp()
+//  * @param {list} $list
+//  * @return {list}
+//  */
+@function invert_clamp_list($list) {
+	$result: reverse_list($list);
+	@return invert_list($result);
+}
+
+
+// /**
+//  * Invert all values in list
+//  * @param {list} $list
+//  * @return {list}
+//  */
+@function invert_list($list) {
+	$separator: list.separator($list);
+	$result: ();
+	@each $value in $list {
+		$result: list.append($result, ($value * -1), $separator);
+	}
+	@return $result;
+}
+
+
+// /**
+//  * Reverse list
+//  * @link https://kittygiraudel.com/2013/08/08/advanced-sass-list-functions/
+//  * @param {list} $list
+//  * @param {boolean} $recursive
+//  * @return {list}
+//  */
+@function reverse_list($list, $recursive: false) {
+	$separator: list.separator($list);
+  $result: ();
+	
+  @for $i from (list.length($list) * -1) through -1 {
+    @if
+			$recursive
+			and meta.type_of(list.nth($list, math.abs($i))) == list
+		{
+      $result: list.append(
+				$result,
+				reverse_list(list.nth($list, math.abs($i)), $recursive),
+				$separator
+			);
+    } @else {
+      $result: list.append($result, list.nth($list, math.abs($i)), $separator);
+    }
+  }
+	
+  @return $result;
+}
+
+
+// /**
+//  * Convert three-element list to clamp(), or return first element
+//  * @param {list} $list
+//  * @return {calculation}
+//  */
+@function list_to_clamp($list) {
+	@if meta.type_of($list) != list {
+		@return $list;
+	}
+	
+	@if list.length($list) != 3 {
+		@error 'List passed to list_to_clamp() was not three elements: ' + $list;
+		@return list.nth($list, 1);
 	}
 	
 	@return clamp(
-		(list.nth($gutter_value, 3) * -1),
-		(list.nth($gutter_value, 2) * -1),
-		(list.nth($gutter_value, 1) * -1)
+		list.nth($list, 1),
+		list.nth($list, 2),
+		list.nth($list, 3)
 	);
 }
 
@@ -98,43 +186,198 @@
 //  *   1, 3, $gutter_base_x, $include_external_gutter: true
 //  * );
 //  * 
-//  * @param {int} $column_span
-//  * @param {int} $total_columns
+//  * @param {int} $column_span: Number of columns to shift
+//  * @param {int} $total_columns: Number of columns already occupied by element
 //  * @param {number} $gutter_width
 //  * @param {boolean} $is_negative
-//  * @param {boolean} $include_external_gutter
+//  * @param {boolean} $include_external_gutter: Sometimes it's necessary to
+//  *   include one more gutter in addition to the ones in between the columns
 //  * @return {type}
 //  */
 @function grid_element_width(
 	$column_span,
 	$total_columns,
-	$gutter_width: gutter(x),
+	$gutter_width: gutter(x, $as_list: true),
 	$is_negative: false,
 	$include_external_gutter: false
 ) {
-	// Sometimes it's necessary to include one more gutter in addition to the
-	// ones in between the columns
-	// $include_external_gutter: false;
 	
-	// TODO: none of this math works when clamp() or CSS variables are used
+	// TODO: none of this math works when CSS variables are used
 	
-	// Width of all gutters combined (px)
-	$total_gutter_width: calc(($total_columns - 1) * $gutter_width);
+	// TODO: values are truncated too early
+	
+	// Example gutter width:
+	// $gutter_width: 16px, 4.16vw, 48px
+	
+	// Width of all gutters combined (fixed: px; flexible: clamp(px, vw, px))
+	// $total_gutter_width: calc(($total_columns - 1) * $gutter_width);
+	$total_gutter_width: operate_list($gutter_width, $multiply: ($total_columns - 1));
+	// 176px, 45.76vw, 528px
 	
 	// Share of width occupied by spanned columns (float)
 	$multiplier: calc($column_span / $total_columns);
+	// 0.666666
 	
 	// Width remaining for spanned columns after gutters have been removed (% + px)
 	$remaining_column_space: truncate(100% * $multiplier);
-	$remaining_gutter_space: truncate(calc($total_gutter_width * $multiplier));
+	// 66.6666%
 	
-	// Width of gutters between spanned columns, plus optionally one more (px)
-	$total_gutter_space: ($gutter_width * ($column_span - if($include_external_gutter, 0, 1)));
+	$remaining_gutter_space: truncate(operate_list($total_gutter_width, $multiply: $multiplier));
+	// 117.3333px, 30.5066vw, 352px
 	
-	@return if($is_negative,
-		calc(($remaining_column_space + ($total_gutter_space - $remaining_gutter_space)) * -1),
-		calc($remaining_column_space + ($total_gutter_space - $remaining_gutter_space))
+	// Width of gutters between spanned columns, plus optionally one more
+	// (fixed: px; flexible: clamp(px, vw, px))
+	$spanned_gutter_space: operate_list(
+		$gutter_width,
+		$multiply: ($column_span - if($include_external_gutter, 0, 1))
 	);
+	// 112px, 29.12vw, 336px
+	
+	$gutter_remainder: list_to_clamp(
+		subtract_lists($remaining_gutter_space, $spanned_gutter_space)
+	);
+	
+	@if $is_negative {
+		// TODO: don't know if this works yet
+		@return calc(($remaining_column_space * -1) - $gutter_remainder);
+	}
+	
+	@return calc($remaining_column_space - $gutter_remainder);
+}
+
+
+// TODO: make this work with $offset_columns and $element_columns as map
+// /**
+//  * Calculate offset of element within grid system
+//  * @param {int} $offset_columns: Number of columns to shift
+//  * @param {int} $element_columns: Element width in columns
+//  * @param {number} $gutter_width
+//  * @return {calculation}
+//  */
+@function grid_element_offset(
+	$offset_columns,
+	$element_columns,
+	$gutter_width: gutter(x, $as_list: true)
+) {
+	$multiplier: calc($offset_columns / $element_columns);
+	$offset_percent: truncate(100% * $multiplier);
+	$offset_gutter: operate_list($gutter_width, $multiply: $multiplier);
+	
+	@if $offset_columns < 0 {
+		$offset_gutter: invert_list($offset_gutter);
+		@return calc($offset_percent - list_to_clamp($offset_gutter));
+	}
+	
+	@return calc($offset_percent + list_to_clamp($offset_gutter));
+}
+
+
+// /**
+//  * Add elements from two lists
+//  * @param {list} $a
+//  * @param {list} $b
+//  * @return {list}
+//  */
+@function add_lists($a, $b) {
+	@return combine_lists($a, $b, '+');
+}
+
+
+// /**
+//  * Subtract elements from two lists
+//  * @param {list} $a
+//  * @param {list} $b
+//  * @return {list}
+//  */
+@function subtract_lists($a, $b) {
+	@return combine_lists($a, $b, '-');
+}
+
+
+// /**
+//  * Perform calculation on two lists
+//  * @param {list} $a
+//  * @param {list} $b
+//  * @param {string} $operator
+//  * @return {list}
+//  */
+@function combine_lists($a, $b, $operator) {
+	@if
+		meta.type_of($a) != list
+		and meta.type_of($b) != list
+	{
+		@return operate($a, $b, $operator);
+	}
+	
+	@if list.length($a) != list.length($b) {
+		@error 'Lists passed to combine_lists() must be of same length';
+	}
+	
+	$separator: list.separator($a);
+	$result: ();
+	$index: 1;
+	@each $a_item in $a {
+		$b_item: list.nth($b, $index);
+		$item_result: operate($a_item, $b_item, $operator);
+		$result: list.append($result, $item_result, $separator);
+		$index: $index + 1;
+	}
+	@return $result;
+}
+
+
+// /**
+//  * Perform calculation on two values
+//  * @param {number} $a
+//  * @param {number} $b
+//  * @param {string} $operator
+//  * @return {number}
+//  */
+@function operate($a, $b, $operator) {
+	$result: 0;
+	@if $operator == '+' {
+		$result: ($a + $b);
+	} @else if $operator == '-' {
+		$result: ($a - $b);
+	} @else if $operator == '*' {
+		$result: ($a * $b);
+	} @else if $operator == '/' {
+		$result: calc($a / $b);
+	}
+	@return $result;
+}
+
+
+// /**
+//  * Peform calculation on each element in list
+//  * @param {list} $list
+//  * @param {number} $multiply
+//  * @param {number} $add
+//  * @return {list}
+//  */
+@function operate_list($list, $multiply: 1, $add: 0) {
+	@if meta.type_of($list) != list {
+		$list: ($list,);
+	}
+	
+	$separator: list.separator($list);
+	$result: ();
+	@each $value in $list {
+		$unit: math.unit($value);
+		$list_item_result: $value;
+		@if $multiply != 1 {
+			$list_item_result: ($list_item_result * $multiply);
+		}
+		@if not b.b_is_zero($add) {
+			$list_item_result: calc($list_item_result + $add);
+		}
+		$result: list.append(
+			$result,
+			$list_item_result,
+			$separator
+		);
+	}
+	@return $result;
 }
 
 
@@ -170,13 +413,25 @@
 
 // /**
 //  * Truncate decimal to specified number of places
-//  * @param {number} $value
+//  * @param {number/list} $value
 //  * @param {int} $places
 //  * @return {number}
 //  */
 @function truncate($value, $places: 4) {
+	@return $value;
+	
 	// TODO: verify that flooring does not cause elements to accidentally reflow
 	// when using negative numbers
+	
+	@if meta.type_of($value) == list {
+		$separator: list.separator($value);
+		$result: ();
+		@each $list_item in $value {
+			$result: list.append($result, truncate($list_item), $separator);
+		}
+		@return $result;
+	}
+	
 	@return calc(math.floor($value * math.pow(10, $places)) / math.pow(10, $places));
 }
 
