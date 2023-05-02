@@ -202,18 +202,18 @@
 // /**
 //  * Float element within grid
 //  * @param {string} $direction
-//  * @param {int} $content_column_count
+//  * @param {int} $container_column_count
 //  * @param {int} $float_column_count
 //  * @param {int} $float_offset_columns
 //  */
 @mixin grid_float(
 	$direction,
-	$content_column_count,
+	$container_column_count,
 	$float_column_count,
 	$float_offset_columns: -1
 ) {
 	// TODO: add support for responsive params
-	// $content_column_count: (
+	// $container_column_count: (
 	// 	md: 8,
 	// 	lg: 6,
 	// ),
@@ -228,10 +228,10 @@
 	
 	// Calculate width of floated element
 	$float_width: truncate(
-		calc(($float_column_count / $content_column_count) * 100%)
+		calc(($float_column_count / $container_column_count) * 100%)
 	);
 	$float_width_factor: truncate(
-		calc(($content_column_count - $float_column_count) / $content_column_count)
+		calc(($container_column_count - $float_column_count) / $container_column_count)
 	);
 	
 	// TODO: consider removing this auto calculation and making it a required parameter
@@ -241,14 +241,15 @@
 	// the edge of the grid
 	@if $float_offset_columns == -1 {
 		$float_offset_columns: math.floor(
-			calc(($grid_columns - $content_column_count) / 2)
+			calc(($grid_columns - $container_column_count) / 2)
 		);
 	}
 	
 	// What percentage of the content area width is the float offset?
-	$float_offset_factor: calc($float_offset_columns / $content_column_count);
+	$float_offset_factor: calc($float_offset_columns / $container_column_count);
 	$float_offset_percentage: truncate($float_offset_factor * -100%);
 	
+	// TODO: make it work with clamp values for gutter
 	display: block;
 	float: $direction;
 	width: calc($float_width - (gutter(x) * $float_width_factor));

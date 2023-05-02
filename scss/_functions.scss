@@ -35,9 +35,6 @@
 		@return list_to_clamp($gutter_value);
 	}
 	
-	// TODO: find all cases where performing calculations on the result of gutter()
-	// and refactor to perform calculations on individual values
-	
 	$gutter_value: invert_clamp_list($gutter_value);
 	@return list_to_clamp($gutter_value);
 }

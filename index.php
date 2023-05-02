@@ -51,7 +51,23 @@ include __DIR__.'/incl/header.php';
 
 <div class="c c-max-width outer-padding">
 	<h2>Floating item outside of grid</h2>
+	
 	<div class="g g-layout col-6">
+		<div class="g-item">
+			<div class="g-float">
+				<span class="i-label">Float</span>
+			</div>
+			<p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Nostrum ipsam voluptate quod. Odio expedita numquam voluptatem! Voluptatem laboriosam sequi distinctio, voluptas eaque et assumenda ab, nostrum, saepe voluptates quo autem? Est, in? Rerum consequatur totam veniam tempora dignissimos tempore odio earum in consequuntur dolores, ab quasi eum eligendi. Voluptatem nemo porro omnis!</p>
+		</div>
+	</div>
+	
+	<div class="g g-layout">
+		<? foreach (range(1, 12) as $index): ?>
+			<div class="g-item g-guide"></div>
+		<? endforeach; ?>
+	</div>
+	
+	<div class="g g-layout col-4-left">
 		<div class="g-item">
 			<div class="g-float">
 				<span class="i-label">Float</span>

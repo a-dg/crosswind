@@ -496,7 +496,7 @@ $grid_setup_4: (
 .g-float {
 	@include grid_float(
 		$direction: right,
-		$content_column_count: 4,
+		$container_column_count: 4,
 		$float_column_count: 5
 	);
 	
@@ -530,12 +530,12 @@ $grid_setup_4: (
 	// Items meet in the middle of the gutter
 	.g-item {
 		$gutter_local: gutter(x, $invert: true, $as_list: true);
-		$gutter_local: operate_list($gutter_local, $multiply: 0.5);
+		$gutter_local: list_to_clamp(operate_list($gutter_local, $multiply: 0.5));
 		&:nth-child(1) {
-			margin-right: list_to_clamp($gutter_local);
+			margin-right: $gutter_local;
 		}
 		&:nth-child(2) {
-			margin-left: list_to_clamp($gutter_local);
+			margin-left: $gutter_local;
 		}
 	}
 	
@@ -543,12 +543,11 @@ $grid_setup_4: (
 	.g-item {
 		$divider_width: 2px;
 		$gutter_local: gutter(x, $invert: true, $as_list: true);
-		$gutter_local: operate_list(
+		$gutter_local: list_to_clamp(operate_list(
 			$gutter_local,
 			$multiply: 0.5,
 			$add: ($divider_width * -0.5)
-		);
-		$gutter_local: list_to_clamp($gutter_local);
+		));
 		
 		&:nth-child(2n-1) {
 			position: relative;
