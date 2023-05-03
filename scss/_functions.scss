@@ -347,32 +347,46 @@
 
 // /**
 //  * Peform calculation on each element in list
-//  * @param {list} $list
+//  * @param {list/number} $input
 //  * @param {number} $multiply
 //  * @param {number} $add
-//  * @return {list}
+//  * @return {list/number}
 //  */
-@function operate_list($list, $multiply: 1, $add: 0) {
-	@if meta.type_of($list) != list {
-		$list: ($list,);
+@function operate_list($input, $multiply: 1, $add: 0) {
+	@if meta.type_of($input) != list {
+		$list_item_result: $input;
+		@return operate_value($input, $multiply, $add);
 	}
 	
-	$separator: list.separator($list);
+	$separator: list.separator($input);
 	$result: ();
-	@each $value in $list {
+	@each $value in $input {
 		$unit: math.unit($value);
-		$list_item_result: $value;
-		@if $multiply != 1 {
-			$list_item_result: ($list_item_result * $multiply);
-		}
-		@if not b.b_is_zero($add) {
-			$list_item_result: calc($list_item_result + $add);
-		}
+		$list_item_result: operate_value($value, $multiply, $add);
 		$result: list.append(
 			$result,
 			$list_item_result,
 			$separator
 		);
+	}
+	@return $result;
+}
+
+
+// /**
+//  * Peform calculation on value
+//  * @param {number} $input
+//  * @param {number} $multiply
+//  * @param {number} $add
+//  * @return {number}
+//  */
+@function operate_value($input, $multiply: 1, $add: 0) {
+	$result: $input;
+	@if $multiply != 1 {
+		$result: ($result * $multiply);
+	}
+	@if not b.b_is_zero($add) {
+		$result: calc($result + $add);
 	}
 	@return $result;
 }
