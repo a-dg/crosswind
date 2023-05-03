@@ -35,6 +35,7 @@ h2 {
 	font-weight: 400;
 	font-size: 24px;
 	text-align: center;
+	font-variant-ligatures: none;
 }
 span.i-label {
 	flex: 1 1 0;
@@ -74,7 +75,7 @@ span.i-label {
 		}
 	}
 }
-.outer-padding {
+.c-pad {
 	padding-left: gutter(outer);
 	padding-right: gutter(outer);
 }
@@ -132,9 +133,7 @@ $grid_setup_4: (
 	grid-template-columns: repeat(auto-fill, minmax(200px, auto));
 }
 
-// TODO: consider renaming to .i or no name at all, since all children of grids
-// might be grid items (or might not, think about this)
-.g-item {
+.i {
 	// display: flex; // TODO: this fucks up floating
 }
 
@@ -142,11 +141,11 @@ $grid_setup_4: (
 .g-wire {
 	$border_color: $color_black;
 	$border_width: 1px;
-	$content_inset: 10px;
+	$content_inset: 10px; // TODO: make sure you can do this with gutter
 	display: grid;
 	gap: 0;
 	margin: 0 ($content_inset * -1) $border_width ($content_inset * -1);
-	.g-item {
+	.i {
 		margin: 0 ($border_width * -1) ($border_width * -1) 0;
 		padding: $content_inset;
 		border: $border_width solid $border_color;
@@ -168,7 +167,7 @@ $grid_setup_4: (
 	}
 	
 	&.g-6 {
-		.g-item {
+		.i {
 			&:nth-child(6n),
 			&:nth-child(6n+1) {
 				&::before,
@@ -199,8 +198,8 @@ $grid_setup_4: (
 		}
 	}
 	
-	.outer-padding & {
-		.g-item {
+	.c-pad & {
+		.i {
 			&:nth-child(6n),
 			&:nth-child(6n+1) {
 				&::before,
@@ -225,7 +224,7 @@ $grid_setup_4: (
 	overflow: hidden;
 	border-top: $flush_border_width solid $flush_border_color;
 	
-	.g-item {
+	.i {
 		margin: ($flush_border_width * -1) ($flush_border_width * -1) 0 0;
 		border: $flush_border_width solid $flush_border_color;
 		// border-width: 1px 1px 0 0;
@@ -271,7 +270,7 @@ $grid_setup_4: (
 			$grid_setup_keys: map.keys($grid_setup_4);
 			@each $breakpoint in $grid_setup_keys {
 				$next_smallest_breakpoint: find_next_smallest_breakpoint($grid_setup_keys, $breakpoint);
-				.g-item {
+				.i {
 					@include b('>< #{$breakpoint} #{$next_smallest_breakpoint}') {
 						&:nth-child(#{map.get($grid_setup_4, $breakpoint)}n) {
 							margin-right: 0;
@@ -316,7 +315,7 @@ $grid_setup_4: (
 		av: (3 4 r 3, 6 r 1, 3 r 3, 6 r 2, 6 o -1, 3 4 r 1 o -2, 6 4),
 	), $repeat: false);
 	
-	.g-item {
+	.i {
 		&:nth-child(1) .i-label { background: $color_pink; }
 		&:nth-child(2) .i-label { background: $color_mint; }
 		&:nth-child(3) .i-label { background: $color_purple; }
@@ -335,7 +334,7 @@ $grid_setup_4: (
 		ch: (6, 6, 3 r 3, 6 r 3, 3 r 3),
 	));
 	
-	.g-item {
+	.i {
 		&:nth-child(1) .i-label { background: $color_pink; }
 		&:nth-child(2) .i-label { background: $color_pink; }
 		&:nth-child(3) .i-label { background: $color_purple; }
@@ -361,9 +360,9 @@ $grid_setup_4: (
 }
 
 .col-8-4-custom {
-	// grid-template-columns: grid_element_width(8, 12) auto;
+	grid-template-columns: grid_element_width(8, 12) auto;
 	
-	.g-item {
+	.i {
 		&:nth-child(2n) {
 			.i-label {
 				background: $color_blue;
@@ -386,16 +385,16 @@ $grid_setup_4: (
 		av: (6, 2, 4),
 	));
 	
-	> :nth-child(1) {
+	> .i:nth-child(1) {
 		position: relative;
 		z-index: 2;
-		left: grid_element_offset(3, 6);
+		left: grid_element_offset(3, 6); // TODO: 6 could be --column-width
 		.i-label {
 			background: $color_mint;
-			opacity: 0.9;
+			opacity: 0.7;
 		}
 	}
-	> :nth-child(2) {
+	> .i:nth-child(2) {
 		.i-label {
 			background: $color_blue;
 		}
@@ -405,7 +404,7 @@ $grid_setup_4: (
 		// left: grid_element_offset(-2, 2);
 
 	}
-	> :nth-child(3) {
+	> .i:nth-child(3) {
 		position: relative;
 		// left: grid_element_offset(-1, 4);
 	}
@@ -419,24 +418,6 @@ $grid_setup_4: (
 		// ch: (9, 3),
 		// lg: (10, 2),
 	));
-	
-	> :nth-child(2) {
-		// TODO: wtf is this, learn how to use it
-		// position: relative;
-		// left: grid_element_width(1, 4, $include_external_gutter: true);
-	}
-	
-	&.outlier {
-		:nth-child(5) {
-			@include layout((
-				zo: 6,
-				md: 12,
-			), $self: true);
-		}
-	}
-	.bogus {
-		display: none;
-	}
 }
 
 .col-9-3 {
@@ -496,7 +477,7 @@ $grid_setup_4: (
 .g-float {
 	.col-6 & {
 		// Implicit container width, explicit float offset
-		@include grid_float_css(
+		@include grid_float_auto_container(
 			$direction: right,
 			$width: 5,
 			$offset: 2
@@ -527,14 +508,14 @@ $grid_setup_4: (
 	));
 	
 	// Item crosses gutter to be flush with next
-	.g-item {
+	.i {
 		&:nth-child(1) {
 			margin-right: gutter(x, $invert: true);
 		}
 	}
 	
 	// Items meet in the middle of the gutter
-	.g-item {
+	.i {
 		$gutter_local: gutter(x, $invert: true, $as_list: true);
 		$gutter_local: list_to_clamp(operate_list($gutter_local, $multiply: 0.5));
 		&:nth-child(1) {
@@ -546,7 +527,7 @@ $grid_setup_4: (
 	}
 	
 	// Border in middle of gutter
-	.g-item {
+	.i {
 		$divider_width: 2px;
 		$gutter_local: gutter(x, $invert: true, $as_list: true);
 		$gutter_local: list_to_clamp(operate_list(

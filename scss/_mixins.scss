@@ -106,24 +106,34 @@
 				$column: map.get($split_column_row, a);
 				$row: map.get($split_column_row, b);
 				
-				// TODO: consider using selector like .i, instead of * and :nth-child
-				
 				// TODO: if repeat and all elements have the same config, only spit out
 				// the rules once
 				// Example: sm: (6, 6, 6) => sm: (6)
 				
-				// TODO: allow defining full-width element without specifying column
-				// count, example: sm: (x, 4) or maybe sm: (0, 4)
+				// TODO: keep track of settings from breakpoint to breakpoint, and if
+				// an element uses the same settings as the previous breakpoint, don't
+				// repeat those rules
+				// Example: (
+				//   sm: (6, 4),
+				//   md: (6, 3), => Don't repeat rules for first element
+				//   lg: (6, 3), => Don't repeat rules for first or second element
+				//   xl: (8, 2),
+				// )
+				
 				@if $self {
 					// TODO: is there a better way to do this?
 					@include grid_plot($column, $row, $order);
 				} @else {
 					@if $index == 1 and $repeat {
-						> * {
+						// TODO: could possibly see how many items there are in the
+						// definition and use that to create a selector for the first item
+						// that's more like :nth-child(2n+1), so that it doesn't apply to
+						// all items in the grid, most of which are then overridden
+						> .i {
 							@include grid_plot($column, $row, $order);
 						}
 					} @else {
-						> :nth-child(#{$index}#{if($repeat, n, '')}) {
+						> .i:nth-child(#{$index}#{if($repeat, n, '')}) {
 							@include grid_plot($column, $row, $order);
 						}
 					}
@@ -234,7 +244,6 @@
 	
 	// TODO: $float_offset_columns doesn't really make sense, looks like it might have an off by one error
 	
-	
 	// Calculate width of floated element
 	$float_width: truncate(
 		calc(($float_column_count / $container_column_count) * 100%)
@@ -276,11 +285,19 @@
 //  * - Implicit container width
 //  * - Explicit float offset
 //  * 
+//  * Advantages over grid_float():
+//  * - Don't need to know the width of the floated element's container
+//  * - Possibly less generated CSS?
+//  * 
+//  * Disdvantages:
+//  * - Must specify the float offset explicitly
+//  * - No automatically extending floated element to edge of grid
+//  * 
 //  * @param {string} $direction
-//  * @param {int} $float_column_count
-//  * @param {int} $float_offset_columns: Positive integer
+//  * @param {int} $width ($float_column_count): Width of floated element
+//  * @param {int} $offset ($float_offset_columns): Positive integer
 //  */
-@mixin grid_float_css($direction, $width, $offset) {
+@mixin grid_float_auto_container($direction, $width, $offset) {
 	$opposite_direction: if($direction == right, left, right);
 	$float_column_count: $width;
 	$float_offset_columns: $offset;
@@ -299,8 +316,6 @@
 	$float_offset_factor: calc($float_offset_columns / var(--content-width));
 	$float_offset_percentage: calc(($float_offset_columns * -100%) / var(--content-width));
 	
-	// TODO: make it work with clamp values for gutter
-	display: block;
 	float: $direction;
 	width: calc($float_width - (gutter(x) * $float_width_factor));
 	margin-#{$opposite_direction}: gutter(x);
