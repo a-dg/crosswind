@@ -258,14 +258,16 @@
 	$float_offset_factor: calc($float_offset_columns / $container_column_count);
 	$float_offset_percentage: truncate($float_offset_factor * -100%);
 	
-	// TODO: make it work with clamp values for gutter
-	display: block;
+	$gutter_float: gutter(x, $as_list: true);
+	$gutter_float_width: list_to_clamp(operate_list($gutter_float, $multiply: $float_width_factor));
+	$gutter_float_offset: list_to_clamp(operate_list($gutter_float, $multiply: $float_offset_factor));
+	
 	float: $direction;
-	width: calc($float_width - (gutter(x) * $float_width_factor));
+	width: calc($float_width - $gutter_float_width);
 	margin-#{$opposite_direction}: gutter(x);
 	
 	// TODO: margin-#{direction} is unneccessary for 12-column container
-	margin-#{$direction}: calc($float_offset_percentage - (gutter(x) * truncate($float_offset_factor)));
+	margin-#{$direction}: calc($float_offset_percentage - $gutter_float_offset);
 }
 
 
