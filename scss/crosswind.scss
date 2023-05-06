@@ -285,16 +285,11 @@ $grid_setup_4: (
 
 
 .g-layout {
-	grid-template-columns: repeat(calc($grid_columns / 2), 1fr);
-	@include b(md) {
-		grid-template-columns: repeat($grid_columns, 1fr);
+	@each $breakpoint, $columns in $grid_columns {
+		@include b($breakpoint) {
+			grid-template-columns: repeat($columns, 1fr);
+		}
 	}
-	// TODO: should be like this when $grid_columns is a map
-	// @each $breakpoint, $columns in $grid_columns {
-	// 	@include b($breakpoint) {
-	// 		grid-template-columns: repeat($columns, 1fr);
-	// 	}
-	// }
 }
 
 .g-guide {
@@ -356,6 +351,12 @@ $grid_setup_4: (
 		md: 10 2,
 		av: 8 3,
 		ch: 6 4,
+	));
+}
+
+.col-f {
+	@include layout((
+		zo: -1,
 	));
 }
 
@@ -481,6 +482,16 @@ $grid_setup_4: (
 			$direction: right,
 			$width: 5,
 			$offset: 2
+		);
+	}
+	
+	.col-f & {
+		// Explicit container width, optionally implicit float offset
+		@include grid_float(
+			$direction: right,
+			$in: 12,
+			$width: 3,
+			$offset: 0
 		);
 	}
 	

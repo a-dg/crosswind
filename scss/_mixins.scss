@@ -3,6 +3,7 @@
 @use 'sass:list';
 @use 'sass:map';
 @use 'sass:meta';
+@use 'breakbeat' as b;
 
 
 // /**
@@ -252,31 +253,51 @@
 		calc(($container_column_count - $float_column_count) / $container_column_count)
 	);
 	
-	// TODO: consider removing this auto calculation and making it a required parameter
-	// TODO: $grid_columns will need to be responsive
-	// Set float offset automatically when not specified, assuming the content
-	// area is centered, and we want to send the floated element all the way to
-	// the edge of the grid
-	@if $float_offset_columns == -1 {
-		$float_offset_columns: math.floor(
-			calc(($grid_columns - $container_column_count) / 2)
-		);
-	}
-	
-	// What percentage of the content area width is the float offset?
-	$float_offset_factor: calc($float_offset_columns / $container_column_count);
-	$float_offset_percentage: truncate($float_offset_factor * -100%);
-	
 	$gutter_float: gutter(x, $as_list: true);
 	$gutter_float_width: list_to_clamp(operate_list($gutter_float, $multiply: $float_width_factor));
-	$gutter_float_offset: list_to_clamp(operate_list($gutter_float, $multiply: $float_offset_factor));
 	
 	float: $direction;
 	width: calc($float_width - $gutter_float_width);
 	margin-#{$opposite_direction}: gutter(x);
 	
-	// TODO: margin-#{direction} is unneccessary for 12-column container
-	margin-#{$direction}: calc($float_offset_percentage - $gutter_float_offset);
+	$previous_float_offset_percentage: null;
+	$previous_gutter_float_offset: null;
+	
+	@each $breakpoint, $columns in $grid_columns {
+		@include b($breakpoint) {
+			
+			// TODO: consider removing this auto calculation and making it a required parameter
+			// Set float offset automatically when not specified, assuming the content
+			// area is centered, and we want to send the floated element all the way to
+			// the edge of the grid
+			@if $float_offset_columns == -1 {
+				$float_offset_columns: math.floor(
+					calc(($columns - $container_column_count) / 2)
+				);
+			}
+			
+			// What percentage of the content area width is the float offset?
+			$float_offset_factor: calc($float_offset_columns / $container_column_count);
+			$float_offset_percentage: truncate($float_offset_factor * -100%);
+			
+			$gutter_float_offset: list_to_clamp(operate_list($gutter_float, $multiply: $float_offset_factor));
+			
+			// Prevent repeating rules
+			@if (
+				$float_offset_percentage != $previous_float_offset_percentage
+				or $gutter_float_offset != $previous_gutter_float_offset
+			) {
+				@if not b.b_is_zero($float_offset_percentage) {
+					margin-#{$direction}: calc($float_offset_percentage - $gutter_float_offset);
+				} @else {
+					margin-#{$direction}: 0;
+				}
+				$previous_float_offset_percentage: $float_offset_percentage;
+				$previous_gutter_float_offset: $gutter_float_offset;
+			}
+		}
+	}
+
 }
 
 

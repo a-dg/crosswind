@@ -17,13 +17,10 @@ $breakpoints: (
 $content_max_width: map.get($breakpoints, lg);
 $content_max_width_extended: map.get($breakpoints, xl);
 
-$grid_columns: 12;
-
-// TODO: make this work
-// $grid_columns: (
-// 	zo: 6,
-// 	md: 12,
-// );
+$grid_columns: (
+	zo: 6,
+	md: 12,
+);
 
 $gutter_base_x: 16px;
 $gutter_base_y: 48px;
