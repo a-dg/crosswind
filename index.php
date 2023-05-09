@@ -4,7 +4,7 @@ include __DIR__.'/incl/header.php';
 ?>
 
 
-<div class="c c-full-width c-pad">
+<div class="c c-max-width c-pad">
 	<h2>8/4 split layout with one outlier (max-width container)</h2>
 	
 	<div class="g g-layout">
@@ -15,11 +15,11 @@ include __DIR__.'/incl/header.php';
 	
 	<div class="g g-layout col-8-4-custom">
 		<div class="i"><span class="i-label">1</span></div>
-		<div class="i"><span class="i-label">2</span></div>
+		<div class="i hang-r hang-full"><span class="i-label">2</span></div>
 		<div class="i"><span class="i-label">3</span></div>
 		<div class="i"><span class="i-label">4</span></div>
 		<div class="i outlier"><span class="i-label">outlier</span></div>
-		<div class="i"><span class="i-label">5</span></div>
+		<div class="i hang-l hang-full"><span class="i-label">5</span></div>
 		<div class="i"><span class="i-label">6</span></div>
 		<div class="i"><span class="i-label">7</span></div>
 		<div class="i"><span class="i-label">8</span></div>
@@ -220,6 +220,18 @@ include __DIR__.'/incl/header.php';
 
 <div class="c c-max-width c-pad">
 	<h2>8/4 split layout with hanging elements (max-width container)</h2>
+	
+	<div class="g g-layout col-8-4">
+		<div class="i"><span class="i-label">Item</span></div>
+		<div class="i hang-r hang-extended"><span class="i-label">Hanging item</span></div>
+		<div class="i hang-l hang-full"><span class="i-label">Hanging item</span></div>
+		<div class="i"><span class="i-label">Item</span></div>
+	</div>
+</div>
+
+
+<div class="c c-full-width c-pad">
+	<h2>8/4 split layout with hanging elements (full-width container, where .hang-extended and .hang-full have no effect)</h2>
 	
 	<div class="g g-layout col-8-4">
 		<div class="i"><span class="i-label">Item</span></div>

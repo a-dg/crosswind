@@ -361,6 +361,7 @@ $grid_setup_4: (
 }
 
 .col-8-4-custom {
+	// TODO: make this configurable through a mixin
 	grid-template-columns: grid_element_width(8, 12) auto;
 	
 	.i {
@@ -411,6 +412,12 @@ $grid_setup_4: (
 	}
 }
 
+.col-6-6 {
+	@include layout((
+		zo: 6,
+	));
+}
+
 .col-8-4 {
 	@include layout((
 		zo: (6, 6),
@@ -444,14 +451,19 @@ $grid_setup_4: (
 @each $direction in (left, right) {
 	.hang-#{string.slice($direction, 1, 1)} {
 		margin-#{$direction}: gutter(outer, $invert: true);
-		&.hang-extended {
-			@include b($content_max_width) {
-				margin-#{$direction}: gutter_extended(false);
+		.c-max-width & {
+			&.hang-extended {
+				@include b($content_max_width) {
+					margin-#{$direction}: gutter_extended(false);
+				}
 			}
-		}
-		&.hang-full {
-			@include b($content_max_width) {
-				margin-#{$direction}: gutter_extended();
+			&.hang-full {
+				@include b($content_max_width) {
+					margin-#{$direction}: gutter_extended();
+				}
+			}
+			&:not(.hang-extended):not(.hang-full) {
+				@include warning('Hanging without .hang-extended or .hang-full probably should not be used within .c-max-width, as it will only hang into the outer gutter. Consider defining $content_max_width_extended (currently set to ' + $content_max_width_extended + ') and using .hang-extended to extend beyond the outer gutter.');
 			}
 		}
 	}
