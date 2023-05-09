@@ -314,33 +314,71 @@
 //  * - Must specify the float offset explicitly
 //  * - No automatically extending floated element to edge of grid
 //  * 
-//  * @param {string} $direction
-//  * @param {int} $width ($float_column_count): Width of floated element
-//  * @param {int} $offset ($float_offset_columns): Positive integer
+//  * @param {string/map} $direction
+//  * @param {int/map} $width ($float_column_count): Width of floated element
+//  * @param {int/map} $offset ($float_offset_columns): Positive integer
 //  */
-@mixin grid_float_auto_container($direction, $width, $offset) {
-	$opposite_direction: if($direction == right, left, right);
+@mixin grid_float_auto_container($direction, $width, $offset: 0) {
+	$first_breakpoint_name: list.nth(map.keys($breakpoints), 1);
+	
+	// Convert single values to maps
+	@if meta.type_of($direction) != map {
+		$direction: (
+			#{$first_breakpoint_name}: $direction,
+		);
+	}
+	@if meta.type_of($width) != map {
+		$width: (
+			#{$first_breakpoint_name}: $width,
+		);
+	}
+	@if meta.type_of($offset) != map {
+		$offset: (
+			#{$first_breakpoint_name}: $offset,
+		);
+	}
+	
 	$float_column_count: $width;
 	$float_offset_columns: $offset;
 	
-	// TODO: add support for responsive params
-	// $float_column_count: (
-	// 	md: 4,
-	// 	lg: 3,
-	// ),
-	
-	// Calculate width of floated element
-	$float_width: calc(($float_column_count * 100%) / var(--content-width));
-	$float_width_factor: calc(1 - ($float_column_count / var(--content-width)));
-	
-	// What percentage of the content area width is the float offset?
-	$float_offset_factor: calc($float_offset_columns / var(--content-width));
-	$float_offset_percentage: calc(($float_offset_columns * -100%) / var(--content-width));
-	
-	float: $direction;
-	width: calc($float_width - (gutter(x) * $float_width_factor));
-	margin-#{$opposite_direction}: gutter(x);
-	
-	// TODO: margin-#{direction} is unneccessary for 12-column container
-	margin-#{$direction}: calc($float_offset_percentage - (gutter(x) * truncate($float_offset_factor)));
+	@each $breakpoint in map.keys($breakpoints) {
+		@include b($breakpoint) {
+			@if
+				map.has_key($direction, $breakpoint)
+				or map.has_key($float_offset_columns, $breakpoint)
+			{
+				@if map.has_key($direction, $breakpoint) {
+					$float_direction: map.get($direction, $breakpoint);
+					$opposite_direction: if($float_direction == right, left, right);
+					float: $float_direction;
+					margin-#{$opposite_direction}: gutter(x);
+				}
+				
+				// For every breakpoint that has either a direction or offset specified,
+				// we need to update the margins on each side. If a direction or offset
+				// is not specified for that breakpoint, use the largest smaller
+				// breakpoint that is explicitly defined for that breakpoint.
+				$smaller_direction: find_largest_smaller_breakpoint(map.keys($direction), $breakpoint);
+				$offset_direction: map.get($direction, $smaller_direction);
+				$smaller_offset: find_largest_smaller_breakpoint(map.keys($float_offset_columns), $breakpoint);
+				$offset_columns: map.get($float_offset_columns, $smaller_offset);
+				
+				@if b.b_is_zero($offset_columns) {
+					margin-#{$offset_direction}: 0;
+				} @else {
+					$offset_factor: calc($offset_columns / var(--content-width));
+					$offset_percentage: calc(($offset_columns * -100%) / var(--content-width));
+					margin-#{$offset_direction}: calc($offset_percentage - (gutter(x) * truncate($offset_factor)));
+				}
+			}
+			
+			// Calculate width of floated element
+			@if map.has_key($float_column_count, $breakpoint) {
+				$float_columns: map.get($float_column_count, $breakpoint);
+				$float_width: calc(($float_columns * 100%) / var(--content-width));
+				$float_width_factor: calc(1 - ($float_columns / var(--content-width)));
+				width: calc($float_width - (gutter(x) * $float_width_factor));
+			}
+		}
+	}
 }

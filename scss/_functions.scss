@@ -511,6 +511,48 @@
 
 
 // /**
+//  * Find largest smaller breakpoint in subset
+//  * 
+//  * Sort of the opposite of find_next_smallest_breakpoint(): given any
+//  * breakpoint, find the largest explicitly defined breakpoint that is not
+//  * larger than the given breakpoint. This can return the given breakpoint
+//  * itself, since it is explicitly defined, and is not larger than itself.
+//  * 
+//  * Example:
+//  * - All breakpoints: sm, md, lg, xl, xxl
+//  * - Subset: sm, xl, xxl
+//  * - Largest smaller breakpoint for "lg" in subset: sm
+//  * - Largest smaller breakpoint for "xl" in subset: xl
+//  * 
+//  * @param {list} $breakpoint_subset_keys
+//  * @param {string} $breakpoint
+//  * @return {string}
+//  */
+@function find_largest_smaller_breakpoint($breakpoint_subset_keys, $breakpoint) {
+	$all_breakpoint_keys: map.keys($breakpoints);
+	
+	@if list.index($breakpoint_subset_keys, $breakpoint) != null {
+		@return $breakpoint;
+	}
+	
+	// If we go over this, stop caring
+	$breakpoint_index: list.index($all_breakpoint_keys, $breakpoint);
+	
+	$largest_subset_index: 1;
+	@for $i from 1 through list.length($all_breakpoint_keys) {
+		@if $i < $breakpoint_index {
+			$current_breakpoint: list.nth($all_breakpoint_keys, $i);
+			@if list.index($breakpoint_subset_keys, $current_breakpoint) != null {
+				$largest_subset_index: list.index($breakpoint_subset_keys, $current_breakpoint);
+			}
+		}
+	}
+	
+	@return list.nth($breakpoint_subset_keys, $largest_subset_index);
+}
+
+
+// /**
 //  * Split list at first occurrence of delimiter
 //  * @param {list} $input
 //  * @param {string} $delimiter

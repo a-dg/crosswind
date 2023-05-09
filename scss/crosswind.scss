@@ -479,9 +479,24 @@ $grid_setup_4: (
 	.col-6 & {
 		// Implicit container width, explicit float offset
 		@include grid_float_auto_container(
-			$direction: right,
-			$width: 5,
-			$offset: 2
+			// $direction: right,
+			$direction: (
+				tn: left,
+				sm: right,
+				md: left,
+				lg: right,
+			),
+			// $width: 7,
+			$width: (
+				tn: 2,
+				md: 5,
+			),
+			// $offset: 5
+			$offset: (
+				zo: 0,
+				av: 2,
+				ch: 3,
+			)
 		);
 	}
 	

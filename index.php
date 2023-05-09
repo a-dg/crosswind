@@ -70,7 +70,7 @@ include __DIR__.'/incl/header.php';
 	<div class="g g-layout col-6">
 		<div class="i">
 			<div class="g-float">
-				<span class="i-label">Float</span>
+				<span class="i-label">RF</span>
 			</div>
 			<p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Nostrum ipsam voluptate quod. Odio expedita numquam voluptatem! Voluptatem laboriosam sequi distinctio, voluptas eaque et assumenda ab, nostrum, saepe voluptates quo autem? Est, in? Rerum consequatur totam veniam tempora dignissimos tempore odio earum in consequuntur dolores, ab quasi eum eligendi. Voluptatem nemo porro omnis!</p>
 		</div>
