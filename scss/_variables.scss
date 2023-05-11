@@ -17,6 +17,24 @@ $breakpoints: (
 $content_max_width: map.get($breakpoints, lg);
 $content_max_width_extended: map.get($breakpoints, xl);
 
+// Breakpoints at which fonts start and stop scaling, can be overriden on a
+// per-element basis
+$font_min_breakpoint: sm;
+$font_max_breakpoint: lg;
+
+$all_font_sizes: (
+	h1: (
+		min: 24px,
+		max: 36px,
+		start: sm,
+		stop: lg,
+	),
+	h2: (
+		min: 18px,
+		max: 24px,
+	),
+);
+
 $grid_columns: (
 	zo: 6,
 	md: 12,

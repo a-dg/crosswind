@@ -597,3 +597,25 @@
 		b: $list_b,
 	);
 }
+
+
+@function fancy_font_size($set) {
+	$min: map.get($set, min);
+	$max: map.get($set, max);
+	$start: map.get($breakpoints, if(
+		map.has_key($set, start),
+		map.get($set, start),
+		$font_min_breakpoint
+	));
+	$stop: map.get($breakpoints, if(
+		map.has_key($set, stop),
+		map.get($set, stop),
+		$font_max_breakpoint
+	));
+	
+	$size_fixed: calc(($max - $min) / ($stop - $start));
+	$size_fluid: ($size_fixed * 100vw);
+	$size_preferred: calc($size_fluid + ($min - ($size_fixed * $start)));
+	
+	@return clamp($min, $size_preferred, $max);
+}

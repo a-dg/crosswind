@@ -28,6 +28,8 @@ body {
 	font-size: 24px;
 }
 
+@include very_nice_font_sizes();
+
 h2 {
 	margin: $label_margin;
 	padding: $label_padding;

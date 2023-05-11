@@ -382,3 +382,12 @@
 		}
 	}
 }
+
+
+@mixin very_nice_font_sizes() {
+	@each $selector, $sizes in $all_font_sizes {
+		#{$selector} {
+			font-size: fancy_font_size($sizes);
+		}
+	}
+}
