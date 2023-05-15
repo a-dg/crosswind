@@ -619,21 +619,35 @@
 }
 
 
+// /**
+//  * Fancy font size
+//  * 
+//  * Usage for linear scaling:
+//  * font-size: fancy_font_size((
+//  *   sm: 24px,
+//  *   xl: 72px,
+//  * ));
+//  * 
+//  * For non-linear scaling, use very_nice_font_sizes()
+//  * 
+//  * @param {map} param
+//  * @return {type}
+//  */
 @function fancy_font_size($set) {
-	$min: map.get($set, min);
-	$max: map.get($set, max);
-	$start: map.get($breakpoints, if(
-		map.has_key($set, start),
-		map.get($set, start),
-		$font_min_breakpoint
-	));
-	$stop: map.get($breakpoints, if(
-		map.has_key($set, stop),
-		map.get($set, stop),
-		$font_max_breakpoint
-	));
+	$min: list.nth(map.values($set), 1);
+	@if list.length(map.values($set)) == 1 {
+		@return $min;
+	}
 	
-	$size_fixed: calc(($max - $min) / ($stop - $start));
+	$max: list.nth(map.values($set), 2);
+	$start: map.get($breakpoints, list.nth(map.keys($set), 1));
+	$end: map.get($breakpoints, list.nth(map.keys($set), 2));
+	
+	$size_fixed: calc(($max - $min) / ($end - $start));
+	@if $size_fixed == 0 {
+		@return $min;
+	}
+	
 	$size_fluid: ($size_fixed * 100vw);
 	$size_preferred: calc($size_fluid + ($min - ($size_fixed * $start)));
 	
@@ -688,6 +702,19 @@
 
 
 // /**
+//  * Convert two-item list to map, using default font scaling breakpoints
+//  * @param {list} $sizes
+//  * @return {map}
+//  */
+@function convert_font_size_list_to_map($sizes) {
+	@return (
+		$font_scale_breakpoint_min: list.nth($sizes, 1),
+		$font_scale_breakpoint_max: list.nth($sizes, 2),
+	);
+}
+
+
+// /**
 //  * Create breakpoints
 //  * @param {list} $names
 //  * @param {int} $start: Smallest non-zero breakpoint
@@ -720,4 +747,134 @@
 	}
 	
 	@return $map;
+}
+
+
+
+				// (
+				//   sm: 24px,
+				//   xl: 36px,
+				// ),
+				// (
+				//   sm: 24px,
+				//   md: 28px,
+				//   lg: 32px,
+				//   xl: 36px,
+				// ),
+
+				// (
+				//   sm: 24px,
+				//   md: 28px fixed,
+				//   xl: 36px,
+				// ),
+				// (
+				//   sm: 24px,
+				//   md: 28px fixed,
+				//   (No "lg" size generated)
+				//   xl: 36px,
+				// ),
+@function create_intermediate_sizes($sizes) {
+	@if list.length(map.keys($sizes)) == 1 {
+		@return $sizes;
+	}
+	
+	$complete_sizes: (
+		list.nth(map.keys($sizes), 1): list.nth(map.values($sizes), 1),
+	);
+	
+	$size_index: 1;
+	@each $breakpoint, $size in $sizes {
+		$has_keyword: meta.type_of($size) == list;
+		
+		@if not $has_keyword {
+			@if $size_index < list.length(map.keys($sizes)) {
+				$this_index_in_all: list.index(map.keys($breakpoints), $breakpoint);
+				
+				$next_breakpoint: list.nth(map.keys($sizes), $size_index + 1);
+				$next_size: list.nth(map.values($sizes), $size_index + 1);
+				$next_size_keyword: null;
+				@if meta.type_of($next_size) == list {
+					$next_size_keyword: list.nth($next_size, 2);
+					$next_size: list.nth($next_size, 1);
+				}
+				$next_index_in_all: list.index(map.keys($breakpoints), $next_breakpoint);
+				
+				$intermediate_size_count: ($next_index_in_all - $this_index_in_all) - 1;
+				@if $intermediate_size_count > 0 {
+					$intermediate_sizes: interpolate(
+						$start: $size,
+						$end: $next_size,
+						$count: $intermediate_size_count + 2,
+						$curve: $font_scale_curve,
+						$round: true
+					);
+					
+					// Pair each intermediate size with a breakpoint
+					$intermediate_index: 1;
+					@each $intermediate_size in $intermediate_sizes {
+						// If there is a keyword on the next size, and we're on the last
+						// intermediate size, that means we're on the one with the keyword,
+						// and we need to add the keyword back so it's represented in the
+						// complete list
+						@if
+							$next_size_keyword != null
+							and $intermediate_index == list.length($intermediate_sizes)
+						{
+							$intermediate_size: ($intermediate_size $next_size_keyword);
+						}
+						
+						@if $intermediate_index != 1 { // Skip first one, it's already in the map
+							$intermediate_breakpoint_index: ($this_index_in_all + $intermediate_index) - 1;
+							$complete_sizes: map.set(
+								$complete_sizes,
+								list.nth(map.keys($breakpoints), $intermediate_breakpoint_index),
+								$intermediate_size
+							);
+						}
+						$intermediate_index: $intermediate_index + 1;
+					}
+					
+				} @else {
+					$complete_sizes: map.set($complete_sizes, $breakpoint, $size);
+				}
+			}
+			
+			// If this is the last entry, add it manually (may be redundant in certain cases, but doesn't hurt
+			@else {
+				$complete_sizes: map.set(
+					$complete_sizes,
+					$breakpoint,
+					$size
+				);
+			}
+		}
+		
+		// If this size has a keyword (such as "fixed"), do not interpolate between
+		// this and the next in the set
+		@else {
+			@if
+				$size_index == 1
+				and list.index(map.keys($breakpoints), $breakpoint) != 1
+			{
+				@warn 'The first font size defined (' + $breakpoint + ': ' + $size + ') is fixed, so there will be no font size for breakpoints below ' + $breakpoint;
+			}
+			
+			// if this size is fixed, DO ADD the next one because it won't included in this breakpoint, and it will be excluded from the next by default, unless this size is fixed, in which case there is no next size
+			
+			// Preemptively add next size
+			@if $size_index < list.length($sizes) {
+				$next_breakpoint: list.nth(map.keys($sizes), $size_index + 1);
+				$next_size: list.nth(map.values($sizes), $size_index + 1);
+				$complete_sizes: map.set(
+					$complete_sizes,
+					$next_breakpoint,
+					$next_size
+				);
+			}
+		}
+		
+		$size_index: $size_index + 1;
+	}
+	
+	@return $complete_sizes;
 }

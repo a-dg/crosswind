@@ -12,6 +12,7 @@ $gutter_type: flexible;
 $max_width_type: flexible;
 
 $show_item_boundaries: true;
+$output_query_comments: true;
 
 @import 'breakbeat';
 @import 'functions';
@@ -27,17 +28,24 @@ $show_item_boundaries: true;
 body {
 	margin: 0;
 	padding: 0;
-	font-size: 24px;
+	// font-size: 24px;
 }
 
-@include very_nice_font_sizes();
+@include very_nice_font_sizes($all_font_sizes);
+
+
+h1 {
+	margin: 2em 0 1em 0;
+	padding: 0 gutter(outer);
+	text-align: center;
+}
 
 h2 {
 	margin: $label_margin;
 	padding: $label_padding;
 	border-bottom: $label_border_width solid $label_border_color;
 	font-weight: 400;
-	font-size: 24px;
+	// font-size: 24px;
 	text-align: center;
 	font-variant-ligatures: none;
 }
@@ -301,6 +309,7 @@ $grid_setup_4: (
 
 .g-guide {
 	border-bottom: 4px solid $color_black;
+	outline: none;
 	@include b('< md') {
 		&:nth-child(6) ~ & {
 			display: none;

@@ -384,10 +384,118 @@
 }
 
 
-@mixin very_nice_font_sizes() {
-	@each $selector, $sizes in $all_font_sizes {
+// /**
+//  * Create responsive font sizes
+//  * 
+//  * Example input: (
+//  *   h1: 56px,
+//  *   h2: 36px 48px,
+//  *   h3: (
+//  *     sm: 24px,
+//  *     lg: 32px fixed,
+//  *     xl: 36px,
+//  *   ),
+//  * )
+//  * 
+//  * @param {map} $font_sizes
+//  */
+@mixin very_nice_font_sizes($font_sizes) {
+	@each $selector, $sizes in $font_sizes {
 		#{$selector} {
-			font-size: fancy_font_size($sizes);
+			
+			// Size is formatted as a single value
+			// Example: (h1: 24px,)
+			@if meta.type_of($sizes) == number {
+				font-size: $sizes;
+			}
+			
+			// Sizes are formatted in a list, using default settings for font scaling
+			// breakpoints ($font_scale_breakpoint_min, $font_scale_breakpoint_max)
+			// Example: (
+			//   h1: 24px 36px,
+			//   h2: (
+			//     sm: 24px,
+			//     md: 32px [fixed],
+			//     lg: 36px,
+			//   ),
+			// ),
+			@else {
+				@if meta.type_of($sizes) == list {
+					$sizes: convert_font_size_list_to_map($sizes);
+				}
+				
+				$sizes: create_intermediate_sizes($sizes);
+				@debug $sizes;
+				
+				$size_index: 1;
+				@each $breakpoint, $size in $sizes {
+					
+					// Fixed size
+					// Note that this may include an unnecessary media query for the last
+					// entry if it has a fixed value, but we need it there in case the
+					// second-to-last value was also fixed, and therefore didn't have a
+					// clamp() value that would obviate the need for another media query
+					@if
+						meta.type_of($size) == list
+						and list.nth($size, 2) == fixed
+					{
+						@include b($breakpoint) {
+							font-size: list.nth($size, 1);
+						}
+					}
+					
+					// We skip the last entry, because its value is already accounted for
+					// in the clamp() that starts with the second-to-last value, or if
+					// the second-to-last value is fixed, in which case the last entry
+					// has already been included (see "Preemptively add next size")
+					// TODO: ^ WHAT??????? then what is the @else below for?
+					
+					@else if $size_index < list.length(map.keys($sizes)) {
+						
+						$next_breakpoint: list.nth(map.keys($sizes), $size_index + 1);
+						$next_size: list.nth(map.values($sizes), $size_index + 1);
+						
+						// If size includes any keywords, isolate size value
+						@if meta.type_of($next_size) == list {
+							$next_size: list.nth($next_size, 1);
+						}
+						
+						$fancy_set: (
+							$breakpoint: $size,
+							$next_breakpoint: $next_size,
+						);
+						
+						// For the first size, since we're using clamp to set the minimum
+						// size, which may occur at a breakpoint that's not the smallest,
+						// we should not included a media query
+						@if $size_index == 1 {
+							font-size: fancy_font_size($fancy_set);
+						}
+						
+						// Use >< between operator to isolate font sizes to each breakpoint
+						// range, rather than overriding them at every breakpoint
+						@else {
+							$next_smallest_breakpoint: find_next_smallest_breakpoint(
+								map.keys($sizes), $breakpoint
+							);
+							@include b('>< #{$breakpoint} #{$next_smallest_breakpoint}') {
+								font-size: fancy_font_size($fancy_set);
+							}
+						}
+					}
+					
+					// TODO: ^ WHAT??????? yeah what is this for anyway?
+					// Include a basic font size for the final breakpoint
+					@else {
+						@include b($breakpoint) {
+							font-size: $size;
+						}
+					}
+					
+					$size_index: $size_index + 1;
+				}
+				
+			}
 		}
 	}
 }
