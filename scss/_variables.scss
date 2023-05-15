@@ -1,3 +1,4 @@
+@use 'sass:math';
 @use 'sass:map';
 
 $breakpoints: (
@@ -64,9 +65,9 @@ $gutter_stepped_scale: (
 	
 	@each $breakpoint, $scale in $gutter_stepped_scale {
 		@include b($breakpoint) {
-			--gutter-stepped-x: #{round($gutter_base_x * $scale)};
-			--gutter-stepped-y: #{round($gutter_base_y * $scale)};
-			--gutter-stepped-outer: #{round($gutter_base_outer * $scale)};
+			--gutter-stepped-x: #{math.round($gutter_base_x * $scale)};
+			--gutter-stepped-y: #{math.round($gutter_base_y * $scale)};
+			--gutter-stepped-outer: #{math.round($gutter_base_outer * $scale)};
 		}
 	}
 }

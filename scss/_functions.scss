@@ -393,12 +393,22 @@
 
 
 // /**
+//  * Round number to nearest multiple
+//  * @param {number} $value
+//  * @return {int}
+//  */
+@function round_to($value, $multiple) {
+	@return (math.round(calc($value / $multiple)) * $multiple);
+}
+
+
+// /**
 //  * Round number to nearest multiple of 2
 //  * @param {number} $value
 //  * @return {int}
 //  */
 @function round_even($value) {
-  @return (math.round(calc($value / 2)) * 2);
+	@return round_to($value, 2);
 }
 
 
@@ -408,7 +418,17 @@
 //  * @return {int}
 //  */
 @function round_four($value) {
-  @return (math.round(calc($value / 4)) * 4);
+	@return round_to($value, 4);
+}
+
+
+// /**
+//  * Round number to nearest multiple of 16
+//  * @param {number} $value
+//  * @return {int}
+//  */
+@function round_sixteen($value) {
+	@return round_to($value, 16);
 }
 
 
