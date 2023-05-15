@@ -75,24 +75,24 @@
 //  */
 @function reverse_list($list, $recursive: false) {
 	$separator: list.separator($list);
-  $result: ();
+	$result: ();
 	
-  @for $i from (list.length($list) * -1) through -1 {
-    @if
+	@for $i from (list.length($list) * -1) through -1 {
+		@if
 			$recursive
 			and meta.type_of(list.nth($list, math.abs($i))) == list
 		{
-      $result: list.append(
+			$result: list.append(
 				$result,
 				reverse_list(list.nth($list, math.abs($i)), $recursive),
 				$separator
 			);
-    } @else {
-      $result: list.append($result, list.nth($list, math.abs($i)), $separator);
-    }
-  }
+		} @else {
+			$result: list.append($result, list.nth($list, math.abs($i)), $separator);
+		}
+	}
 	
-  @return $result;
+	@return $result;
 }
 
 
@@ -438,7 +438,7 @@
 //  * @return {boolean}
 //  */
 @function is_percent($value) {
-  @return math.unit($value) == '%';
+	@return math.unit($value) == '%';
 }
 
 
@@ -475,8 +475,8 @@
 //  * @return {string}
 //  */
 @function replace($input, $search, $replace: '') {
-  $index: string.index($input, $search);
-  @if not $index {
+	$index: string.index($input, $search);
+	@if not $index {
 		@return $input;
 	}
 	
@@ -628,7 +628,7 @@
 //  *   xl: 72px,
 //  * ));
 //  * 
-//  * For non-linear scaling, use very_nice_font_sizes()
+//  * For non-linear scaling, use parabolic_font_sizes()
 //  * 
 //  * @param {map} param
 //  * @return {type}
@@ -751,42 +751,78 @@
 
 
 
-				// (
-				//   sm: 24px,
-				//   xl: 36px,
-				// ),
-				// (
-				//   sm: 24px,
-				//   md: 28px,
-				//   lg: 32px,
-				//   xl: 36px,
-				// ),
-
-				// (
-				//   sm: 24px,
-				//   md: 28px fixed,
-				//   xl: 36px,
-				// ),
-				// (
-				//   sm: 24px,
-				//   md: 28px fixed,
-				//   (No "lg" size generated)
-				//   xl: 36px,
-				// ),
+// /**
+//  * Create interpolated sizes for intermediate breakpoints
+//  * 
+//  * Output is a map defining explicit sizes for every breakpoint between
+//  * start and end breakpoints. Used in conjunction with mixins for creating
+//  * parabolic responsive values, like parabolic_font_sizes().
+//  * 
+//  * Note: this process has the potential to create some redundant key/value
+//  * pairs. However, since map entries are assigned by specifying the key and
+//  * value, any redundant key simply overwrites the existing pair, so it makes
+//  * no difference in the end.
+//  * 
+//  * Input: (
+//  *   sm: 24px,
+//  *   xl: 36px,
+//  * )
+//  * Output: (
+//  *   sm: 24px,
+//  *   md: 28px, <- Creates interpolates sizes
+//  *   lg: 32px, <- for intermediate breakpoints
+//  *   xl: 36px,
+//  * )
+//  * 
+//  * Use the "fixed" keyword to hold a fixed font size until the next defined
+//  * breakpoint. (Alternatively, define consecutive breakpoints having the
+//  * same value.)
+//  * 
+//  * Input with "fixed": (
+//  *   sm: 24px,
+//  *   md: 28px fixed,
+//  *   xl: 36px,
+//  * )
+//  * Output with "fixed": (
+//  *   sm: 24px,
+//  *   md: 28px fixed,
+//  *   (No "lg" size generated)
+//  *   xl: 36px,
+//  * )
+//  * 
+//  * @param {map} $sizes
+//  * @return {map}
+//  */
 @function create_intermediate_sizes($sizes) {
 	@if list.length(map.keys($sizes)) == 1 {
 		@return $sizes;
 	}
 	
-	$complete_sizes: (
-		list.nth(map.keys($sizes), 1): list.nth(map.values($sizes), 1),
-	);
+	$complete_sizes: ();
 	
 	$size_index: 1;
 	@each $breakpoint, $size in $sizes {
 		$has_keyword: meta.type_of($size) == list;
 		
-		@if not $has_keyword {
+		// If this size has a keyword (such as "fixed"), do not interpolate between
+		// this and the next in the set
+		@if $has_keyword {
+			$complete_sizes: map.set(
+				$complete_sizes,
+				$breakpoint,
+				$size
+			);
+			
+			$is_first_breakpoint: list.index(map.keys($breakpoints), $breakpoint) == 1;
+			@if
+				$size_index == 1
+				and not $is_first_breakpoint
+			{
+				@warn 'The first font size (' + $breakpoint + ': ' + $size + ') is defined as fixed, so there will be no font size for breakpoints below ' + $breakpoint;
+			}
+		}
+		
+		@else {
 			@if $size_index < list.length(map.keys($sizes)) {
 				$this_index_in_all: list.index(map.keys($breakpoints), $breakpoint);
 				
@@ -814,8 +850,8 @@
 					@each $intermediate_size in $intermediate_sizes {
 						// If there is a keyword on the next size, and we're on the last
 						// intermediate size, that means we're on the one with the keyword,
-						// and we need to add the keyword back so it's represented in the
-						// complete list
+						// and we need to add the keyword back so that it's represented in
+						// the complete list
 						@if
 							$next_size_keyword != null
 							and $intermediate_index == list.length($intermediate_sizes)
@@ -823,14 +859,12 @@
 							$intermediate_size: ($intermediate_size $next_size_keyword);
 						}
 						
-						@if $intermediate_index != 1 { // Skip first one, it's already in the map
-							$intermediate_breakpoint_index: ($this_index_in_all + $intermediate_index) - 1;
-							$complete_sizes: map.set(
-								$complete_sizes,
-								list.nth(map.keys($breakpoints), $intermediate_breakpoint_index),
-								$intermediate_size
-							);
-						}
+						$intermediate_breakpoint_index: ($this_index_in_all + $intermediate_index) - 1;
+						$complete_sizes: map.set(
+							$complete_sizes,
+							list.nth(map.keys($breakpoints), $intermediate_breakpoint_index),
+							$intermediate_size
+						);
 						$intermediate_index: $intermediate_index + 1;
 					}
 					
@@ -839,36 +873,12 @@
 				}
 			}
 			
-			// If this is the last entry, add it manually (may be redundant in certain cases, but doesn't hurt
+			// If this is the last entry, add it manually
 			@else {
 				$complete_sizes: map.set(
 					$complete_sizes,
 					$breakpoint,
 					$size
-				);
-			}
-		}
-		
-		// If this size has a keyword (such as "fixed"), do not interpolate between
-		// this and the next in the set
-		@else {
-			@if
-				$size_index == 1
-				and list.index(map.keys($breakpoints), $breakpoint) != 1
-			{
-				@warn 'The first font size defined (' + $breakpoint + ': ' + $size + ') is fixed, so there will be no font size for breakpoints below ' + $breakpoint;
-			}
-			
-			// if this size is fixed, DO ADD the next one because it won't included in this breakpoint, and it will be excluded from the next by default, unless this size is fixed, in which case there is no next size
-			
-			// Preemptively add next size
-			@if $size_index < list.length($sizes) {
-				$next_breakpoint: list.nth(map.keys($sizes), $size_index + 1);
-				$next_size: list.nth(map.values($sizes), $size_index + 1);
-				$complete_sizes: map.set(
-					$complete_sizes,
-					$next_breakpoint,
-					$next_size
 				);
 			}
 		}

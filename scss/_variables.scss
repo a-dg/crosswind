@@ -31,12 +31,18 @@ $all_font_sizes: (
 	h1: (
 		sm: 24px,
 		ch: 28px fixed,
-		// lg: 36px,
+		lg: 36px,
 		xl: 70px,
+	),
+	'h1.gap-after-fixed': (
+		sm: 24px,
+		av: 28px fixed,
+		lg: 36px,
+		yl: 36px,
 	),
 	'h1.fixed-last': (
 		sm: 24px,
-		ch: 28px,
+		ch: 28px fixed,
 		// lg: 36px,
 		xl: 70px fixed,
 	),

@@ -385,7 +385,12 @@
 
 
 // /**
-//  * Create responsive font sizes
+//  * Create parabolic responsive font sizes
+//  * 
+//  * Note that this may include an unnecessary media query for the last entry
+//  * if it has a fixed value, but we need it there in case the second-to-last
+//  * value is also fixed, and therefore doesn't yield a clamp() value that
+//  * would obviate the need for another media query.
 //  * 
 //  * Example input: (
 //  *   h1: 56px,
@@ -399,7 +404,7 @@
 //  * 
 //  * @param {map} $font_sizes
 //  */
-@mixin very_nice_font_sizes($font_sizes) {
+@mixin parabolic_font_sizes($font_sizes) {
 	@each $selector, $sizes in $font_sizes {
 		#{$selector} {
 			
@@ -410,8 +415,9 @@
 			}
 			
 			// Sizes are formatted in a list, using default settings for font scaling
-			// breakpoints ($font_scale_breakpoint_min, $font_scale_breakpoint_max)
-			// Example: (
+			// breakpoints ($font_scale_breakpoint_min, $font_scale_breakpoint_max),
+			// or as a map with explicity defined breakpoints
+			// Examples: (
 			//   h1: 24px 36px,
 			//   h2: (
 			//     sm: 24px,
@@ -425,16 +431,10 @@
 				}
 				
 				$sizes: create_intermediate_sizes($sizes);
-				@debug $sizes;
+				$size_count: list.length(map.keys($sizes));
 				
 				$size_index: 1;
 				@each $breakpoint, $size in $sizes {
-					
-					// Fixed size
-					// Note that this may include an unnecessary media query for the last
-					// entry if it has a fixed value, but we need it there in case the
-					// second-to-last value was also fixed, and therefore didn't have a
-					// clamp() value that would obviate the need for another media query
 					@if
 						meta.type_of($size) == list
 						and list.nth($size, 2) == fixed
@@ -444,14 +444,20 @@
 						}
 					}
 					
-					// We skip the last entry, because its value is already accounted for
-					// in the clamp() that starts with the second-to-last value, or if
-					// the second-to-last value is fixed, in which case the last entry
-					// has already been included (see "Preemptively add next size")
-					// TODO: ^ WHAT??????? then what is the @else below for?
+					// Output a basic font size for a single defined breakpoint
+					@else if $size_count == 1 {
+						@include b($breakpoint) {
+							font-size: $size;
+						}
+					}
 					
-					@else if $size_index < list.length(map.keys($sizes)) {
-						
+					// For multiple input sizes, we skip the last entry, because:
+					// - its value is already accounted for in the clamp() that starts
+					//   with the second-to-last entry and defines a maximum size that is
+					//   equal to the size on the largest breakpoint
+					// - the size of the last entry is fixed, in which case the it has
+					//   already been included by the simple check for fixed values above
+					@else if $size_index < $size_count {
 						$next_breakpoint: list.nth(map.keys($sizes), $size_index + 1);
 						$next_size: list.nth(map.values($sizes), $size_index + 1);
 						
@@ -465,36 +471,33 @@
 							$next_breakpoint: $next_size,
 						);
 						
+						// Use between operator to isolate font sizes to each breakpoint
+						// range, rather than overriding them at every breakpoint
+						$use_between_operator: false;
+						
 						// For the first size, since we're using clamp to set the minimum
-						// size, which may occur at a breakpoint that's not the smallest,
-						// we should not included a media query
+						// size, which may occur at a breakpoint that's not zero, we should
+						// not included a media query
 						@if $size_index == 1 {
 							font-size: fancy_font_size($fancy_set);
-						}
-						
-						// Use >< between operator to isolate font sizes to each breakpoint
-						// range, rather than overriding them at every breakpoint
-						@else {
-							$next_smallest_breakpoint: find_next_smallest_breakpoint(
-								map.keys($sizes), $breakpoint
-							);
-							@include b('>< #{$breakpoint} #{$next_smallest_breakpoint}') {
-								font-size: fancy_font_size($fancy_set);
+						} @else {
+							@if $use_between_operator {
+								$next_smallest_breakpoint: find_next_smallest_breakpoint(
+									map.keys($sizes), $breakpoint
+								);
+								@include b('>< #{$breakpoint} #{$next_smallest_breakpoint}') {
+									font-size: fancy_font_size($fancy_set);
+								}
+							} @else {
+								@include b($breakpoint) {
+									font-size: fancy_font_size($fancy_set);
+								}
 							}
-						}
-					}
-					
-					// TODO: ^ WHAT??????? yeah what is this for anyway?
-					// Include a basic font size for the final breakpoint
-					@else {
-						@include b($breakpoint) {
-							font-size: $size;
 						}
 					}
 					
 					$size_index: $size_index + 1;
 				}
-				
 			}
 		}
 	}
