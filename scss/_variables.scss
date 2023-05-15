@@ -1,17 +1,20 @@
 @use 'sass:math';
 @use 'sass:map';
 
-$breakpoints: (
-	zo: 0,
-	tn: 384px,
-	sm: 512px,
-	md: 640px,
-	av: 768px,
-	ch: 960px,
-	lg: 1152px,
-	xl: 1344px,
-	yl: 1536px,
+$breakpoint_names: (
+	zo,
+	tn,
+	sm,
+	md,
+	av,
+	ch,
+	lg,
+	xl,
+	yl,
 );
+$breakpoint_scale_curve: 0.33;
+$breakpoints: create_breakpoints($breakpoint_names, 384, 1664, $breakpoint_scale_curve);
+
 
 // A max-width container includes outer gutter as padding, therefore its
 // content appears to be narrower than the nominal max-width specified here

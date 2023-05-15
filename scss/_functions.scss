@@ -639,3 +639,85 @@
 	
 	@return clamp($min, $size_preferred, $max);
 }
+
+
+// /**
+//  * Interpolate numbers on a curve
+//  * 
+//  * Control acceleration of intervals with $curve:
+//  * - 0: No curvature, evenly-spaced numbers
+//  * - 0.5: Some curvature, smaller intervals at start of range
+//  * - 1: Greater curvature, more drastic change in intervals
+//  * - -0.5: Opposite curvature, larger intervals at start of range
+//  * 
+//  * @param {int} $start: starting number
+//  * @param {int} $end: ending number
+//  * @param {int} $count: total number of numbers
+//  * @param {float} $curve: acceleration of intervals
+//  * @param {bool} $round: round values
+//  * @return {list}
+//  */
+@function interpolate($start, $end, $count, $curve: 1, $round: false) {
+	$step: calc(($end - $start) / ($count - 1));
+	$is_negative_curve: $curve < 0;
+	$inversion: if($is_negative_curve, -1, 1);
+	@if $is_negative_curve {
+		$curve: ($curve * -1);
+		$start_swap: $start;
+		$start: $end;
+		$end: $start_swap;
+	}
+	
+	$values: ();
+	@for $i from 0 through ($count - 1) {
+		$x: calc($i / ($count - 1));
+		$y: math.pow($x, $curve);
+		$value: ($start + ($i * $step * $y * $inversion));
+		@if $round {
+			$value: math.round($value);
+		}
+		$values: append($values, $value);
+	}
+	
+	@if $is_negative_curve {
+		$values: reverse_list($values);
+	}
+	
+	@return $values;
+}
+
+
+// /**
+//  * Create breakpoints
+//  * @param {list} $names
+//  * @param {int} $start: Smallest non-zero breakpoint
+//  * @param {int} $end: Largest breakpoint
+//  * @param {float} $curve
+//  * @param {int} $multiple
+//  * @return {map}
+//  */
+@function create_breakpoints($names, $start, $end, $curve, $multiple: 4) {
+	$start: b.b_strip_units($start);
+	$end: b.b_strip_units($end);
+	
+	@if $start < 320 {
+		@warn 'A value of ' + $start + ' for the first non-zero breakpoint might be a bit small. The smallest common device width is 320px, which means that users would never see the first breakpoint.';
+	}
+	
+	$values: list.join((0,), interpolate(
+		$start: math.round(calc($start / $multiple)),
+		$end: math.round(calc($end / $multiple)),
+		$count: list.length($names) - 1,
+		$curve: $curve,
+		$round: true
+	));
+	
+	$map: ();
+	@for $i from 1 through list.length($names) {
+		$name: list.nth($names, $i);
+		$value: (list.nth($values, $i) * $multiple * 1px);
+		$map: map.set($map, $name, $value);
+	}
+	
+	@return $map;
+}
