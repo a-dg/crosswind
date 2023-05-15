@@ -11,6 +11,8 @@ $gutter_type: flexible;
 // $max_width_type: stepped;
 $max_width_type: flexible;
 
+$show_item_boundaries: true;
+
 @import 'breakbeat';
 @import 'functions';
 @import 'mixins';
@@ -136,6 +138,9 @@ $grid_setup_4: (
 }
 
 .i {
+	@if $show_item_boundaries {
+		outline: 4px dotted $color_mint;
+	}
 	// display: flex; // TODO: this fucks up floating
 }
 
