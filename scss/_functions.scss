@@ -261,9 +261,18 @@
 	);
 	// 112px, 29.12vw, 336px
 	
-	$gutter_remainder: list_to_clamp(
-		subtract_lists($remaining_gutter_space, $spanned_gutter_space)
-	);
+	$leftover_gutter_space: subtract_lists($remaining_gutter_space, $spanned_gutter_space);
+	
+	// When numbers go negative, we have to reverse the clamp() list to put min
+	// and max values in the right order
+	@if
+		list.nth($leftover_gutter_space, 1) < 0
+		and list.nth($leftover_gutter_space, 2) < 0
+	{
+		$leftover_gutter_space: reverse_list($leftover_gutter_space);
+	}
+	
+	$gutter_remainder: list_to_clamp($leftover_gutter_space);
 	
 	@if $is_negative {
 		// TODO: don't know if this works yet

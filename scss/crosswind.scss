@@ -434,11 +434,7 @@ $grid_setup_4: (
 		), $self: true);
 	}
 	
-	.bork {
-		width: grid_element_width(9, 6);
-	}
-	
-	.very-special {
+	.nine-cols-within-six-container {
 		width: grid_element_width(9, 6);
 	}
 	.unhang.special {
@@ -502,7 +498,7 @@ $grid_setup_4: (
 		position: relative;
 		// left: grid_element_width(1, 3, $is_negative: false, $include_external_gutter: true);
 		
-		// left: grid_element_offset(-2, 2);
+		// left: grid_element_offset(-3, 2);
 
 	}
 	> .i:nth-child(3) {

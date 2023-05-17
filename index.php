@@ -80,14 +80,13 @@ include __DIR__.'/incl/header.php';
 		
 		<div class="g g-layout col-6">
 			<div class="i"><span class="i-label">Item</span></div>
-			<div class="i very-special">
-			<!-- <div class="i hang-r v1 hang-extended"> -->
+			<div class="i nine-cols-within-six-container">
 				<span class="i-label hang-r v1 hang-full">Hanging item</span>
 				<div class="unhang special">
 					<p>Set custom widths to break out of the grid item, then hang .i-label to reach the edge of the viewport, but then anything inside of .i-label will not be aligned with the grid. ... Hey wait a minute, this seems to work.</p>
 				</div>
 			</div>
-			<div class="i very-special">
+			<div class="i nine-cols-within-six-container">
 				<span class="i-label">Hanging item</span>
 				<div class="unhang special">
 					<p>Custom widths break out of the grid item, but cannot go outside of the grid without throwing off the content width.</p>
@@ -139,13 +138,13 @@ include __DIR__.'/incl/header.php';
 		<div class="g g-layout col-6">
 			<div class="i"><span class="i-label">Item</span></div>
 			<div class="i">
-				<span class="i-label bork hang-r v2 hang-full">Hanging bork item</span>
+				<span class="i-label nine-cols-within-six-container hang-r v2 hang-full">Hanging 9/6 item</span>
 				<div class="unhang">
 					<p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Aspernatur odio impedit excepturi molestiae nesciunt amet sint doloribus nisi quidem! Sed possimus fugiat nobis assumenda, suscipit facere dolor. Harum, consectetur ea.</p>
 				</div>
 			</div>
 			<div class="i">
-				<span class="i-label dork">Hanging item</span>
+				<span class="i-label">Hanging item</span>
 				<div class="unhang">
 					<p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Aspernatur odio impedit excepturi molestiae nesciunt amet sint doloribus nisi quidem! Sed possimus fugiat nobis assumenda, suscipit facere dolor. Harum, consectetur ea.</p>
 				</div>
