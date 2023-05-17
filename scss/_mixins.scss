@@ -203,15 +203,17 @@
 		position: absolute;
 		z-index: 9999;
 		left: 12px;
+		right: 12px;
 		top: 12px;
-		padding: 24px 28px;
-		width: 300px;
-		// border: 8px solid #f09;
-		border-radius: 24px;
+		padding: 12px 16px;
+		border-radius: 8px;
 		background: $color_warning;
-		font-size: 24px;
-		color: #fff;
-		box-shadow: 8px 0 24px rgb(0 0 0 / 0.5);
+		box-shadow: 0 8px 24px rgb(0 0 0 / 0.5);
+		font-size: 20px;
+		color: $color_white;
+		text-align: left;
+		text-transform: none;
+		letter-spacing: normal;
 	}
 }
 
