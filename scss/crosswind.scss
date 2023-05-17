@@ -156,19 +156,31 @@ $grid_setup_4: (
 
 .g-wire {
 	$border_color: $color_black;
-	$border_width: 1px;
-	$content_inset: 10px; // TODO: make sure you can do this with gutter
+	$border_width: 8px;
+	$content_inset: gutter(x, $as_list: true); // TODO: make sure you can do this with gutter
 	display: grid;
 	gap: 0;
-	margin: 0 ($content_inset * -1) $border_width ($content_inset * -1);
+	
+	$inverted_gutter: if(
+		meta.type_of($content_inset) == list,
+		list_to_clamp(invert_clamp_list($content_inset)),
+		($content_inset * -1)
+	);
+	
+	margin: 0 $inverted_gutter $border_width $inverted_gutter;
 	.i {
 		margin: 0 ($border_width * -1) ($border_width * -1) 0;
-		padding: $content_inset;
+		padding: if(
+			meta.type_of($content_inset) == list,
+			list_to_clamp($content_inset),
+			$content_inset
+		);
 		border: $border_width solid $border_color;
 		position: relative;
 		
 		&::before,
 		&::after {
+			content: '';
 			position: absolute;
 			width: 0;
 			height: $border_width;
@@ -182,20 +194,37 @@ $grid_setup_4: (
 		}
 	}
 	
+	// --extended-gutter-width: #{gutter_extended2(
+	// 	$invert: false
+	// )};
+	
+	
 	&.g-6 {
+		
+		@include wire_setup((
+			zo: 1,
+			sm: 2,
+			av: 3,
+			ch: 4,
+			lg: 5,
+			yl: 6,
+		));
+	
+		
+		
 		.i {
-			&:nth-child(6n),
-			&:nth-child(6n+1) {
-				&::before,
-				&::after {
-					content: '';
-					// TODO: use CSS variable to set offset and possibly this whole width
-					width: gutter_extended(
-						$invert: false,
-						$offset: ($content_inset + gutter_max(x))
-					);
-				}
-			}
+			// &:nth-child(6n),
+			// &:nth-child(6n+1) {
+			// 	&::before,
+			// 	&::after {
+			// 		content: '';
+			// 		// TODO: use CSS variable to set offset and possibly this whole width
+			// 		width: gutter_extended2(
+			// 			$invert: false
+			// 		);
+			// 		// $offset: operate_list($content_inset, $multiply: 2)
+			// 	}
+			// }
 			&:nth-child(6n) {
 				margin-right: 0;
 				border-right: none;
@@ -221,15 +250,29 @@ $grid_setup_4: (
 				&::before,
 				&::after {
 					// TODO: use CSS variable to set offset and possibly this whole width
-					width: gutter_extended(
-						$invert: false,
-						$offset: $content_inset
-					);
+					// width: gutter_extended(
+					// 	$invert: false,
+					// 	$offset: $content_inset
+					// );
 				}
 			}
 		}
 	}
 }
+
+
+// .c-max-width .g-wire {
+// 	.g-6 {
+// 		:nth-child(6n),
+// 		:nth-child(6n+1) {
+// 			&::before,
+// 			&::after {
+// 				width: var(--extended-gutter-width);
+// 			}
+// 		}
+// 	}
+// }
+
 
 .g-flush {
 	$flush_border_width: 2px;
@@ -379,6 +422,29 @@ $grid_setup_4: (
 		av: 8 3,
 		ch: 6 4,
 	));
+	
+	.hang-r {
+		@include layout((
+			ch: 9 4,
+		), $self: true);
+	}
+	.hang-l {
+		@include layout((
+			ch: 9,
+		), $self: true);
+	}
+	
+	.bork {
+		width: grid_element_width(9, 6);
+	}
+	
+	.very-special {
+		width: grid_element_width(9, 6);
+	}
+	.unhang.special {
+		margin: 0 !important;
+		width: grid_element_width(6, 9);
+	}
 }
 
 .col-f {
@@ -417,7 +483,13 @@ $grid_setup_4: (
 	> .i:nth-child(1) {
 		position: relative;
 		z-index: 2;
-		left: grid_element_offset(3, 6); // TODO: 6 could be --column-width
+		left: grid_element_offset(3, 6);
+		
+		// TODO: it would be nice if 6 could be --content-width, but right now the
+		// element width is used in a SCSS calculation in operate_list(), which is
+		// not compatible with CSS variables
+		// left: grid_element_offset(3, var(--content-width));
+		
 		.i-label {
 			background: $color_mint;
 			opacity: 0.7;
@@ -475,26 +547,91 @@ $grid_setup_4: (
 	));
 }
 
+
+// TODO: allow for grid-sized content in any hung element
 @each $direction in (left, right) {
 	.hang-#{string.slice($direction, 1, 1)} {
-		margin-#{$direction}: gutter(outer, $invert: true);
-		.c-max-width & {
-			&.hang-extended {
-				@include b($content_max_width) {
-					margin-#{$direction}: gutter_extended(false);
+		
+		// Reverse margin to undo hanging:
+		// Hung grid items have negative margin, children of grid items use .unhang
+		// to undo hanging by adding back margin
+		&.v1 {
+			margin-#{$direction}: gutter(outer, $invert: true);
+			content: 'narrow';
+			.c-max-width & {
+				&.hang-extended {
+					.unhang {
+						margin-#{$direction}: gutter(outer);
+					}
+					@include b($content_max_width) {
+						margin-#{$direction}: gutter_extended(false);
+						content: 'after max width';
+						.unhang {
+							margin-#{$direction}: gutter_extended(false, false);
+							// padding-#{$direction}: gutter(outer);
+						}
+					}
 				}
-			}
-			&.hang-full {
-				@include b($content_max_width) {
-					margin-#{$direction}: gutter_extended();
+				&.hang-full {
+					.unhang {
+						margin-#{$direction}: gutter(outer);
+					}
+					@include b($content_max_width) {
+						margin-#{$direction}: gutter_extended();
+						.unhang {
+							margin-#{$direction}: gutter_extended(true, false);
+							content: 'this is the one';
+						}
+					}
 				}
-			}
-			&:not(.hang-extended):not(.hang-full) {
-				@include warning('Hanging without .hang-extended or .hang-full probably should not be used within .c-max-width, as it will only hang into the outer gutter. Consider defining $content_max_width_extended (currently set to ' + $content_max_width_extended + ') and using .hang-extended to extend beyond the outer gutter.');
+				&:not(.hang-extended):not(.hang-full) {
+					@include warning('Hanging without .hang-extended or .hang-full probably should not be used within .c-max-width, as it will only hang into the outer gutter. Consider defining $content_max_width_extended (currently set to ' + $content_max_width_extended + ') and using .hang-extended to extend beyond the outer gutter.');
+				}
 			}
 		}
+		
+		// Classes on nested child elements:
+		// .hang-* classes go on elements inside of grid items, grid item columns
+		// remain untouched by negative margins
+		// TODO: this method is seemingly "truer" to the grid, in that the grid
+		// items themselves don't deviate from the bounds of their respective grid
+		// areas, but it might be that we still need to unhang contents of a hung
+		// element, which would be quite common
+		&.v2 {
+			margin-#{$direction}: gutter(outer, $invert: true);
+			content: 'narrow v2';
+			.c-max-width & {
+				&.hang-extended {
+					@include b($content_max_width) {
+						margin-#{$direction}: gutter_extended(false);
+						content: 'wide v2';
+					}
+				}
+				&.hang-full {
+					@include b($content_max_width) {
+						margin-#{$direction}: gutter_extended();
+					}
+				}
+				&:not(.hang-extended):not(.hang-full) {
+					@include warning('Hanging without .hang-extended or .hang-full probably should not be used within .c-max-width, as it will only hang into the outer gutter. Consider defining $content_max_width_extended (currently set to ' + $content_max_width_extended + ') and using .hang-extended to extend beyond the outer gutter.');
+				}
+			}
+		}
+		
+		
 	}
 }
+
+
+.unhang {
+	background: $color_fog;
+}
+
+.hang-content {
+	padding: 1em 0;
+	background: $color_blue;
+}
+
 
 .bg {
 	padding-top: 30px;
@@ -515,7 +652,29 @@ $grid_setup_4: (
 
 
 .g-float {
-	.col-6 & {
+	
+	.float-instead-of-hang & {
+		box-sizing: content-box;
+		padding-right: gutter_extended(true, false);
+		background: $color_purple;
+		@include grid_float_auto_container(
+			// $direction: right,
+			$direction: (
+				zo: left,
+			),
+			// $width: 7,
+			$width: (
+				zo: 6,
+				md: 9,
+			),
+			// $offset: 5
+			$offset: (
+				md: 0,
+			)
+		);
+	}
+	
+	.col-6-temp & {
 		// Implicit container width, explicit float offset
 		@include grid_float_auto_container(
 			// $direction: right,

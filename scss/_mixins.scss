@@ -14,6 +14,44 @@
 	@each $breakpoint, $column_count in $set {
 		@include b($breakpoint) {
 			grid-template-columns: repeat($column_count, 1fr);
+			--grid-items: #{$column_count};
+		}
+	}
+}
+
+
+@mixin wire_setup($set) {
+	@each $breakpoint, $column_count in $set {
+		$next_smallest_breakpoint: find_next_smallest_breakpoint(
+			map.keys($set), $breakpoint
+		);
+		@include b('>< #{$breakpoint} #{$next_smallest_breakpoint}') {
+			.i {
+				&:nth-child(#{$column_count}n),
+				&:nth-child(#{$column_count}n+1) {
+					&::before,
+					&::after {
+						width: gutter_extended2(
+							$invert: false
+						);
+					}
+				}
+				&:nth-child(#{$column_count}n) {
+					margin-right: 0;
+					border-right: none;
+					&::before,
+					&::after {
+						left: 100%;
+					}
+				}
+				&:nth-child(#{$column_count}n+1) {
+					border-left: none;
+					&::before,
+					&::after {
+						right: 100%;
+					}
+				}
+			}
 		}
 	}
 }

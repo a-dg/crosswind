@@ -154,22 +154,54 @@
 //  */
 @function gutter_extended($to_viewport_edge: true, $invert: true, $offset: 0px) {
 	$inversion: if($invert, -1, 1);
+	
+	$something_special: calc(
+		(
+			50vw 
+			- (($content_max_width / 2) - gutter_max(outer) + $offset)
+		)
+		* $inversion
+	);
+	
+	// TODO: is gutter_max() ever what we want? We have clamp
+	// Well, as long as gutter_extended() takes effect once we reach
+	// $content_max_width, then it's ok
+	@if $to_viewport_edge {
+		@return $something_special;
+	}
+	
+	// Difference between $content_max_width and $content_max_width_extended,
+	// noting that $content_max_width includes the space taken up by the outer
+	// gutter, while $content_max_width_extended does not
+	$content_extension: calc(((($content_max_width_extended - $content_max_width) / 2) + gutter_max(outer)) * -1);
+	
+	// TODO: check this with all gutter types
+	@return clamp(
+		$content_extension,
+		$something_special,
+		(gutter_max(outer) * -1)
+	);
+}
+@function gutter_extended2($to_viewport_edge: true, $invert: true, $offset: 0px) {
+	$inversion: if($invert, -1, 1);
+	
+	$something_special: calc(
+		(50vw * $inversion)
+		+ (($content_max_width / 2) - gutter_max(outer) + $offset)
+	);
+	
 	@if $to_viewport_edge {
 		@return calc(
 			(50vw * $inversion)
-			- (
-				(($content_max_width / 2) - gutter_max(x) + $offset)
-				* $inversion
-			)
+			- (($content_max_width / 2) * $inversion)
 		);
 	}
 	
 	// TODO: check this with all gutter types
-	// TODO: does not use $content_max_width_extended?
 	@return clamp(
-		($gutter_base_outer_extended * -1),
-		calc((50vw * $inversion) + (($content_max_width / 2) - gutter_max(x) + $offset)),
-		(gutter_max(x) * -1)
+		calc(($content_max_width_extended - $content_max_width) / -2),
+		$something_special,
+		(gutter_max(outer) * -1)
 	);
 }
 
@@ -727,6 +759,13 @@
 	$start: b.b_strip_units($start);
 	$end: b.b_strip_units($end);
 	
+	@if $start % $multiple > 0 {
+		@warn 'The value of ' + $start + ' for the first non-zero breakpoint is not a multiple of ' + $multiple + ', so its interpolated breakpoint value will be different.';
+	}
+	@if $end % $multiple > 0 {
+		@warn 'The value of ' + $end + ' for the last breakpoint is not a multiple of ' + $multiple + ', so its interpolated breakpoint value will be different.';
+	}
+	
 	@if $start < 320 {
 		@warn 'A value of ' + $start + ' for the first non-zero breakpoint might be a bit small. The smallest common device width is 320px, which means that users would never see the first breakpoint.';
 	}
@@ -749,6 +788,17 @@
 	@return $map;
 }
 
+
+// TODO: make this work
+@function strip_units($number) {
+	@if
+		meta.type_of($number) == number
+		and not math.is_unitless($number)
+	{
+		@return calc($number / (($number * 0) + 1));
+	}
+	@return $number;
+}
 
 
 // /**
