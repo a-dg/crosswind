@@ -30,9 +30,9 @@ $font_scale_breakpoint_max: lg;
 $all_font_sizes: (
 	h1: (
 		sm: 24px,
-		ch: 28px fixed,
-		lg: 36px,
-		xl: 70px,
+		ch: 36px fixed,
+		lg: 40px, // TODO: fix this, it doesn't work
+		// xl: 70px,
 	),
 	'h1.gap-after-fixed': (
 		sm: 24px,
@@ -65,7 +65,6 @@ $grid_columns: (
 $gutter_base_x: 16px;
 $gutter_base_y: 48px;
 $gutter_base_outer: 48px;
-$gutter_base_outer_extended: 240px;
 
 $gutter_stepped_scale: (
 	zo: 0.5,
@@ -111,7 +110,7 @@ $gutter_stepped: (
 
 // TODO: use same base gutter values for all gutter types
 $gutter_flexible_min_x: 16px;
-$gutter_flexible_max_x: 48px;
+$gutter_flexible_max_x: 28px;
 $gutter_flexible: (
 	x: (
 		$gutter_flexible_min_x,
@@ -138,12 +137,12 @@ $gutter: map.get((
 	flexible: $gutter_flexible,
 ), $gutter_type);
 
-$label_margin: 0 0 1em 0;
-$label_padding: 1em 0.75em 0.5em 0.75em;
+$label_margin: 1em 0;
+$label_padding: 0 0.75em 0.5em 0.75em;
 $label_border_width: 4px;
 $label_border_color: #09f;
 
-$item_label_padding: 2em 1em;
+$item_label_padding: 1em 1em;
 
 $color_warning: #f09;
 
@@ -158,3 +157,5 @@ $color_purple: #90f;
 $color_blue: #09f;
 $color_pink: #f09;
 $color_mint: #5ec;
+
+$show_item_boundaries: false !default;

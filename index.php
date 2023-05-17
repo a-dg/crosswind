@@ -4,6 +4,166 @@ include __DIR__.'/incl/header.php';
 ?>
 
 
+<section>
+
+	<h1>Hanging</h1>
+	
+	<div class="c c-max-width c-pad">
+		<h2>.hang-* classes on nested child elements</h2>
+		
+		<div class="g g-layout col-8-4">
+			<div class="i"><span class="i-label">Item</span></div>
+			<div class="i">
+				<span class="i-label hang-r v2 hang-extended">Hanging item</span>
+			</div>
+			<div class="i hang-l v1 hang-full">
+				<div class="hang-content unhang">
+					<p>Content within hung element</p>
+				</div>
+				<!-- <span class="i-label hang-l v2 hang-full" style="height: auto">Hanging item</span> -->
+				<div>
+					<p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Aspernatur odio impedit excepturi molestiae nesciunt amet sint doloribus nisi quidem! Sed possimus fugiat nobis assumenda, suscipit facere dolor. Harum, consectetur ea.</p>
+				</div>
+			</div>
+			<div class="i"><span class="i-label">Item</span></div>
+		</div>
+	</div>
+	
+	
+	<div class="c c-max-width c-pad">
+		<h2>Negative margins on .unhang to undo hanging</h2>
+		
+		<div class="g g-layout col-8-4">
+			<div class="i"><span class="i-label">Item</span></div>
+			<div class="i hang-r v1 hang-extended"><span class="i-label">Hanging item</span></div>
+			<div class="i hang-l v1 hang-full">
+				<span class="i-label" style="height: auto">Hanging item</span>
+				<div class="unhang">
+					<p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Aspernatur odio impedit excepturi molestiae nesciunt amet sint doloribus nisi quidem! Sed possimus fugiat nobis assumenda, suscipit facere dolor. Harum, consectetur ea.</p>
+				</div>
+			</div>
+			<div class="i"><span class="i-label">Item</span></div>
+		</div>
+	</div>
+	
+	
+	<div class="c c-full-width c-pad">
+		<h2>Hanging elements in full-width container, where .hang-extended and .hang-full have no effect</h2>
+		
+		<div class="g g-layout col-8-4">
+			<div class="i"><span class="i-label">Item</span></div>
+			<div class="i hang-r v1 hang-extended">
+				<span class="i-label">Hanging item</span>
+				<div class="unhang">
+					<p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Aspernatur odio impedit excepturi molestiae nesciunt amet sint doloribus nisi quidem! Sed possimus fugiat nobis assumenda, suscipit facere dolor. Harum, consectetur ea.</p>
+				</div>
+			</div>
+			<div class="i hang-l v1 hang-full">
+				<span class="i-label">Hanging item</span>
+				<div class="unhang">
+					<p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Aspernatur odio impedit excepturi molestiae nesciunt amet sint doloribus nisi quidem! Sed possimus fugiat nobis assumenda, suscipit facere dolor. Harum, consectetur ea.</p>
+				</div>
+			</div>
+			<div class="i"><span class="i-label">Item</span></div>
+		</div>
+	</div>
+	
+	
+	<div class="c c-max-width c-pad">
+		<h2>Narrower than 12 columns, v1</h2>
+		
+		<div class="g g-layout">
+			<? foreach (range(1, 12) as $index): ?>
+				<div class="i g-guide"></div>
+			<? endforeach; ?>
+		</div>
+		
+		<div class="g g-layout col-6">
+			<div class="i"><span class="i-label">Item</span></div>
+			<div class="i very-special">
+			<!-- <div class="i hang-r v1 hang-extended"> -->
+				<span class="i-label hang-r v1 hang-full">Hanging item</span>
+				<div class="unhang special">
+					<p>Set custom widths to break out of the grid item, then hang .i-label to reach the edge of the viewport, but then anything inside of .i-label will not be aligned with the grid. ... Hey wait a minute, this seems to work.</p>
+				</div>
+			</div>
+			<div class="i very-special">
+				<span class="i-label">Hanging item</span>
+				<div class="unhang special">
+					<p>Custom widths break out of the grid item, but cannot go outside of the grid without throwing off the content width.</p>
+				</div>
+			</div>
+			<div class="i hang-r v1 hang-extended">
+				<span class="i-label">Hanging item</span>
+				<div class="unhang special">
+					<p>Hang the entire container, the .i-label can go out to the edge, but what's inside of it will not line up with the grid, unless you account for the outer gutter + columns and gutters.</p>
+				</div>
+			</div>
+			<div class="i float-instead-of-hang">
+				<div class="g-float">
+					<span class="i-label">RF</span>
+				</div>
+				<div>
+					<p>Float instead of hang, because the math can use CSS variables</p>
+				</div>
+			</div>
+			<div class="i hang-l v1 hang-full">
+				<span class="i-label">
+					Hanging item
+				</span>
+				<div class="unhang">
+					<p>If .i-label had no padding, you could put this inside of it and everything would line up.</p>
+				</div>
+			</div>
+			<div class="i"><span class="i-label">Item</span></div>
+		</div>
+		
+		<div class="g g-layout">
+			<? foreach (range(1, 12) as $index): ?>
+				<div class="i g-guide"></div>
+			<? endforeach; ?>
+		</div>
+
+	</div>
+	
+	
+	<div class="c c-max-width c-pad">
+		<h2>Narrower than 12 columns, v2</h2>
+		
+		<div class="g g-layout">
+			<? foreach (range(1, 12) as $index): ?>
+				<div class="i g-guide"></div>
+			<? endforeach; ?>
+		</div>
+		
+		<div class="g g-layout col-6">
+			<div class="i"><span class="i-label">Item</span></div>
+			<div class="i">
+				<span class="i-label bork hang-r v2 hang-full">Hanging bork item</span>
+				<div class="unhang">
+					<p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Aspernatur odio impedit excepturi molestiae nesciunt amet sint doloribus nisi quidem! Sed possimus fugiat nobis assumenda, suscipit facere dolor. Harum, consectetur ea.</p>
+				</div>
+			</div>
+			<div class="i">
+				<span class="i-label dork">Hanging item</span>
+				<div class="unhang">
+					<p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Aspernatur odio impedit excepturi molestiae nesciunt amet sint doloribus nisi quidem! Sed possimus fugiat nobis assumenda, suscipit facere dolor. Harum, consectetur ea.</p>
+				</div>
+			</div>
+			<div class="i"><span class="i-label">Item</span></div>
+		</div>
+	</div>
+	
+	
+</section>
+
+
+
+<section>
+
+	<h1>Outlier</h1>
+	
+
 <div class="c c-max-width c-pad">
 	<h2>8/4 split layout with one outlier (max-width container)</h2>
 	
@@ -15,16 +175,27 @@ include __DIR__.'/incl/header.php';
 	
 	<div class="g g-layout col-8-4-custom">
 		<div class="i"><span class="i-label">1</span></div>
-		<div class="i hang-r hang-full"><span class="i-label">2</span></div>
+		<div class="i hang-r v1 hang-full"><span class="i-label">2</span></div>
 		<div class="i"><span class="i-label">3</span></div>
 		<div class="i"><span class="i-label">4</span></div>
 		<div class="i outlier"><span class="i-label">outlier</span></div>
-		<div class="i hang-l hang-full"><span class="i-label">5</span></div>
+		<div class="i hang-l v2 hang-full"><span class="i-label">5</span></div>
 		<div class="i"><span class="i-label">6</span></div>
 		<div class="i"><span class="i-label">7</span></div>
 		<div class="i"><span class="i-label">8</span></div>
 	</div>
 </div>
+
+
+	
+</section>
+
+
+
+<section>
+
+	<h1>Crazy layouts</h1>
+	
 
 
 <div class="c c-max-width c-pad">
@@ -47,6 +218,17 @@ include __DIR__.'/incl/header.php';
 		<? endforeach; ?>
 	</div>
 </div>
+
+
+	
+</section>
+
+
+
+<section>
+
+	<h1>Floating</h1>
+	
 
 
 <div class="c c-max-width c-pad">
@@ -93,19 +275,16 @@ include __DIR__.'/incl/header.php';
 </div>
 
 
-<div class="c c-full-width">
-	<h2>Full-width container</h2>
-</div>
+
+	
+</section>
 
 
-<div class="c c-max-width">
-	<h2>Container with max-width applied</h2>
-</div>
 
+<section>
 
-<div class="c c-max-width c-pad">
-	<h2>Container with max-width and outer margins applied</h2>
-</div>
+	<h1>Grids of equally-sized items</h1>
+	
 
 
 <div class="c c-max-width c-pad">
@@ -184,6 +363,29 @@ include __DIR__.'/incl/header.php';
 	</div>
 </div>
 
+<!--
+<div class="c c-full-width c-pad">
+	<h2>Wire grid (full-width container)</h2>
+	
+	<div class="g g-wire g-6">
+		<? foreach(range(1, 13) as $index): ?>
+			<div class="i"><span class="i-label"><?= $index ?></span></div>
+		<? endforeach; ?>
+	</div>
+</div>
+-->
+
+
+	
+</section>
+
+
+
+<section>
+
+	<h1>Grid item width and offset</h1>
+	
+
 
 <div class="c c-max-width c-pad">
 	<h2>6/2/4 layout with offset (max-width container)</h2>
@@ -219,30 +421,6 @@ include __DIR__.'/incl/header.php';
 
 
 <div class="c c-max-width c-pad">
-	<h2>8/4 split layout with hanging elements (max-width container)</h2>
-	
-	<div class="g g-layout col-8-4">
-		<div class="i"><span class="i-label">Item</span></div>
-		<div class="i hang-r hang-extended"><span class="i-label">Hanging item</span></div>
-		<div class="i hang-l hang-full"><span class="i-label">Hanging item</span></div>
-		<div class="i"><span class="i-label">Item</span></div>
-	</div>
-</div>
-
-
-<div class="c c-full-width c-pad">
-	<h2>8/4 split layout with hanging elements (full-width container, where .hang-extended and .hang-full have no effect)</h2>
-	
-	<div class="g g-layout col-8-4">
-		<div class="i"><span class="i-label">Item</span></div>
-		<div class="i hang-r hang-extended"><span class="i-label">Hanging item</span></div>
-		<div class="i hang-l hang-full"><span class="i-label">Hanging item</span></div>
-		<div class="i"><span class="i-label">Item</span></div>
-	</div>
-</div>
-
-
-<div class="c c-max-width c-pad">
 	<h2>Centered 6-column item</h2>
 	<div class="g g-layout col-6">
 		<div class="i"><span class="i-label">6-column</span></div>
@@ -254,6 +432,18 @@ include __DIR__.'/incl/header.php';
 		<? endforeach; ?>
 	</div>
 </div>
+
+
+
+	
+</section>
+
+
+
+<section>
+
+	<h1>Flex</h1>
+	
 
 
 <div class="c c-full-width">
@@ -280,6 +470,11 @@ include __DIR__.'/incl/header.php';
 		</div>
 	</div>
 </div>
+
+
+
+	
+</section>
 
 
 <div class="c c-max-width c-pad">

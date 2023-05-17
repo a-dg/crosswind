@@ -121,12 +121,12 @@
 
 // /**
 //  * Get max gutter width
-//  * @param {string} $type
+//  * @param {string} $axis
 //  * @param {boolean} $invert
 //  * @return {number/string}
 //  */
-@function gutter_max($type, $invert: false) {
-	$gutter_value: map.get($gutter, $type);
+@function gutter_max($axis, $invert: false) {
+	$gutter_value: map.get($gutter, $axis);
 	@if meta.type_of($gutter_value) != list {
 		@return if($invert, calc($gutter_value * -1), $gutter_value);
 	}
@@ -141,7 +141,7 @@
 
 // /**
 //  * Get gutter value for extending beyond max width, either to edge of
-//  * viewport or stopping at $gutter_base_outer_extended
+//  * viewport or stopping at $content_max_width_extended
 //  * 
 //  * Alternate expressions:
 //  * - calc(((100vw - ($content_max_width - (gutter_max(x) * 2))) / -2));
