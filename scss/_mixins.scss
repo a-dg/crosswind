@@ -20,14 +20,7 @@
 }
 
 
-@mixin wire_setup($set, $border) {
-	--wire-end-left: auto;
-	--wire-end-right: auto;
-	--wire-end-margin-right: #{$border * -1};
-	--wire-end-border-left: #{$border};
-	--wire-end-border-right: #{$border};
-	--wire-end-width: #{bork};
-	
+@mixin wire_setup($set) {
 	@each $breakpoint, $column_count in $set {
 		$next_smallest_breakpoint: find_next_smallest_breakpoint(
 			map.keys($set), $breakpoint
@@ -44,46 +37,9 @@
 			}
 			> :nth-child(#{$column_count}n),
 			> :nth-child(#{$column_count}n+1) {
-				--wire-end-width: #{gutter_extended2(
-					$invert: false,
-					$offset: var(--wire-offset-outer)
-				)};
-				// &::before,
-				// &::after {
-				// 	width: gutter_extended2(
-				// 		$invert: false,
-				// 		$offset: var(--wire-offset-outer)
-				// 	);
-				// }
-			}
-			// > :nth-child(#{$column_count}n) {
-			// 	margin-right: 0;
-			// 	border-right: none;
-			// 	&::before,
-			// 	&::after {
-			// 		left: 100%;
-			// 	}
-			// }
-			// > :nth-child(#{$column_count}n+1) {
-			// 	border-left: none;
-			// 	&::before,
-			// 	&::after {
-			// 		right: 100%;
-			// 	}
-			// }
+				--wire-end-width: var(--wire-end-width-default);
 		}
 	}
-	
-	> * {
-		margin-right: var(--wire-end-margin-right);
-		border-left-width: var(--wire-end-border-left);
-		border-right-width: var(--wire-end-border-right);
-		&::before,
-		&::after {
-			left: var(--wire-end-left);
-			right: var(--wire-end-right);
-			width: var(--wire-end-width);
-		}
 	}
 }
 

@@ -158,8 +158,7 @@ $grid_setup_4: (
 	$border_color: $color_black;
 	$border_width: 8px;
 	$content_inset: gutter(x, $as_list: true); // TODO: make sure you can do this with gutter
-	display: grid;
-	gap: 0;
+	// TODO: right now we're relying on content inset to be the gutter, but we should allow arbitrary values, and things don't line up right if you use one
 	
 	$inverted_gutter: if(
 		meta.type_of($content_inset) == list,
@@ -167,23 +166,52 @@ $grid_setup_4: (
 		($content_inset * -1)
 	);
 	
+	display: grid;
+	gap: 0;
 	margin: 0 $inverted_gutter;
 	margin-bottom: $border_width;
+	
+	--wire-end-left: auto;
+	--wire-end-right: auto;
+	--wire-end-margin-right: #{$border_width * -1};
+	--wire-end-border-left: #{$border_width};
+	--wire-end-border-right: #{$border_width};
+	--wire-end-width: 0;
+	--wire-end-width-default: #{gutter_extended2(
+		$invert: false,
+		$offset: var(--wire-end-offset)
+	)};
+	
+	// Use a CSS variable to accommodate .c-max and .c-full without
+	// having to write explicit styles for both
+	// TODO: this removes the -50vw margin built into gutter_extended() but it
+	// would be better to have an alternate version that doesn't need that to be
+	// removed, perhaps by passing a parameter indicating that we're not trying
+	// to compensate for $content_max_width
+	--wire-end-offset: 50vw - #{calc($content_max_width / 2) - gutter_max(x)};
+	.c-max & {
+		--wire-end-offset: #{gutter_max(x)};
+	}
+	
 	> * {
-		margin: 0 ($border_width * -1) ($border_width * -1) 0;
+		margin: 0 var(--wire-end-margin-right) ($border_width * -1) 0;
 		padding: if(
 			meta.type_of($content_inset) == list,
 			list_to_clamp($content_inset),
 			$content_inset
 		);
 		border: $border_width solid $border_color;
+		border-left-width: var(--wire-end-border-left);
+		border-right-width: var(--wire-end-border-right);
 		position: relative;
 		
 		&::before,
 		&::after {
 			content: '';
 			position: absolute;
-			width: 0;
+			left: var(--wire-end-left);
+			right: var(--wire-end-right);
+			width: var(--wire-end-width);
 			height: $border_width;
 			background: $border_color;
 		}
@@ -195,21 +223,6 @@ $grid_setup_4: (
 		}
 	}
 	
-	// --extended-gutter-width: #{gutter_extended2(
-	// 	$invert: false
-	// )};
-	
-	// Use a CSS variable to accommodate .c-max and .c-full without
-	// having to write explicit styles for both
-	// TODO: this removes the -50vw margin built into gutter_extended() but it
-	// would be better to have an alternate version that doesn't need that to be
-	// removed, perhaps by passing a parameter indicating that we're not trying
-	// to compensate for $content_max_width
-	--wire-offset-outer: 50vw - #{calc($content_max_width / 2) - gutter_max(x)};
-	.c-max & {
-		--wire-offset-outer: #{gutter_max(x)};
-	}
-	
 	&.g-6 {
 		@include wire_setup((
 			zo: 1,
@@ -218,23 +231,7 @@ $grid_setup_4: (
 			ch: 4,
 			lg: 5,
 			yl: 6,
-		), $border: $border_width);
-	}
-	
-	.c-pad & {
-		.i {
-			&:nth-child(6n),
-			&:nth-child(6n+1) {
-				&::before,
-				&::after {
-					// TODO: use CSS variable to set offset and possibly this whole width
-					// width: gutter_extended(
-					// 	$invert: false,
-					// 	$offset: $content_inset
-					// );
-				}
-			}
-		}
+		));
 	}
 }
 
