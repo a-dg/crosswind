@@ -26,6 +26,7 @@
 	--wire-end-margin-right: #{$border * -1};
 	--wire-end-border-left: #{$border};
 	--wire-end-border-right: #{$border};
+	--wire-end-width: #{bork};
 	
 	@each $breakpoint, $column_count in $set {
 		$next_smallest_breakpoint: find_next_smallest_breakpoint(
@@ -43,14 +44,17 @@
 			}
 			> :nth-child(#{$column_count}n),
 			> :nth-child(#{$column_count}n+1) {
-				&::before,
-				&::after {
-					// TODO: use CSS variable to set this width
-					width: gutter_extended2(
-						$invert: false,
-						$offset: var(--wire-offset-outer)
-					);
-				}
+				--wire-end-width: #{gutter_extended2(
+					$invert: false,
+					$offset: var(--wire-offset-outer)
+				)};
+				// &::before,
+				// &::after {
+				// 	width: gutter_extended2(
+				// 		$invert: false,
+				// 		$offset: var(--wire-offset-outer)
+				// 	);
+				// }
 			}
 			// > :nth-child(#{$column_count}n) {
 			// 	margin-right: 0;
@@ -78,6 +82,7 @@
 		&::after {
 			left: var(--wire-end-left);
 			right: var(--wire-end-right);
+			width: var(--wire-end-width);
 		}
 	}
 }
