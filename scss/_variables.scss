@@ -74,6 +74,8 @@ $gutter_stepped_scale: (
 	yl: 6,
 );
 
+$content_width_prop: --content-width;
+
 :root {
 	--gutter-x: #{$gutter_base_x};
 	--gutter-y: #{$gutter_base_y};

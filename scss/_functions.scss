@@ -155,17 +155,17 @@
 @function gutter_extended($to_viewport_edge: true, $invert: true, $offset: 0px) {
 	$inversion: if($invert, -1, 1);
 	
-	$something_special: calc(
-		(
-			50vw 
-			- (($content_max_width / 2) - gutter_max(outer) + $offset)
-		)
-		* $inversion
-	);
-	
 	// TODO: is gutter_max() ever what we want? We have clamp
 	// Well, as long as gutter_extended() takes effect once we reach
 	// $content_max_width, then it's ok
+	$something_special: calc(
+		(50vw * $inversion)
+		- (
+			(($content_max_width / 2) - gutter_max(outer) + $offset)
+			* $inversion
+		)
+	);
+	
 	@if $to_viewport_edge {
 		@return $something_special;
 	}
@@ -173,21 +173,31 @@
 	// Difference between $content_max_width and $content_max_width_extended,
 	// noting that $content_max_width includes the space taken up by the outer
 	// gutter, while $content_max_width_extended does not
-	$content_extension: calc(((($content_max_width_extended - $content_max_width) / 2) + gutter_max(outer)) * -1);
+	$content_extension: calc(((($content_max_width_extended - $content_max_width) / 2) + gutter_max(outer)) * $inversion);
 	
 	// TODO: check this with all gutter types
-	@return clamp(
+	$stuff: (
 		$content_extension,
 		$something_special,
-		(gutter_max(outer) * -1)
+		(gutter_max(outer) * $inversion)
 	);
+	@if not $invert {
+		$stuff: reverse_list($stuff);
+	}
+	
+	@return list_to_clamp($stuff);
 }
+
+
 @function gutter_extended2($to_viewport_edge: true, $invert: true, $offset: 0px) {
 	$inversion: if($invert, -1, 1);
 	
 	$something_special: calc(
 		(50vw * $inversion)
-		+ (($content_max_width / 2) - gutter_max(outer) + $offset)
+		- (
+			(($content_max_width / 2) - gutter_max(outer) + $offset)
+			* $inversion
+		)
 	);
 	
 	@if $to_viewport_edge {

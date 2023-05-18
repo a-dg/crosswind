@@ -22,7 +22,7 @@ include __DIR__.'/incl/header.php';
 				</div>
 				<!-- <span class="i-label hang-l v2 hang-full" style="height: auto">Hanging item</span> -->
 				<div>
-					<p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Aspernatur odio impedit excepturi molestiae nesciunt amet sint doloribus nisi quidem! Sed possimus fugiat nobis assumenda, suscipit facere dolor. Harum, consectetur ea.</p>
+					<p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Aspernatur odio impedit excepturi molestiae nesciunt amet sint doloribus nisi quidem. Sed possimus fugiat nobis assumenda, suscipit facere dolor. Harum, consectetur ea.</p>
 				</div>
 			</div>
 			<div class="i"><span class="i-label">Item</span></div>
@@ -31,7 +31,7 @@ include __DIR__.'/incl/header.php';
 	
 	
 	<div class="c c-max-width c-pad">
-		<h2>Negative margins on .unhang to undo hanging</h2>
+		<h2>Positive margins on .unhang to undo hanging (.i is hung)</h2>
 		
 		<div class="g g-layout col-8-4">
 			<div class="i"><span class="i-label">Item</span></div>
@@ -39,7 +39,7 @@ include __DIR__.'/incl/header.php';
 			<div class="i hang-l v1 hang-full">
 				<span class="i-label" style="height: auto">Hanging item</span>
 				<div class="unhang">
-					<p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Aspernatur odio impedit excepturi molestiae nesciunt amet sint doloribus nisi quidem! Sed possimus fugiat nobis assumenda, suscipit facere dolor. Harum, consectetur ea.</p>
+					<p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Aspernatur odio impedit excepturi molestiae nesciunt amet sint doloribus nisi quidem. Sed possimus fugiat nobis assumenda, suscipit facere dolor. Harum, consectetur ea.</p>
 				</div>
 			</div>
 			<div class="i"><span class="i-label">Item</span></div>
@@ -55,13 +55,13 @@ include __DIR__.'/incl/header.php';
 			<div class="i hang-r v1 hang-extended">
 				<span class="i-label">Hanging item</span>
 				<div class="unhang">
-					<p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Aspernatur odio impedit excepturi molestiae nesciunt amet sint doloribus nisi quidem! Sed possimus fugiat nobis assumenda, suscipit facere dolor. Harum, consectetur ea.</p>
+					<p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Aspernatur odio impedit excepturi molestiae nesciunt amet sint doloribus nisi quidem. Sed possimus fugiat nobis assumenda, suscipit facere dolor. Harum, consectetur ea.</p>
 				</div>
 			</div>
 			<div class="i hang-l v1 hang-full">
 				<span class="i-label">Hanging item</span>
 				<div class="unhang">
-					<p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Aspernatur odio impedit excepturi molestiae nesciunt amet sint doloribus nisi quidem! Sed possimus fugiat nobis assumenda, suscipit facere dolor. Harum, consectetur ea.</p>
+					<p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Aspernatur odio impedit excepturi molestiae nesciunt amet sint doloribus nisi quidem. Sed possimus fugiat nobis assumenda, suscipit facere dolor. Harum, consectetur ea.</p>
 				</div>
 			</div>
 			<div class="i"><span class="i-label">Item</span></div>
@@ -80,22 +80,22 @@ include __DIR__.'/incl/header.php';
 		
 		<div class="g g-layout col-6">
 			<div class="i"><span class="i-label">Item</span></div>
-			<div class="i nine-cols-within-six-container">
+			<div class="i nine-in-six">
 				<span class="i-label hang-r v1 hang-full">Hanging item</span>
-				<div class="unhang special">
+				<div class="unhang six-in-nine">
 					<p>Set custom widths to break out of the grid item, then hang .i-label to reach the edge of the viewport, but then anything inside of .i-label will not be aligned with the grid. ... Hey wait a minute, this seems to work.</p>
 				</div>
 			</div>
-			<div class="i nine-cols-within-six-container">
+			<div class="i nine-in-six">
 				<span class="i-label">Hanging item</span>
-				<div class="unhang special">
+				<div class="unhang six-in-nine">
 					<p>Custom widths break out of the grid item, but cannot go outside of the grid without throwing off the content width.</p>
 				</div>
 			</div>
 			<div class="i hang-r v1 hang-extended">
-				<span class="i-label">Hanging item</span>
-				<div class="unhang special">
-					<p>Hang the entire container, the .i-label can go out to the edge, but what's inside of it will not line up with the grid, unless you account for the outer gutter + columns and gutters.</p>
+				<span class="i-label">Hanging item ext</span>
+				<div class="unhang six-in-nine in-ext">
+					<p>Hang the entire container, the .i-label can go out to the edge, but what's inside of it will not line up with the grid, unless you account for the outer gutter + columns and gutters. ... This is now pretty good but doesn't yet account for the extra width from hanging. However, this one is actually correct because its container is 9 wide.</p>
 				</div>
 			</div>
 			<div class="i float-instead-of-hang">
@@ -138,15 +138,15 @@ include __DIR__.'/incl/header.php';
 		<div class="g g-layout col-6">
 			<div class="i"><span class="i-label">Item</span></div>
 			<div class="i">
-				<span class="i-label nine-cols-within-six-container hang-r v2 hang-full">Hanging 9/6 item</span>
+				<span class="i-label nine-in-six hang-r v2 hang-full">Hanging 9/6 item</span>
 				<div class="unhang">
-					<p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Aspernatur odio impedit excepturi molestiae nesciunt amet sint doloribus nisi quidem! Sed possimus fugiat nobis assumenda, suscipit facere dolor. Harum, consectetur ea.</p>
+					<p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Aspernatur odio impedit excepturi molestiae nesciunt amet sint doloribus nisi quidem. Sed possimus fugiat nobis assumenda, suscipit facere dolor. Harum, consectetur ea.</p>
 				</div>
 			</div>
 			<div class="i">
 				<span class="i-label">Hanging item</span>
 				<div class="unhang">
-					<p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Aspernatur odio impedit excepturi molestiae nesciunt amet sint doloribus nisi quidem! Sed possimus fugiat nobis assumenda, suscipit facere dolor. Harum, consectetur ea.</p>
+					<p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Aspernatur odio impedit excepturi molestiae nesciunt amet sint doloribus nisi quidem. Sed possimus fugiat nobis assumenda, suscipit facere dolor. Harum, consectetur ea.</p>
 				</div>
 			</div>
 			<div class="i"><span class="i-label">Item</span></div>
@@ -244,7 +244,7 @@ include __DIR__.'/incl/header.php';
 			<div class="g-float">
 				<span class="i-label">Float</span>
 			</div>
-			<p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Nostrum ipsam voluptate quod. Odio expedita numquam voluptatem! Voluptatem laboriosam sequi distinctio, voluptas eaque et assumenda ab, nostrum, saepe voluptates quo autem? Est, in? Rerum consequatur totam veniam tempora dignissimos tempore odio earum in consequuntur dolores, ab quasi eum eligendi. Voluptatem nemo porro omnis!</p>
+			<p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Nostrum ipsam voluptate quod. Odio expedita numquam voluptatem. Voluptatem laboriosam sequi distinctio, voluptas eaque et assumenda ab, nostrum, saepe voluptates quo autem? Est, in? Rerum consequatur totam veniam tempora dignissimos tempore odio earum in consequuntur dolores, ab quasi eum eligendi. Voluptatem nemo porro omnis.</p>
 		</div>
 	</div>
 	
@@ -253,7 +253,7 @@ include __DIR__.'/incl/header.php';
 			<div class="g-float">
 				<span class="i-label">RF</span>
 			</div>
-			<p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Nostrum ipsam voluptate quod. Odio expedita numquam voluptatem! Voluptatem laboriosam sequi distinctio, voluptas eaque et assumenda ab, nostrum, saepe voluptates quo autem? Est, in? Rerum consequatur totam veniam tempora dignissimos tempore odio earum in consequuntur dolores, ab quasi eum eligendi. Voluptatem nemo porro omnis!</p>
+			<p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Nostrum ipsam voluptate quod. Odio expedita numquam voluptatem. Voluptatem laboriosam sequi distinctio, voluptas eaque et assumenda ab, nostrum, saepe voluptates quo autem? Est, in? Rerum consequatur totam veniam tempora dignissimos tempore odio earum in consequuntur dolores, ab quasi eum eligendi. Voluptatem nemo porro omnis.</p>
 		</div>
 	</div>
 	
@@ -268,7 +268,7 @@ include __DIR__.'/incl/header.php';
 			<div class="g-float">
 				<span class="i-label">Float</span>
 			</div>
-			<p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Nostrum ipsam voluptate quod. Odio expedita numquam voluptatem! Voluptatem laboriosam sequi distinctio, voluptas eaque et assumenda ab, nostrum, saepe voluptates quo autem? Est, in? Rerum consequatur totam veniam tempora dignissimos tempore odio earum in consequuntur dolores, ab quasi eum eligendi. Voluptatem nemo porro omnis!</p>
+			<p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Nostrum ipsam voluptate quod. Odio expedita numquam voluptatem. Voluptatem laboriosam sequi distinctio, voluptas eaque et assumenda ab, nostrum, saepe voluptates quo autem? Est, in? Rerum consequatur totam veniam tempora dignissimos tempore odio earum in consequuntur dolores, ab quasi eum eligendi. Voluptatem nemo porro omnis.</p>
 		</div>
 	</div>
 </div>
