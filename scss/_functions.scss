@@ -201,10 +201,7 @@
 	);
 	
 	@if $to_viewport_edge {
-		@return calc(
-			(50vw * $inversion)
-			- (($content_max_width / 2) * $inversion)
-		);
+		@return $something_special;
 	}
 	
 	// TODO: check this with all gutter types

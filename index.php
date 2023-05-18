@@ -362,7 +362,6 @@ include __DIR__.'/incl/header.php';
 	</div>
 </div>
 
-<!--
 <div class="c c-full-width c-pad">
 	<h2>Wire grid (full-width container)</h2>
 	
@@ -372,7 +371,6 @@ include __DIR__.'/incl/header.php';
 		<? endforeach; ?>
 	</div>
 </div>
--->
 
 
 	
