@@ -103,7 +103,7 @@ include __DIR__.'/incl/header.php';
 					<span class="i-label">RF</span>
 				</div>
 				<div>
-					<p>Float instead of hang, because the math can use CSS variables</p>
+					<p>Float instead of hang, because the math can use CSS variables ... however it doesn't work when the window width is approaching $content_max_width</p>
 				</div>
 			</div>
 			<div class="hang-l v1 hang-full">

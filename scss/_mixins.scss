@@ -37,7 +37,7 @@
 			}
 			> :nth-child(#{$column_count}n),
 			> :nth-child(#{$column_count}n+1) {
-				--wire-end-width: var(--wire-end-width-default);
+				--wire-end-width: var(--wire-end-width-visible);
 			}
 		}
 	}

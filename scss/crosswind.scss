@@ -158,7 +158,6 @@ $grid_setup_4: (
 	$border_color: $color_black;
 	$border_width: 8px;
 	$content_inset: gutter(x, $as_list: true); // TODO: make sure you can do this with gutter
-	// TODO: right now we're relying on content inset to be the gutter, but we should allow arbitrary values, and things don't line up right if you use one
 	
 	$inverted_gutter: if(
 		meta.type_of($content_inset) == list,
@@ -177,7 +176,7 @@ $grid_setup_4: (
 	--wire-end-border-left: #{$border_width};
 	--wire-end-border-right: #{$border_width};
 	--wire-end-width: 0;
-	--wire-end-width-default: #{gutter_extended2(
+	--wire-end-width-visible: #{gutter_extended2(
 		$invert: false,
 		$offset: var(--wire-end-offset)
 	)};
@@ -188,9 +187,11 @@ $grid_setup_4: (
 	// would be better to have an alternate version that doesn't need that to be
 	// removed, perhaps by passing a parameter indicating that we're not trying
 	// to compensate for $content_max_width
-	--wire-end-offset: 50vw - #{calc($content_max_width / 2) - gutter_max(x)};
-	.c-max & {
-		--wire-end-offset: #{gutter_max(x)};
+	--wire-end-offset: 50vw - #{calc(($content_max_width / 2) - list_to_clamp($content_inset))};
+	@include b($content_max_width) {
+		.c-max & {
+			--wire-end-offset: #{list_to_clamp($content_inset)};
+		}
 	}
 	
 	> * {
@@ -234,19 +235,6 @@ $grid_setup_4: (
 		));
 	}
 }
-
-
-// .c-max .g-wire {
-// 	.g-6 {
-// 		:nth-child(6n),
-// 		:nth-child(6n+1) {
-// 			&::before,
-// 			&::after {
-// 				width: var(--extended-gutter-width);
-// 			}
-// 		}
-// 	}
-// }
 
 
 .g-flush {
