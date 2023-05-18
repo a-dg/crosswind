@@ -38,8 +38,8 @@
 			> :nth-child(#{$column_count}n),
 			> :nth-child(#{$column_count}n+1) {
 				--wire-end-width: var(--wire-end-width-default);
+			}
 		}
-	}
 	}
 }
 
@@ -155,11 +155,11 @@
 						// definition and use that to create a selector for the first item
 						// that's more like :nth-child(2n+1), so that it doesn't apply to
 						// all items in the grid, most of which are then overridden
-						> .i {
+						> * {
 							@include grid_plot($column, $row, $order);
 						}
 					} @else {
-						> .i:nth-child(#{$index}#{if($repeat, n, '')}) {
+						> :nth-child(#{$index}#{if($repeat, n, '')}) {
 							@include grid_plot($column, $row, $order);
 						}
 					}
