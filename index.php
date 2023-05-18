@@ -8,7 +8,7 @@ include __DIR__.'/incl/header.php';
 
 	<h1>Hanging</h1>
 	
-	<div class="c c-max-width c-pad">
+	<div class="c c-max c-pad">
 		<h2>.hang-* classes on nested child elements</h2>
 		
 		<div class="g g-layout col-8-4">
@@ -30,7 +30,7 @@ include __DIR__.'/incl/header.php';
 	</div>
 	
 	
-	<div class="c c-max-width c-pad">
+	<div class="c c-max c-pad">
 		<h2>Positive margins on .unhang to undo hanging (.i is hung)</h2>
 		
 		<div class="g g-layout col-8-4">
@@ -47,7 +47,7 @@ include __DIR__.'/incl/header.php';
 	</div>
 	
 	
-	<div class="c c-full-width c-pad">
+	<div class="c c-full c-pad">
 		<h2>Hanging elements in full-width container, where .hang-extended and .hang-full have no effect</h2>
 		
 		<div class="g g-layout col-8-4">
@@ -69,7 +69,7 @@ include __DIR__.'/incl/header.php';
 	</div>
 	
 	
-	<div class="c c-max-width c-pad">
+	<div class="c c-max c-pad">
 		<h2>Narrower than 12 columns, v1</h2>
 		
 		<div class="g g-layout">
@@ -126,7 +126,7 @@ include __DIR__.'/incl/header.php';
 	</div>
 	
 	
-	<div class="c c-max-width c-pad">
+	<div class="c c-max c-pad">
 		<h2>Narrower than 12 columns, v2</h2>
 		
 		<div class="g g-layout">
@@ -163,7 +163,7 @@ include __DIR__.'/incl/header.php';
 	<h1>Outlier</h1>
 	
 
-<div class="c c-max-width c-pad">
+<div class="c c-max c-pad">
 	<h2>8/4 split layout with one outlier (max-width container)</h2>
 	
 	<div class="g g-layout">
@@ -197,7 +197,7 @@ include __DIR__.'/incl/header.php';
 	
 
 
-<div class="c c-max-width c-pad">
+<div class="c c-max c-pad">
 	<h2>Rows</h2>
 	
 	<div class="g g-layout silly">
@@ -208,7 +208,7 @@ include __DIR__.'/incl/header.php';
 </div>
 
 
-<div class="c c-max-width c-pad">
+<div class="c c-max c-pad">
 	<h2>Layout with columns, rows, and order (max-width container)</h2>
 	
 	<div class="g g-layout crazy">
@@ -230,7 +230,7 @@ include __DIR__.'/incl/header.php';
 	
 
 
-<div class="c c-max-width c-pad">
+<div class="c c-max c-pad">
 	<h2>Floating item outside of grid</h2>
 	
 	<div class="g g-layout">
@@ -286,7 +286,7 @@ include __DIR__.'/incl/header.php';
 	
 
 
-<div class="c c-max-width c-pad">
+<div class="c c-max c-pad">
 	<h2>3-up explicit grid (max-width container)</h2>
 	
 	<div class="g g-3">
@@ -297,7 +297,7 @@ include __DIR__.'/incl/header.php';
 </div>
 
 
-<div class="c c-max-width c-pad">
+<div class="c c-max c-pad">
 	<h2>4-up explicit grid (max-width container)</h2>
 	
 	<div class="g g-4">
@@ -308,7 +308,7 @@ include __DIR__.'/incl/header.php';
 </div>
 
 
-<div class="c c-full-width c-pad">
+<div class="c c-full c-pad">
 	<h2>Auto grid (full-width container)</h2>
 	
 	<div class="g g-auto">
@@ -319,7 +319,7 @@ include __DIR__.'/incl/header.php';
 </div>
 
 
-<div class="c c-max-width c-pad">
+<div class="c c-max c-pad">
 	<h2>Auto grid (max-width container)</h2>
 	
 	<div class="g g-auto">
@@ -330,7 +330,7 @@ include __DIR__.'/incl/header.php';
 </div>
 
 
-<div class="c c-full-width">
+<div class="c c-full">
 	<h2>Flush grid (full-width container)</h2>
 	
 	<div class="g-flush g-auto">
@@ -341,7 +341,7 @@ include __DIR__.'/incl/header.php';
 </div>
 
 
-<div class="c c-max-width c-pad">
+<div class="c c-max c-pad">
 	<h2>Flush grid (max-width container)</h2>
 	
 	<div class="g-flush g-4">
@@ -352,7 +352,7 @@ include __DIR__.'/incl/header.php';
 </div>
 
 
-<div class="c c-max-width c-pad">
+<div class="c c-max c-pad">
 	<h2>Wire grid (max-width container)</h2>
 	
 	<div class="g g-wire g-6">
@@ -362,7 +362,7 @@ include __DIR__.'/incl/header.php';
 	</div>
 </div>
 
-<div class="c c-full-width c-pad">
+<div class="c c-full c-pad">
 	<h2>Wire grid (full-width container)</h2>
 	
 	<div class="g g-wire g-6">
@@ -384,7 +384,7 @@ include __DIR__.'/incl/header.php';
 	
 
 
-<div class="c c-max-width c-pad">
+<div class="c c-max c-pad">
 	<h2>6/2/4 layout with offset (max-width container)</h2>
 	
 	<div class="g g-layout">
@@ -401,7 +401,7 @@ include __DIR__.'/incl/header.php';
 </div>
 
 
-<div class="c c-max-width c-pad">
+<div class="c c-max c-pad">
 	<h2>8/4 split layout (max-width container)</h2>
 	
 	<div class="g g-layout">
@@ -417,7 +417,7 @@ include __DIR__.'/incl/header.php';
 </div>
 
 
-<div class="c c-max-width c-pad">
+<div class="c c-max c-pad">
 	<h2>Centered 6-column item</h2>
 	<div class="g g-layout col-6">
 		<div class="i"><span class="i-label">6-column</span></div>
@@ -443,10 +443,10 @@ include __DIR__.'/incl/header.php';
 	
 
 
-<div class="c c-full-width">
+<div class="c c-full">
 	<h2>Clinging to edges (full-width container)</h2>
 	<div class="bg">
-		<div class="c c-full-width c-pad">
+		<div class="c c-full c-pad">
 			<div class="f">
 				<div class="f-item"><span class="i-label">1</span></div>
 				<div class="f-item"><span class="i-label">2</span></div>
@@ -456,10 +456,10 @@ include __DIR__.'/incl/header.php';
 </div>
 
 
-<div class="c c-full-width">
+<div class="c c-full">
 	<h2>Clinging to edges (max-width container)</h2>
 	<div class="bg">
-		<div class="c c-max-width c-pad">
+		<div class="c c-max c-pad">
 			<div class="f">
 				<div class="f-item"><span class="i-label">1</span></div>
 				<div class="f-item"><span class="i-label">2</span></div>
@@ -474,7 +474,7 @@ include __DIR__.'/incl/header.php';
 </section>
 
 
-<div class="c c-max-width c-pad">
+<div class="c c-max c-pad">
 	<div class="g g-layout">
 		<? foreach (range(1, 12) as $index): ?>
 			<div class="i g-guide"></div>

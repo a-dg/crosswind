@@ -71,10 +71,10 @@ span.i-label {
 	}
 }
 
-.c-full-width {
+.c-full {
 }
 
-.c-max-width {
+.c-max {
 	max-width: $content_max_width;
 	
 	&.stepped-max-width {
@@ -199,14 +199,14 @@ $grid_setup_4: (
 	// 	$invert: false
 	// )};
 	
-	// Use a CSS variable to accommodate .c-max-width and .c-full-width without
+	// Use a CSS variable to accommodate .c-max and .c-full without
 	// having to write explicit styles for both
 	// TODO: this removes the -50vw margin built into gutter_extended() but it
 	// would be better to have an alternate version that doesn't need that to be
 	// removed, perhaps by passing a parameter indicating that we're not trying
 	// to compensate for $content_max_width
 	--wire-offset-outer: 50vw - #{calc($content_max_width / 2) - gutter_max(x)};
-	.c-max-width & {
+	.c-max & {
 		--wire-offset-outer: #{gutter_max(x)};
 	}
 	
@@ -239,7 +239,7 @@ $grid_setup_4: (
 }
 
 
-// .c-max-width .g-wire {
+// .c-max .g-wire {
 // 	.g-6 {
 // 		:nth-child(6n),
 // 		:nth-child(6n+1) {
@@ -299,8 +299,8 @@ $grid_setup_4: (
 		color: $color_black;
 	}
 	
-	.c-max-width & {
-		// @include warning('.g-flush may not be used within .c-max-width, as its container must be allowed to use the full width of the viewport');
+	.c-max & {
+		// @include warning('.g-flush may not be used within .c-max, as its container must be allowed to use the full width of the viewport');
 		margin-left: 0;
 		
 		&.g-4 {
@@ -541,7 +541,7 @@ $grid_setup_4: (
 		&.v1 {
 			margin-#{$direction}: gutter(outer, $invert: true);
 			content: 'narrow';
-			.c-max-width & {
+			.c-max & {
 				&.hang-extended {
 					.unhang {
 						margin-#{$direction}: gutter(outer);
@@ -569,11 +569,11 @@ $grid_setup_4: (
 					}
 				}
 				&:not(.hang-extended):not(.hang-full) {
-					@include warning('Hanging without .hang-extended or .hang-full probably should not be used within .c-max-width, as it will only hang into the outer gutter. Consider defining $content_max_width_extended (currently set to ' + $content_max_width_extended + ') and using .hang-extended to extend beyond the outer gutter.');
+					@include warning('Hanging without .hang-extended or .hang-full probably should not be used within .c-max, as it will only hang into the outer gutter. Consider defining $content_max_width_extended (currently set to ' + $content_max_width_extended + ') and using .hang-extended to extend beyond the outer gutter.');
 				}
 			}
 			
-			.c-full-width & {
+			.c-full & {
 				.unhang {
 					margin-#{$direction}: gutter(outer);
 				}
@@ -590,7 +590,7 @@ $grid_setup_4: (
 		&.v2 {
 			margin-#{$direction}: gutter(outer, $invert: true);
 			content: 'narrow v2';
-			.c-max-width & {
+			.c-max & {
 				&.hang-extended {
 					@include b($content_max_width) {
 						margin-#{$direction}: gutter_extended(false);
@@ -603,7 +603,7 @@ $grid_setup_4: (
 					}
 				}
 				&:not(.hang-extended):not(.hang-full) {
-					@include warning('Hanging without .hang-extended or .hang-full probably should not be used within .c-max-width, as it will only hang into the outer gutter. Consider defining $content_max_width_extended (currently set to ' + $content_max_width_extended + ') and using .hang-extended to extend beyond the outer gutter.');
+					@include warning('Hanging without .hang-extended or .hang-full probably should not be used within .c-max, as it will only hang into the outer gutter. Consider defining $content_max_width_extended (currently set to ' + $content_max_width_extended + ') and using .hang-extended to extend beyond the outer gutter.');
 				}
 			}
 		}
