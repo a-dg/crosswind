@@ -1,0 +1,76 @@
+// This is stuff that shouldn't need to be touched
+
+@import '../lib/breakbeat';
+
+$breakpoints: create_breakpoints(
+	$breakpoint_names,
+	$breakpoint_width_min,
+	$breakpoint_width_max,
+	$breakpoint_scale_curve
+);
+
+$content_max_width: map.get($breakpoints, $content_max_width_breakpoint);
+$content_max_width_extended: map.get($breakpoints, $content_max_width_extended_breakpoint);
+
+
+$content_width_prop: --content-width;
+
+:root {
+	--gutter-x: #{$gutter_base_x};
+	--gutter-y: #{$gutter_base_y};
+	--gutter-outer: #{$gutter_base_outer};
+	--gutter-stepped-x: #{$gutter_base_x};
+	--gutter-stepped-y: #{$gutter_base_y};
+	--gutter-stepped-outer: #{$gutter_base_outer};
+	--content-width: 0;
+	
+	@each $breakpoint, $scale in $gutter_stepped_scale {
+		@include b($breakpoint) {
+			--gutter-stepped-x: #{math.round($gutter_base_x * $scale)};
+			--gutter-stepped-y: #{math.round($gutter_base_y * $scale)};
+			--gutter-stepped-outer: #{math.round($gutter_base_outer * $scale)};
+		}
+	}
+}
+
+// TODO: what is the advantage of using CSS variables?
+$gutter_fixed: (
+	x: $gutter_base_x,
+	y: $gutter_base_y,
+	outer: $gutter_base_outer,
+	// x: var(--gutter-x),
+	// y: var(--gutter-y),
+	// outer: var(--gutter-outer),
+);
+
+$gutter_stepped: (
+	x: var(--gutter-stepped-x),
+	y: var(--gutter-stepped-y),
+	outer: var(--gutter-stepped-outer),
+);
+
+$gutter_flexible: (
+	x: (
+		$gutter_flexible_min_x,
+		(truncate(calc($gutter_flexible_max_x / $content_max_width)) * 100vw),
+		$gutter_flexible_max_x,
+	),
+	y: (
+		20px,
+		8vw,
+		48px,
+	),
+	outer: (
+		20px,
+		6vw,
+		48px
+	),
+);
+
+$gutter_type: flexible !default;
+
+$gutter: map.get((
+	fixed: $gutter_fixed,
+	stepped: $gutter_stepped,
+	flexible: $gutter_flexible,
+), $gutter_type);

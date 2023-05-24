@@ -1,0 +1,62 @@
+// All grid-related site-wide parameters are configured here
+
+@use 'sass:math';
+@use 'sass:map';
+
+$breakpoint_names: (
+	zo,
+	tn,
+	sm,
+	md,
+	av,
+	ch,
+	lg,
+	xl,
+	yl,
+);
+$breakpoint_scale_curve: 0.33;
+
+// Smallest and largest non-zero breakpoint widths
+$breakpoint_width_min: 384;
+$breakpoint_width_max: 1664;
+
+// Non-zero breakpoints should not be smaller than this
+$content_min_width: 320px;
+
+// Breakpoint at which normal content stops growing
+// (Note that a max-width container includes its outer gutter as padding,
+// therefore its content visually occupies a narrower width than the nominal
+// max-width specified here)
+$content_max_width_breakpoint: lg;
+
+// Breakpoint at which extended content stops growing
+$content_max_width_extended_breakpoint: xl;
+
+// TODO: make this work
+// $max_width_type: stepped;
+$max_width_type: flexible;
+
+$grid_columns: (
+	zo: 6,
+	md: 12,
+);
+
+// $gutter_type: fixed;
+// $gutter_type: stepped;
+$gutter_type: flexible;
+
+$gutter_base_x: 16px;
+$gutter_base_y: 48px;
+$gutter_base_outer: 48px;
+
+$gutter_stepped_scale: (
+	zo: 0.5,
+	sm: 1,
+	av: 2.5,
+	lg: 4,
+	yl: 6,
+);
+
+// TODO: use same base gutter values for all gutter types
+$gutter_flexible_min_x: 16px;
+$gutter_flexible_max_x: 28px;

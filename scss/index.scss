@@ -4,20 +4,19 @@
 @use 'sass:map';
 @use 'sass:meta';
 
-// $gutter_type: fixed;
-// $gutter_type: stepped;
-$gutter_type: flexible;
 
-// $max_width_type: stepped;
-$max_width_type: flexible;
+// TODO: use @use and make these make sense
+@import 'user/general';
+@import 'user/grid';
+@import 'user/colors';
+@import 'user/typography';
+@import 'user/demo';
 
-// $show_item_boundaries: true;
-$output_query_comments: true;
+@import 'crosswind/functions';
+@import 'crosswind/mixins';
+@import 'crosswind/grid';
+@import 'crosswind/typography';
 
-@import 'breakbeat';
-@import 'functions';
-@import 'mixins';
-@import 'variables';
 
 
 * {
@@ -33,6 +32,8 @@ body {
 }
 
 @include parabolic_font_sizes($all_font_sizes);
+
+// @debug closest_font_size($all_font_sizes, 32px);
 
 
 h1 {
@@ -548,7 +549,7 @@ $grid_setup_4: (
 					}
 				}
 				&:not(.hang-extended):not(.hang-full) {
-					@include warning('Hanging without .hang-extended or .hang-full probably should not be used within .c-max, as it will only hang into the outer gutter. Consider defining $content_max_width_extended (currently set to ' + $content_max_width_extended + ') and using .hang-extended to extend beyond the outer gutter.');
+					@include warning('Hanging without .hang-extended or .hang-full probably should not be used within .c-max, as it will only hang into the outer gutter. Consider defining $content_max_width_extended_breakpoint (currently set to "' + $content_max_width_extended_breakpoint + '") and using .hang-extended to extend beyond the outer gutter.');
 				}
 			}
 			

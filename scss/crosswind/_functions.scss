@@ -3,7 +3,7 @@
 @use 'sass:list';
 @use 'sass:map';
 @use 'sass:meta';
-@use 'breakbeat' as b;
+@use '../lib/breakbeat' as b;
 
 
 // TODO: keep clamp values separated as long as possible, so they can be used
@@ -516,6 +516,29 @@
 
 
 // /**
+//  * Truncate decimal to specified number of places
+//  * @param {number/list} $value
+//  * @param {int} $places
+//  * @return {number}
+//  */
+@function trunx($value, $places: 4) {
+	// TODO: verify that flooring does not cause elements to accidentally reflow
+	// when using negative numbers
+	
+	@if meta.type_of($value) == list {
+		$separator: list.separator($value);
+		$result: ();
+		@each $list_item in $value {
+			$result: list.append($result, truncate($list_item), $separator);
+		}
+		@return $result;
+	}
+	
+	@return calc(math.floor($value * math.pow(10, $places)) / math.pow(10, $places));
+}
+
+
+// /**
 //  * Replace in string
 //  * @param {string} $input
 //  * @param {string} $search
@@ -697,7 +720,7 @@
 	}
 	
 	$size_fluid: ($size_fixed * 100vw);
-	$size_preferred: calc($size_fluid + ($min - ($size_fixed * $start)));
+	$size_preferred: calc(trunx($size_fluid) + trunx($min - ($size_fixed * $start)));
 	
 	@return clamp($min, $size_preferred, $max);
 }
@@ -768,27 +791,27 @@
 //  * @param {int} $start: Smallest non-zero breakpoint
 //  * @param {int} $end: Largest breakpoint
 //  * @param {float} $curve
-//  * @param {int} $multiple
+//  * @param {int} $round_to
 //  * @return {map}
 //  */
-@function create_breakpoints($names, $start, $end, $curve, $multiple: 4) {
+@function create_breakpoints($names, $start, $end, $curve, $round_to: 4) {
+	@if $start < $content_min_width {
+		@warn 'A value of ' + $start + ' for the first non-zero breakpoint might be a bit small. The smallest common device width is ' + $content_min_width + ', which means that users would never see the first breakpoint.';
+	}
+	
 	$start: b.b_strip_units($start);
 	$end: b.b_strip_units($end);
 	
-	@if $start % $multiple > 0 {
-		@warn 'The value of ' + $start + ' for the first non-zero breakpoint is not a multiple of ' + $multiple + ', so its interpolated breakpoint value will be different.';
+	@if $start % $round_to > 0 {
+		@warn 'The value of ' + $start + ' for the first non-zero breakpoint is not a multiple of ' + $round_to + ', so its interpolated breakpoint value will be different.';
 	}
-	@if $end % $multiple > 0 {
-		@warn 'The value of ' + $end + ' for the last breakpoint is not a multiple of ' + $multiple + ', so its interpolated breakpoint value will be different.';
-	}
-	
-	@if $start < 320 {
-		@warn 'A value of ' + $start + ' for the first non-zero breakpoint might be a bit small. The smallest common device width is 320px, which means that users would never see the first breakpoint.';
+	@if $end % $round_to > 0 {
+		@warn 'The value of ' + $end + ' for the last breakpoint is not a multiple of ' + $round_to + ', so its interpolated breakpoint value will be different.';
 	}
 	
 	$values: list.join((0,), interpolate(
-		$start: math.round(calc($start / $multiple)),
-		$end: math.round(calc($end / $multiple)),
+		$start: math.round(calc($start / $round_to)),
+		$end: math.round(calc($end / $round_to)),
 		$count: list.length($names) - 1,
 		$curve: $curve,
 		$round: true
@@ -797,7 +820,7 @@
 	$map: ();
 	@for $i from 1 through list.length($names) {
 		$name: list.nth($names, $i);
-		$value: (list.nth($values, $i) * $multiple * 1px);
+		$value: (list.nth($values, $i) * $round_to * 1px);
 		$map: map.set($map, $name, $value);
 	}
 	
@@ -953,4 +976,96 @@
 	}
 	
 	@return $complete_sizes;
+}
+
+
+// /**
+//  * Find closest font size to target
+//  * @param {map} $set
+//  * @param {number} $target_size
+//  * @return {map}
+//  */
+@function closest_font_size($set, $target_size) {
+	
+	$all_largest_sizes: ();
+	$all_differences: ();
+	
+	@each $selector, $sizes in $set {
+		@debug '';
+		@debug '$sizes (' + meta.type_of($sizes) + '):';
+		@debug $sizes;
+		
+		@if meta.type_of($sizes) == number {
+			$all_largest_sizes: map.set($all_largest_sizes, $selector, $sizes);
+			$all_differences: map.set($all_differences, $selector, math.abs($sizes - $target_size));
+		}
+		
+		@else if meta.type_of($sizes) == list {
+			$all_largest_sizes: map.set($all_largest_sizes, $selector, list.nth($sizes, 1));
+			$all_differences: map.set($all_differences, $selector, math.abs(list.nth($sizes, 1) - $target_size));
+		}
+		
+		@else {
+			$last_size: list.nth(map.values($sizes), list.length(map.keys($sizes)));
+			@if meta.type_of($last_size) == list {
+				$last_size: list.nth($last_size, 1);
+			}
+			
+			$all_largest_sizes: map.set($all_largest_sizes, $selector, $last_size);
+			$all_differences: map.set($all_differences, $selector, math.abs($last_size - $target_size));
+		}
+	}
+	
+	
+	@debug '$all_largest_sizes (' + meta.type_of($all_largest_sizes) + '):';
+	@debug $all_largest_sizes;
+	
+	@debug '$all_differences (' + meta.type_of($all_differences) + '):';
+	@debug $all_differences;
+	
+	$lowest: 0;
+	@each $selector, $difference in $all_differences {
+		
+	}
+	
+	@return '';
+}
+
+
+
+@function _str-compare($item, $seed) {
+	@return $a < $b;
+}
+
+
+/// Quick sort
+/// @author Kitty Giraudel
+/// @param {List} $list - list to sort
+/// @return {List}
+/// @require {function} _str-compare
+@function quick-sort($list) {
+	$less_than:  ();
+	$equal: ();
+	$greater_than: ();
+	
+	@if list.length($list) > 1 {
+		$seed: list.nth($list, math.ceil(list.length($list) / 2));
+		
+		@each $item in $list {
+			@if $item == $seed {
+				$equal: list.append($equal, $item, list.separator($list));
+			} @else if $item < $seed {
+				$less_than: list.append($less_than, $item, list.separator($list));
+			} @else if $item > $seed {
+				$greater_than: list.append($greater_than, $item, list.separator($list));
+			}
+		}
+		
+		@return list.join(
+			list.join(quick-sort($less_than), $equal),
+			quick-sort($greater_than)
+		);
+	}
+
+	@return $list;
 }
