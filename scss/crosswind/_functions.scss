@@ -888,7 +888,7 @@
 //  * @param {map} $sizes
 //  * @return {map}
 //  */
-@function create_intermediate_sizes($sizes) {
+@function create_intermediate_sizes($sizes, $with_rounding: true) {
 	@if list.length(map.keys($sizes)) == 1 {
 		@return $sizes;
 	}
@@ -937,7 +937,7 @@
 						$end: $next_size,
 						$count: $intermediate_size_count + 2,
 						$curve: $font_scale_curve,
-						$round: true
+						$round: $with_rounding
 					);
 					
 					// Pair each intermediate size with a breakpoint

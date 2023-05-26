@@ -1,7 +1,7 @@
 $font_scale_curve: 0.5;
 
 // Breakpoints at which fonts start and stop scaling, can be overriden on a
-// per-element basis
+// per-selector or per-element basis
 $font_scale_breakpoint_min: sm;
 $font_scale_breakpoint_max: lg;
 
@@ -11,6 +11,24 @@ $all_font_sizes: (
 		ch: 36px fixed,
 		lg: 40px, // TODO: fix this, it doesn't work
 		// xl: 70px,
+		
+		// Or ...
+		// size: (
+		// 	sm: 24px,
+		// 	ch: 36px fixed,
+		// 	lg: 40px,
+		// 	xl: 70px,
+		// ),
+		// leading: 1.5 1.3,
+		
+		// Or ...
+		// size: (
+		// 	sm: 24px,
+		// 	ch: 36px fixed,
+		// 	lg: 40px,
+		// 	xl: 70px,
+		// ),
+		// signature: 'sans bold upper',
 	),
 	'h1.gap-after-fixed': (
 		sm: 24px,
@@ -34,3 +52,43 @@ $all_font_sizes: (
 		sm: 23px,
 	),
 );
+
+$font_style_signatures: (
+	'sans regular',
+	'sans bold',
+	'sans bold upper',
+	'sans light upper',
+);
+
+
+$all_line_heights: (
+	h1: 25px 10px,
+);
+
+
+/*
+
+// TODO: responsive line heights
+
+Line heights are determined by:
+- Font size
+- Font family
+- Font weight
+- Case transform
+
+Possible approach:
+- For each font signature (a combination of family, weight, transform)
+- Specify min- and max-breakpoint line heights
+- Min-breakpoint line height is wider, for small text
+- Max-breakpoint line height is narrower, for large text
+
+Example:
+$all_font_sizes: (
+	'sans bold': 1.5 1.3,
+	'sans bold upper': 1.7 1.5,
+	'sans light upper': 1.8 1.6,
+);
+
+Do we really want this?
+
+*/

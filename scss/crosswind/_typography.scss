@@ -1,3 +1,11 @@
+// @use 'sass:math';
+// @use 'sass:string';
+@use 'sass:list';
+@use 'sass:map';
+@use 'sass:meta';
+@use '../lib/breakbeat' as b;
+
+
 // /**
 //  * Create parabolic responsive font sizes
 //  * 
@@ -18,100 +26,111 @@
 //  * 
 //  * @param {map} $font_sizes
 //  */
-@mixin parabolic_font_sizes($font_sizes) {
+@mixin parabolic_font_sizes($font_sizes, $property: 'font-size') {
 	@each $selector, $sizes in $font_sizes {
-		#{$selector} {
-			
-			// Size is formatted as a single value
-			// Example: (h1: 24px,)
-			@if meta.type_of($sizes) == number {
-				font-size: $sizes;
+		
+		// Size is formatted as a single value
+		// Example: (h1: 24px,)
+		@if meta.type_of($sizes) == number {
+			#{$selector} {
+				#{$property}: $sizes;
+			}
+		}
+		
+		// Sizes are formatted in a list, using default settings for font scaling
+		// breakpoints ($font_scale_breakpoint_min, $font_scale_breakpoint_max),
+		// or as a map with explicity defined breakpoints
+		// Examples: (
+		//   h1: 24px 36px,
+		//   h2: (
+		//     sm: 24px,
+		//     md: 32px [fixed],
+		//     lg: 36px,
+		//   ),
+		// ),
+		@else {
+			@if meta.type_of($sizes) == list {
+				$sizes: convert_font_size_list_to_map($sizes);
 			}
 			
-			// Sizes are formatted in a list, using default settings for font scaling
-			// breakpoints ($font_scale_breakpoint_min, $font_scale_breakpoint_max),
-			// or as a map with explicity defined breakpoints
-			// Examples: (
-			//   h1: 24px 36px,
-			//   h2: (
-			//     sm: 24px,
-			//     md: 32px [fixed],
-			//     lg: 36px,
-			//   ),
-			// ),
-			@else {
-				@if meta.type_of($sizes) == list {
-					$sizes: convert_font_size_list_to_map($sizes);
+			$is_integer: b.b_is_zero(list.nth(map.values($sizes), 1) % 1);
+			$sizes: create_intermediate_sizes($sizes, $is_integer);
+			$size_count: list.length(map.keys($sizes));
+			
+			$size_index: 1;
+			@each $breakpoint, $size in $sizes {
+				@if
+					meta.type_of($size) == list
+					and list.nth($size, 2) == fixed
+				{
+					@include b($breakpoint) {
+						#{$selector} {
+							#{$property}: list.nth($size, 1);
+						}
+					}
 				}
 				
-				$sizes: create_intermediate_sizes($sizes);
-				$size_count: list.length(map.keys($sizes));
+				// Output a basic font size for a single defined breakpoint
+				@else if $size_count == 1 {
+					@include b($breakpoint) {
+						#{$selector} {
+							#{$property}: $size;
+						}
+					}
+				}
 				
-				$size_index: 1;
-				@each $breakpoint, $size in $sizes {
-					@if
-						meta.type_of($size) == list
-						and list.nth($size, 2) == fixed
-					{
-						@include b($breakpoint) {
-							font-size: list.nth($size, 1);
-						}
+				// For multiple input sizes, we skip the last entry, because:
+				// - its value is already accounted for in the clamp() that starts
+				//   with the second-to-last entry and defines a maximum size that is
+				//   equal to the size on the largest breakpoint
+				// - the size of the last entry is fixed, in which case the it has
+				//   already been included by the simple check for fixed values above
+				@else if $size_index < $size_count {
+					$next_breakpoint: list.nth(map.keys($sizes), $size_index + 1);
+					$next_size: list.nth(map.values($sizes), $size_index + 1);
+					
+					// If size includes any keywords, isolate size value
+					@if meta.type_of($next_size) == list {
+						$next_size: list.nth($next_size, 1);
 					}
 					
-					// Output a basic font size for a single defined breakpoint
-					@else if $size_count == 1 {
-						@include b($breakpoint) {
-							font-size: $size;
-						}
-					}
+					$fancy_set: (
+						$breakpoint: $size,
+						$next_breakpoint: $next_size,
+					);
 					
-					// For multiple input sizes, we skip the last entry, because:
-					// - its value is already accounted for in the clamp() that starts
-					//   with the second-to-last entry and defines a maximum size that is
-					//   equal to the size on the largest breakpoint
-					// - the size of the last entry is fixed, in which case the it has
-					//   already been included by the simple check for fixed values above
-					@else if $size_index < $size_count {
-						$next_breakpoint: list.nth(map.keys($sizes), $size_index + 1);
-						$next_size: list.nth(map.values($sizes), $size_index + 1);
-						
-						// If size includes any keywords, isolate size value
-						@if meta.type_of($next_size) == list {
-							$next_size: list.nth($next_size, 1);
+					// Use between operator to isolate font sizes to each breakpoint
+					// range, rather than overriding them at every breakpoint
+					$use_between_operator: false;
+					
+					// For the first size, since we're using clamp to set the minimum
+					// size, which may occur at a breakpoint that's not zero, we should
+					// not included a media query
+					@if $size_index == 1 {
+						#{$selector} {
+							#{$property}: fancy_font_size($fancy_set);
 						}
-						
-						$fancy_set: (
-							$breakpoint: $size,
-							$next_breakpoint: $next_size,
-						);
-						
-						// Use between operator to isolate font sizes to each breakpoint
-						// range, rather than overriding them at every breakpoint
-						$use_between_operator: false;
-						
-						// For the first size, since we're using clamp to set the minimum
-						// size, which may occur at a breakpoint that's not zero, we should
-						// not included a media query
-						@if $size_index == 1 {
-							font-size: fancy_font_size($fancy_set);
-						} @else {
-							@if $use_between_operator {
-								$next_smallest_breakpoint: find_next_smallest_breakpoint(
-									map.keys($sizes), $breakpoint
-								);
-								@include b('>< #{$breakpoint} #{$next_smallest_breakpoint}') {
-									font-size: fancy_font_size($fancy_set);
+					} @else {
+						@if $use_between_operator {
+							$next_smallest_breakpoint: find_next_smallest_breakpoint(
+								map.keys($sizes), $breakpoint
+							);
+							@include b('>< #{$breakpoint} #{$next_smallest_breakpoint}') {
+								#{$selector} {
+									#{$property}: fancy_font_size($fancy_set);
 								}
-							} @else {
-								@include b($breakpoint) {
-									font-size: fancy_font_size($fancy_set);
+							}
+						} @else {
+							@include b($breakpoint) {
+								#{$selector} {
+									#{$property}: fancy_font_size($fancy_set);
 								}
 							}
 						}
 					}
-					
-					$size_index: $size_index + 1;
 				}
+				
+				$size_index: $size_index + 1;
 			}
 		}
 	}
