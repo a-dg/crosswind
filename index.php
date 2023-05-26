@@ -4,6 +4,26 @@ include __DIR__.'/incl/header.php';
 ?>
 
 
+<div class="breakpoint-demo">
+	<?
+	$breakpoints = [
+		// 'zo',
+		'tn',
+		'sm',
+		'md',
+		'av',
+		'ch',
+		'lg',
+		'xl',
+		'yl',
+	];
+	?>
+	<? foreach ($breakpoints as $breakpoint): ?>
+		<div class="<?= $breakpoint ?>"><?= $breakpoint ?></div>
+	<? endforeach; ?>
+</div>
+
+
 <section>
 
 	<h1>Hanging</h1>
