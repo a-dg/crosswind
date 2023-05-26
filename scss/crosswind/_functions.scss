@@ -722,6 +722,12 @@
 	$size_fluid: ($size_fixed * 100vw);
 	$size_preferred: calc(trunx($size_fluid) + trunx($min - ($size_fixed * $start)));
 	
+	@if $min > $max {
+		$min_swap: $min;
+		$min: $max;
+		$max: $min_swap;
+	}
+	
 	@return clamp($min, $size_preferred, $max);
 }
 
