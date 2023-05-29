@@ -4,6 +4,7 @@
 @use 'sass:map';
 @use 'sass:meta';
 
+@import 'lib/breakbeat';
 
 // TODO: use @use and make these make sense
 @import 'user/general';
