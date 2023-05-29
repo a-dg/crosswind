@@ -802,7 +802,7 @@
 //  */
 @function create_breakpoints($names, $start, $end, $curve, $round_to: 4) {
 	@if $start < $content_min_width {
-		@warn 'A value of ' + $start + ' for the first non-zero breakpoint might be a bit small. The smallest common device width is ' + $content_min_width + ', which means that users would never see the first breakpoint.';
+		@warn 'A value of ' + $start + ' for the first non-zero breakpoint might be a bit small. The minimum content width is ' + $content_min_width + ', which means that users would never see the first breakpoint.';
 	}
 	
 	$start: b.b_strip_units($start);
