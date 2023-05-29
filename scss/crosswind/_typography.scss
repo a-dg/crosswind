@@ -101,7 +101,7 @@
 					
 					// Use between operator to isolate font sizes to each breakpoint
 					// range, rather than overriding them at every breakpoint
-					$use_between_operator: false;
+					$use_between_operator: true;
 					
 					// For the first size, since we're using clamp to set the minimum
 					// size, which may occur at a breakpoint that's not zero, we should

@@ -12,7 +12,17 @@
 //  */
 @mixin grid_setup($set) {
 	@each $breakpoint, $column_count in $set {
-		@include b($breakpoint) {
+		$media_query: $breakpoint;
+		
+		$use_between_operator: true;
+		@if $use_between_operator {
+			$next_smallest_breakpoint: find_next_smallest_breakpoint(
+				map.keys($set), $breakpoint
+			);
+			$media_query: '>< #{$breakpoint} #{$next_smallest_breakpoint}';
+		}
+		
+		@include b($media_query) {
 			grid-template-columns: repeat($column_count, 1fr);
 			--grid-items: #{$column_count};
 		}
