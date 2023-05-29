@@ -72,6 +72,8 @@ span.i-label {
 
 .c {
 	margin: gutter(y) auto;
+	// TODO: think about what this means, because if the vertical gutter is governed by the viewport width, then that overrides any vertical rhythm established by margin and padding on text. Think about what the vertical gutter means, because there are cases where vertical spacing should be governed by horizontal spacing, such as the spacing around an element in a flush grid. Vertical gutter may not serve the same purpose as horizontal gutter at all. Vertical gutter may not play as big a role in vertical rhythm and spacing as horizontal gutter does.
+	
 	> .c {
 		margin: 0 auto;
 	}
