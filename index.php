@@ -4,10 +4,10 @@ include __DIR__.'/incl/header.php';
 ?>
 
 
-<div class="breakpoint-demo">
+<div class="breakpoint-scale">
 	<?
 	$breakpoints = [
-		// 'zo',
+		'zo',
 		'tn',
 		'sm',
 		'md',

@@ -1,14 +1,14 @@
-$font_scale_curve: 0.5;
+$font_scale_curve: 2;
 
-// Breakpoints at which fonts start and stop scaling, can be overriden on a
-// per-selector or per-element basis
+// Breakpoints at which fonts start and stop scaling
+// (can be overriden on a per-selector or per-element basis)
 $font_scale_breakpoint_min: sm;
 $font_scale_breakpoint_max: lg;
 
 $all_font_sizes: (
 	h1: (
 		sm: 24px,
-		ch: 36px fixed,
+		// ch: 36px fixed,
 		lg: 40px, // TODO: fix this, it doesn't work
 		// xl: 70px,
 		

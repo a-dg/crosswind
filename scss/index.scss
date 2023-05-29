@@ -38,25 +38,7 @@ body {
 // @debug closest_font_size($all_font_sizes, 32px);
 
 
-.breakpoint-demo {
-	overflow: hidden;
-	div {
-		margin: 2px 0;
-		padding: 0 8px 0.15em 8px;
-		background: $color_cement;
-		font-size: 14px;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
-	@each $key, $value in $breakpoints {
-		.#{$key} {
-			width: $value;
-			@include b('= #{$key}') {
-				background: $color_mint;
-			}
-		}
-	}
-}
+
 
 
 h1 {
@@ -786,6 +768,52 @@ $grid_setup_4: (
 				&.#{$breakpoint} {
 					display: block;
 				}
+			}
+		}
+	}
+}
+
+.breakpoint-scale {
+	$line_height: 20px;
+	overflow: hidden;
+	div {
+		position: relative;
+		margin: 2px 0;
+		padding: 0 8px;
+		height: $line_height;
+		background: $color_cement;
+		font-size: 14px;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		
+		&::after {
+			content: '';
+			position: absolute;
+			right: 0;
+			top: 0;
+			display: block;
+			height: 0;
+			border-top: ($line_height - 1px) solid $color_white;
+			border-left: 1px solid transparent;
+		}
+	}
+	
+	@each $key, $value in $breakpoints {
+		$current_index: list.index(map.keys($breakpoints), $key);
+		$next_index: $current_index + 1;
+		@if $next_index > list.length(map.keys($breakpoints)) {
+			$next_index: $current_index;
+		}
+		$next_size: list.nth(map.values($breakpoints), $next_index);
+		$wedge_width: $next_size - $value;
+		
+		.#{$key} {
+			width: $next_size;
+			@include b('= #{$key}') {
+				background: $color_mint;
+			}
+			&::after {
+				border-left-width: $wedge_width;
 			}
 		}
 	}

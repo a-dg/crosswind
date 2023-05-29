@@ -14,10 +14,14 @@ $breakpoint_names: (
 	xl,
 	yl,
 );
-$breakpoint_scale_curve: 0.33;
+
+// 1 = Linear scaling
+// < 1 = Logarithmic scaling, ramping up
+// > 1 = Logarithmic scaling, ramping down
+$breakpoint_scale_curve: 1.75;
 
 // Smallest and largest non-zero breakpoint widths
-$breakpoint_width_min: 384;
+$breakpoint_width_min: 360;
 $breakpoint_width_max: 1664;
 
 // Non-zero breakpoints should not be smaller than this

@@ -762,7 +762,7 @@
 	$values: ();
 	@for $i from 0 through ($count - 1) {
 		$x: calc($i / ($count - 1));
-		$y: math.pow($x, $curve);
+		$y: calc(math.pow($curve, $x) / $curve);
 		$value: ($start + ($i * $step * $y * $inversion));
 		@if $round {
 			$value: math.round($value);
