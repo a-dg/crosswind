@@ -1,6 +1,8 @@
 // This is stuff that shouldn't need to be touched
 
-@import '../lib/breakbeat';
+@use 'sass:map';
+@use 'sass:math';
+
 
 $breakpoints: create_breakpoints(
 	$breakpoint_names,

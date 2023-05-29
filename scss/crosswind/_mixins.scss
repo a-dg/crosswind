@@ -3,13 +3,10 @@
 @use 'sass:list';
 @use 'sass:map';
 @use 'sass:meta';
-@use '../lib/breakbeat' as b;
 
 
-// /**
-//  * Define column counts
-//  * @param {map} $set
-//  */
+/// Define column counts
+/// @param {map} $set
 @mixin grid_setup($set) {
 	@each $breakpoint, $column_count in $set {
 		$media_query: $breakpoint;
@@ -30,6 +27,8 @@
 }
 
 
+/// Define wire grid
+/// @param {map} $set
 @mixin wire_setup($set) {
 	@each $breakpoint, $column_count in $set {
 		$next_smallest_breakpoint: find_next_smallest_breakpoint(
@@ -54,58 +53,56 @@
 }
 
 
-// /**
-//  * Define responsive layout
-//  * 
-//  * For any one item, the parameters can be any combination of:
-//  * 6,     // 6 columns wide
-//  * 8 3,   // 8 columns wide, starting on column 3
-//  * -1,    // Full-width (same as -1 1)
-//  * -2 3,  // Start on column 3, end on the second column from the end
-//  * r 2,   // 2 rows tall
-//  * r 1 4, // 1 row tall, starting on row 4
-//  * o -2,  // order -2
-//  * 
-//  * Parameters must be specified in this order:
-//  * - column span [column start]
-//  * - row span [row start]
-//  * - order
-//  * 
-//  * Specify parameters for one item using space-delimited lists:
-//  * @include layout((
-//  *   sm: 6,
-//  *   md: 10 1 r 2,
-//  *   lg: 8 3,
-//  * ));
-//  * 
-//  * Specify parameters for multiple items, separated by commas:
-//  * @include layout((
-//  *   sm: (6, 6, 6),
-//  *   md: (7 2, 5 r 2, 6 o -2),
-//  *   lg: (8, 4),
-//  * ));
-//  * 
-//  * Enabling repeat causes parameters to affect all items, using
-//  * multipliers for CSS selectors:
-//  * - Repeat off: :nth-child(2)
-//  * - Repeat on:  :nth-child(2n)
-//  * 
-//  * Repeat enabled: odd-numbered items will be 8 columns wide, and
-//  * even-numbered items will be 4 columns wide:
-//  * @include layout((
-//  *   lg: (8, 4),
-//  * ), $repeat: true);
-//  * 
-//  * Repeat disabled: any items past the second one will not inherit their
-//  * settings from smaller breakpoints, or not have any settings:
-//  * @include layout((
-//  *   lg: (8, 4),
-//  * ), $repeat: false);
-//  * 
-//  * @param {map} $set
-//  * @param {boolean} $repeat
-//  * @param {boolean} $self
-//  */
+/// Define responsive layout
+/// 
+/// For any one item, the parameters can be any combination of:
+/// 6,     // 6 columns wide
+/// 8 3,   // 8 columns wide, starting on column 3
+/// -1,    // Full-width (same as -1 1)
+/// -2 3,  // Start on column 3, end on the second column from the end
+/// r 2,   // 2 rows tall
+/// r 1 4, // 1 row tall, starting on row 4
+/// o -2,  // order -2
+/// 
+/// Parameters must be specified in this order:
+/// - column span [column start]
+/// - row span [row start]
+/// - order
+/// 
+/// Specify parameters for one item using space-delimited lists:
+/// @include layout((
+///   sm: 6,
+///   md: 10 1 r 2,
+///   lg: 8 3,
+/// ));
+/// 
+/// Specify parameters for multiple items, separated by commas:
+/// @include layout((
+///   sm: (6, 6, 6),
+///   md: (7 2, 5 r 2, 6 o -2),
+///   lg: (8, 4),
+/// ));
+/// 
+/// Enabling repeat causes parameters to affect all items, using
+/// multipliers for CSS selectors:
+/// - Repeat off: :nth-child(2)
+/// - Repeat on:  :nth-child(2n)
+/// 
+/// Repeat enabled: odd-numbered items will be 8 columns wide, and
+/// even-numbered items will be 4 columns wide:
+/// @include layout((
+///   lg: (8, 4),
+/// ), $repeat: true);
+/// 
+/// Repeat disabled: any items past the second one will not inherit their
+/// settings from smaller breakpoints, or not have any settings:
+/// @include layout((
+///   lg: (8, 4),
+/// ), $repeat: false);
+/// 
+/// @param {map} $set
+/// @param {boolean} $repeat
+/// @param {boolean} $self
 @mixin layout($set, $repeat: true, $self: false) {
 	$delimiter_row: r;
 	$delimiter_order: o;
@@ -180,12 +177,10 @@
 }
 
 
-// /**
-//  * Grid plot
-//  * @param {int/list} $column
-//  * @param {int/list} $row
-//  * @param {int} $order
-//  */
+/// Grid plot
+/// @param {int | list} $column
+/// @param {int | list} $row
+/// @param {int} $order
 @mixin grid_plot($column, $row, $order) {
 	@if $column {
 		@include grid_plot_axis(column, $column);
@@ -199,11 +194,9 @@
 }
 
 
-// /**
-//  * Grid plot axis
-//  * @param {string} $type (row or column)
-//  * @param {int/list} $params
-//  */
+/// Grid plot axis
+/// @param {string} $type (row or column)
+/// @param {int | list} $params
 @mixin grid_plot_axis($type, $params) {
 	@if 
 		meta.type_of($params) == list
@@ -230,40 +223,15 @@
 }
 
 
-@mixin warning($message) {
-	position: relative;
-	overflow: auto;
-	&::before {
-		content: $message;
-		position: absolute;
-		z-index: 9999;
-		left: 12px;
-		right: 12px;
-		top: 12px;
-		padding: 12px 16px;
-		border-radius: 8px;
-		background: $color_warning;
-		box-shadow: 0 8px 24px rgb(0 0 0 / 0.5);
-		font-size: 20px;
-		color: $color_white;
-		text-align: left;
-		text-transform: none;
-		letter-spacing: normal;
-	}
-}
-
-
-// /**
-//  * Float element within grid
-//  * - Explicit container width
-//  * - Optionally implicit float offset
-//  * 
-//  * @param {string} $direction
-//  * @param {int} $in ($container_column_count): Number of columns occupied
-//  *   by containing element
-//  * @param {int} $width ($float_column_count): Width of floated element
-//  * @param {int} $offset ($float_offset_columns): Positive integer, -1 = auto
-//  */
+/// Float element within grid
+/// - Explicit container width
+/// - Optionally implicit float offset
+/// 
+/// @param {string} $direction
+/// @param {int} $in ($container_column_count): Number of columns occupied by
+///   containing element
+/// @param {int} $width ($float_column_count): Width of floated element
+/// @param {int} $offset ($float_offset_columns): Positive integer, -1 = auto
 @mixin grid_float($direction, $in, $width, $offset: -1) {
 	$opposite_direction: if($direction == right, left, right);
 	$container_column_count: $in;
@@ -324,7 +292,7 @@
 			or $gutter_float_offset != $previous_gutter_float_offset
 		) {
 			@include b($breakpoint) {
-				@if not b.b_is_zero($float_offset_percentage) {
+				@if not is_zero($float_offset_percentage) {
 					margin-#{$direction}: calc($float_offset_percentage - $gutter_float_offset);
 				} @else {
 					margin-#{$direction}: 0;
@@ -338,23 +306,21 @@
 }
 
 
-// /**
-//  * Float element within grid
-//  * - Implicit container width
-//  * - Explicit float offset
-//  * 
-//  * Advantages over grid_float():
-//  * - Don't need to know the width of the floated element's container
-//  * - Possibly less generated CSS?
-//  * 
-//  * Disdvantages:
-//  * - Must specify the float offset explicitly
-//  * - No automatically extending floated element to edge of grid
-//  * 
-//  * @param {string/map} $direction
-//  * @param {int/map} $width ($float_column_count): Width of floated element
-//  * @param {int/map} $offset ($float_offset_columns): Positive integer
-//  */
+/// Float element within grid
+/// - Implicit container width
+/// - Explicit float offset
+/// 
+/// Advantages over grid_float():
+/// - Don't need to know the width of the floated element's container
+/// - Possibly less generated CSS?
+/// 
+/// Disdvantages:
+/// - Must specify the float offset explicitly
+/// - No automatically extending floated element to edge of grid
+/// 
+/// @param {string | map} $direction
+/// @param {int | map} $width ($float_column_count): Width of floated element
+/// @param {int | map} $offset ($float_offset_columns): Positive integer
 @mixin grid_float_auto_container($direction, $width, $offset: 0) {
 	$first_breakpoint_name: list.nth(map.keys($breakpoints), 1);
 	
@@ -400,7 +366,7 @@
 				$smaller_offset: find_largest_smaller_breakpoint(map.keys($float_offset_columns), $breakpoint);
 				$offset_columns: map.get($float_offset_columns, $smaller_offset);
 				
-				@if b.b_is_zero($offset_columns) {
+				@if is_zero($offset_columns) {
 					margin-#{$offset_direction}: 0;
 				} @else {
 					$offset_factor: calc($offset_columns / var(--content-width));

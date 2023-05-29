@@ -1,31 +1,28 @@
 // @use 'sass:math';
-// @use 'sass:string';
+@use 'sass:string';
 @use 'sass:list';
 @use 'sass:map';
 @use 'sass:meta';
-@use '../lib/breakbeat' as b;
 
 
-// /**
-//  * Create parabolic responsive font sizes
-//  * 
-//  * Note that this may include an unnecessary media query for the last entry
-//  * if it has a fixed value, but we need it there in case the second-to-last
-//  * value is also fixed, and therefore doesn't yield a clamp() value that
-//  * would obviate the need for another media query.
-//  * 
-//  * Example input: (
-//  *   h1: 56px,
-//  *   h2: 36px 48px,
-//  *   h3: (
-//  *     sm: 24px,
-//  *     lg: 32px fixed,
-//  *     xl: 36px,
-//  *   ),
-//  * )
-//  * 
-//  * @param {map} $font_sizes
-//  */
+/// Create parabolic responsive font sizes
+/// 
+/// Note that this may include an unnecessary media query for the last entry
+/// if it has a fixed value, but we need it there in case the second-to-last
+/// value is also fixed, and therefore doesn't yield a clamp() value that
+/// would obviate the need for another media query.
+/// 
+/// Example input: (
+///   h1: 56px,
+///   h2: 36px 48px,
+///   h3: (
+///     sm: 24px,
+///     lg: 32px fixed,
+///     xl: 36px,
+///   ),
+/// )
+/// 
+/// @param {map} $font_sizes
 @mixin parabolic_font_sizes($font_sizes, $property: 'font-size') {
 	@each $selector, $sizes in $font_sizes {
 		
@@ -53,7 +50,7 @@
 				$sizes: convert_font_size_list_to_map($sizes);
 			}
 			
-			$is_integer: b.b_is_zero(list.nth(map.values($sizes), 1) % 1);
+			$is_integer: is_zero(list.nth(map.values($sizes), 1) % 1);
 			$sizes: create_intermediate_sizes($sizes, $is_integer);
 			$size_count: list.length(map.keys($sizes));
 			
