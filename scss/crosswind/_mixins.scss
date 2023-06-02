@@ -58,16 +58,18 @@
 /// For any one item, the parameters can be any combination of:
 /// 6,     // 6 columns wide
 /// 8 3,   // 8 columns wide, starting on column 3
+/// _ 3,   // No column span specified, starting on column 3
 /// -1,    // Full-width (same as -1 1)
 /// -2 3,  // Start on column 3, end on the second column from the end
 /// r 2,   // 2 rows tall
 /// r 1 4, // 1 row tall, starting on row 4
+/// r _ 4, // No row span specified, starting on row 4
 /// o -2,  // order -2
 /// 
 /// Parameters must be specified in this order:
-/// - column span [column start]
-/// - row span [row start]
-/// - order
+/// 1. [column span] [column start]
+/// 2. [row span] [row start]
+/// 3. order
 /// 
 /// Specify parameters for one item using space-delimited lists:
 /// @include layout((
@@ -207,12 +209,20 @@
 	
 	$has_start: meta.type_of($params) == list;
 	@if $has_start {
-		$span: if(list.nth($params, 1) > 0, span, unquote(''));
-		grid-#{$type}: list.nth($params, 2) / $span list.nth($params, 1);
-		@if $type == column {
-			--content-width: #{list.nth($params, 1)};
+		@if list.nth($params, 1) == _ {
+			grid-#{$type}-start: list.nth($params, 2);
 		}
-	} @else {
+		
+		@else {
+			$span: if(list.nth($params, 1) > 0, span, unquote(''));
+			grid-#{$type}: list.nth($params, 2) / $span list.nth($params, 1);
+			@if $type == column {
+				--content-width: #{list.nth($params, 1)};
+			}
+		}
+	}
+	
+	@else {
 		$start: if($params > 0, auto, 1);
 		$span: if($params > 0, span, unquote(''));
 		grid-#{$type}: $start / $span $params;
