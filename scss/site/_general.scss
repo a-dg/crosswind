@@ -1,3 +1,5 @@
+@use '../util/stuff' as *;
+
 // $show_item_boundaries: true;
 $output_query_comments: true;
 
@@ -9,13 +11,15 @@ $constants: (
 	STATE_NAV_DESKTOP_WIDE: 'wide desktop nav',
 );
 
+
 // TODO: define nav states, or layout states in general
-$nav_states: (
-	zo: 'mobile nav',
-	md: 'wide mobile nav',
-	av: 'narrow desktop nav',
-	lg: 'desktop nav',
-);
+// $nav_states: (
+// 	zo: const(STATE_NAV_MOBILE),
+// 	md: const(STATE_NAV_MOBILE_WIDE),
+// 	av: const(STATE_NAV_DESKTOP),
+// 	lg: const(STATE_NAV_DESKTOP_WIDE),
+// );
+
 
 // @include b($bp_desktop_nav) {
 // 	// Styles for desktop nav
