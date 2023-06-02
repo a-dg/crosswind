@@ -45,7 +45,7 @@ include __DIR__.'/incl/header.php';
 					<p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Aspernatur odio impedit excepturi molestiae nesciunt amet sint doloribus nisi quidem. Sed possimus fugiat nobis assumenda, suscipit facere dolor. Harum, consectetur ea.</p>
 				</div>
 			</div>
-			<div><span class="i-label">Item</span></div>
+			<div class="av:tw-col-span-3"><span class="i-label">Item</span></div>
 		</div>
 	</div>
 	

@@ -751,3 +751,41 @@ $grid_setup_4: (
 	
 }
 
+
+// Imitation Tailwind classes
+@if $generate_tailwind_classes {
+	// TODO: address specificity, normal selector isn't specific enough to
+	// override dimensions defined by parent element
+	@for $i from 1 through 11 {
+		@each $breakpoint in map.keys($breakpoints) {
+			$is_first_breakpoint: list.index(map.keys($breakpoints), $breakpoint) == 1;
+			
+			@if $is_first_breakpoint {
+				.tw-col-span-#{$i}.tw-col-span-#{$i} {
+					@include layout((
+						#{$breakpoint}: $i,
+					), $self: true);
+				}
+				
+				// TODO: support defining only start in layout
+				.tw-col-start-#{$i}.tw-col-start-#{$i} {
+					@include layout((
+						#{$breakpoint}: _ $i,
+					), $self: true);
+				}
+			}
+			
+			.#{$breakpoint}\:tw-col-span-#{$i}.#{$breakpoint}\:tw-col-span-#{$i} {
+				@include layout((
+					#{$breakpoint}: $i,
+				), $self: true);
+			}
+			
+			.#{$breakpoint}\:tw-col-start-#{$i}.#{$breakpoint}\:tw-col-start-#{$i} {
+				@include layout((
+					#{$breakpoint}: _ $i,
+				), $self: true);
+			}
+		}
+	}
+}
