@@ -25,7 +25,7 @@ include __DIR__.'/incl/header.php';
 
 
 <section>
-
+	
 	<h1>Hanging</h1>
 	
 	<div class="c c-max c-pad">
@@ -172,7 +172,6 @@ include __DIR__.'/incl/header.php';
 			<div><span class="i-label">Item</span></div>
 		</div>
 	</div>
-	
 	
 </section>
 
@@ -500,6 +499,13 @@ include __DIR__.'/incl/header.php';
 			<div class="g-guide"></div>
 		<? endforeach; ?>
 	</div>
+</div>
+
+
+<div class="variant-test v-dark" cw-v="dark">
+	<h3>It is a theme test!</h3>
+	<p>Some things are so nice, it’s just very good</p>
+	<a href="#" class="btn">How about you?</a>
 </div>
 
 

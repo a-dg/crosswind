@@ -752,6 +752,26 @@ $grid_setup_4: (
 }
 
 
+.variant-test {
+	margin: 20px;
+	padding: 20px;
+	border-radius: 20px;
+}
+h3 {
+	color: var(--c-header);
+}
+p {
+	color: var(--c-text);
+}
+a.btn {
+	display: inline-block;
+	padding: 12px 16px;
+	background: var(--c-button-bg);
+	color: var(--c-button-text);
+	text-decoration: none;
+}
+
+
 // Imitation Tailwind classes
 @if $generate_tailwind_classes {
 	// TODO: address specificity, normal selector isn't specific enough to
