@@ -2,6 +2,7 @@
 @use 'sass:map';
 @use 'sass:math';
 @use 'sass:meta';
+@use 'sass:list';
 
 
 /// Convert string to number
@@ -13,7 +14,7 @@
   @if meta.type_of($value) == number {
     @return $value;
   } @else if meta.type_of($value) != string {
-    @error 'Value for b_convert_to_number() should be a number or a string';
+    @error 'Value for convert_to_number() should be a number or a string';
   }
   
   $result: 0;
@@ -28,7 +29,7 @@
       $character == '.'
       or list.index(map.keys($numbers), $character)
     ) {
-      @return b_append_unit_to_value(if($is_negative, ($result * -1), $result), string.slice($value, $i));
+      @return append_unit_to_value(if($is_negative, ($result * -1), $result), string.slice($value, $i));
     }
     
     @if $character == '.' {
@@ -72,10 +73,25 @@
 }
 
 
-/// Strip units from number
+/// Strip units from number by math
 /// @param {number} $number
 /// @return {unitless number} *
 @function strip_units($number) {
+	@if
+		meta.type_of($number) == number
+		and not math.is_unitless($number)
+	{
+		$one_of_unit: (($number * 0) + 1);
+		@return calc($number / $one_of_unit);
+	}
+	@return $number;
+}
+
+
+/// Strip units from number by string manipulation
+/// @param {number} $number
+/// @return {unitless number} *
+@function strip_units_by_string($number) {
   @if
     meta.type_of($number) == number
     and not math.is_unitless($number)
@@ -83,10 +99,114 @@
     $num_length: string.length(#{$number});
     $unit_length: string.length(math.unit($number));
     $unitless: string.slice(#{$number}, 1, ($num_length - $unit_length));
-    @return b_convert_to_number($unitless);
+    @return convert_to_number($unitless);
   }
   // @warn '"#{$number}" is not a number, or it does not have any units to strip away.';
   @return $number;
+}
+
+
+/// Quick sort
+/// @author Sam Richards
+/// @param {List} $list - list to sort
+/// @return {List} *
+@function quick_sort($list) {
+  $less_than: ();
+  $equal: ();
+  $greater_than: ();
+	
+  @if list.length($list) > 1 {
+    $seed: list.nth($list, math.ceil(calc(list.length($list) / 2)));
+		
+    @each $item in $list {
+      @if ($item == $seed) {
+        $equal: list.append($equal, $item);
+      } @else if ($item < $seed) {
+        $less_than: list.append($less_than, $item);
+      } @else if ($item > $seed) {
+        $greater_than: list.append($greater_than, $item);
+      }
+    }
+		
+    @return list.join(
+			list.join(
+				quick_sort($less_than),
+				$equal
+			),
+			quick_sort($greater_than)
+		);
+  }
+	
+  @return $list;
+}
+
+
+/// Get subset of map keys and values
+/// @param {map} $map
+/// @param {string} $before
+/// @param {string} $to
+/// @param {string} $from
+/// @param {string} $after
+/// @return {map} *
+@function map_subset($map, $before: null, $to: null, $from: null, $after: null) {
+	$output: ();
+	
+	@if $from != null and $to != null {
+		@return map_subset(map_subset($map, $from: $from), $to: $to);
+	}
+	
+	// Get all pairs before but not including $before key
+	@if $before != null {
+		$stop: false;
+		@each $key, $value in $map {
+			@if $key != $before and not $stop {
+				$output: map.set($output, $key, $value);
+			} @else if $key == $before {
+				$stop: true;
+			}
+		}
+	}
+	
+	// Get all pairs up to and including $to key
+	@else if $to != null {
+		$stop: false;
+		@each $key, $value in $map {
+			@if not $stop {
+				$output: map.set($output, $key, $value);
+			}
+			@if $key == $to {
+				$stop: true;
+			}
+		}
+	}
+	
+	// Get all pairs starting with $from key
+	@else if $from != null {
+		$start: false;
+		@each $key, $value in $map {
+			@if $key == $from {
+				$start: true;
+			}
+			@if $start {
+				$output: map.set($output, $key, $value);
+			}
+		}
+	}
+	
+	// Get all pairs after $after key
+	@else if $after != null {
+		$start: false;
+		@each $key, $value in $map {
+			@if $start {
+				$output: map.set($output, $key, $value);
+			}
+			@if $key == $after {
+				$start: true;
+			}
+		}
+	}
+	
+	@return $output;
 }
 
 

@@ -8,7 +8,8 @@ $breakpoints: create_breakpoints(
 	$breakpoint_names,
 	$breakpoint_width_min,
 	$breakpoint_width_max,
-	$breakpoint_scale_curve
+	$breakpoint_scale_curve,
+	$breakpoint_additional
 );
 
 $content_max_width: map.get($breakpoints, $content_max_width_breakpoint);

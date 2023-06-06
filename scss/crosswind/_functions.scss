@@ -213,7 +213,7 @@
 /// @param {boolean} $is_negative
 /// @param {boolean} $include_external_gutter: Sometimes it's necessary to
 ///   include one more gutter in addition to the ones in between the columns
-/// @return {type} *
+/// @return {number} *
 @function grid_element_width(
 	$column_span,
 	$total_columns,
@@ -739,9 +739,10 @@
 /// @param {int} $start: Smallest non-zero breakpoint
 /// @param {int} $end: Largest breakpoint
 /// @param {float} $curve
+/// @param {map} $additional
 /// @param {int} $round_to
 /// @return {map} *
-@function create_breakpoints($names, $start, $end, $curve, $round_to: 4) {
+@function create_breakpoints($names, $start, $end, $curve, $additional, $round_to: 4) {
 	@if $start < $content_min_width {
 		@warn 'A value of ' + $start + ' for the first non-zero breakpoint might be a bit small. The minimum content width is ' + $content_min_width + ', which means that users would never see the first breakpoint.';
 	}
@@ -771,19 +772,73 @@
 		$map: map.set($map, $name, $value);
 	}
 	
-	@return $map;
-}
-
-
-// TODO: make this work
-@function strip_units($number) {
-	@if
-		meta.type_of($number) == number
-		and not math.is_unitless($number)
-	{
-		@return calc($number / (($number * 0) + 1));
+	$remove_additional_keys: ();
+	@each $key, $value in $additional {
+		$additional_index_in_main: list.index(map.values($map), $value);
+		@if $additional_index_in_main != null {
+			$name_main: list.nth($names, $additional_index_in_main);
+			@warn 'The value for "#{$key}" in $breakpoint_additional (#{$value}) is the same as the generated breakpoint value for "#{$name_main}". The "#{$key}" breakpoint has been removed.';
+			$remove_additional_keys: list.append($remove_additional_keys, $key);
+			
+			// TODO: consider whether to remove additional key or generated key
+		}
 	}
-	@return $number;
+	
+	@each $key in $remove_additional_keys {
+		$additional: map.remove($additional, $key);
+	}
+	
+	$additional_values_sorted: quick_sort(map.values($additional));
+	$additional_sorted: ();
+	@each $item in $additional_values_sorted {
+		$index_additional: list.index(map.values($additional), $item);
+		$name_additional: list.nth(map.keys($additional), $index_additional);
+		$additional_sorted: map.set($additional_sorted, $name_additional, $item);
+	}
+	
+	// Insert additional values into generated map
+	@each $key, $value in $map {
+		@each $add_key, $add_value in $additional_sorted {
+			$stop: false;
+			@if
+				$value > $add_value
+				and not map.has_key($map, $add_key)
+				and not $stop
+			{
+				$before_map: map_subset($map, $before: $key);
+				$from_map: map_subset($map, $from: $key);
+				
+				$map: map.merge(
+					map.merge(
+						$before_map,
+						(#{$add_key}: $add_value),
+					),
+					$from_map
+				);
+				
+				$stop: true;
+			}
+		}
+	}
+	
+	// If last additional value is larger than last generated value, append it
+	$last_value: list.nth(
+		map.values($map),
+		list.length(map.values($map))
+	);
+	$last_additional_value: list.nth(
+		map.values($additional_sorted),
+		list.length(map.values($additional_sorted))
+	);
+	@if $last_additional_value > $last_value {
+		$last_additional_key: list.nth(
+			map.keys($additional_sorted),
+			list.length(map.keys($additional_sorted))
+		);
+		$map: map.set($map, $last_additional_key, $last_additional_value);
+	}
+	
+	@return $map;
 }
 
 
@@ -972,43 +1027,4 @@
 	}
 	
 	@return '';
-}
-
-
-
-@function _str-compare($item, $seed) {
-	@return $a < $b;
-}
-
-
-/// Quick sort
-/// @author Kitty Giraudel
-/// @param {List} $list - list to sort
-/// @return {List} *
-/// @require {function} _str-compare
-@function quick-sort($list) {
-	$less_than:  ();
-	$equal: ();
-	$greater_than: ();
-	
-	@if list.length($list) > 1 {
-		$seed: list.nth($list, math.ceil(list.length($list) / 2));
-		
-		@each $item in $list {
-			@if $item == $seed {
-				$equal: list.append($equal, $item, list.separator($list));
-			} @else if $item < $seed {
-				$less_than: list.append($less_than, $item, list.separator($list));
-			} @else if $item > $seed {
-				$greater_than: list.append($greater_than, $item, list.separator($list));
-			}
-		}
-		
-		@return list.join(
-			list.join(quick-sort($less_than), $equal),
-			quick-sort($greater_than)
-		);
-	}
-
-	@return $list;
 }

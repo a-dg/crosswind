@@ -15,14 +15,24 @@ $breakpoint_names: (
 	yl,
 );
 
+// TODO: allow defining all breakpoints manually
+
+// Smallest and largest non-zero breakpoint widths
+$breakpoint_width_min: 360px;
+$breakpoint_width_max: 1664px;
+
 // 1 = Linear scaling
 // < 1 = Logarithmic scaling, ramping up
 // > 1 = Logarithmic scaling, ramping down
 $breakpoint_scale_curve: 1.75;
 
-// Smallest and largest non-zero breakpoint widths
-$breakpoint_width_min: 360;
-$breakpoint_width_max: 1664;
+// TODO: remove redundant breakpoints
+$breakpoint_additional: (
+	qa: 1302px,
+	qb: 1392px,
+	qc: 1702px,
+	qd: 511px,
+);
 
 // Non-zero breakpoints should not be smaller than this
 $content_min_width: 320px;
