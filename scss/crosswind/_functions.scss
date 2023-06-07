@@ -744,17 +744,17 @@
 /// @return {map} *
 @function create_breakpoints($names, $start, $end, $curve, $additional, $round_to: 4) {
 	@if $start < $content_min_width {
-		@warn 'A value of ' + $start + ' for the first non-zero breakpoint might be a bit small. The minimum content width is ' + $content_min_width + ', which means that users would never see the first breakpoint.';
+		@warn 'A value of #{$start} for the first non-zero breakpoint might be a bit small. The minimum content width is #{$content_min_width}, which means that users would never see the first breakpoint.';
 	}
 	
 	$start: strip_units($start);
 	$end: strip_units($end);
 	
 	@if $start % $round_to > 0 {
-		@warn 'The value of ' + $start + ' for the first non-zero breakpoint is not a multiple of ' + $round_to + ', so its interpolated breakpoint value will be different.';
+		@warn 'The value of #{$start} for the first non-zero breakpoint is not a multiple of #{$round_to}, so its interpolated breakpoint value will be different.';
 	}
 	@if $end % $round_to > 0 {
-		@warn 'The value of ' + $end + ' for the last breakpoint is not a multiple of ' + $round_to + ', so its interpolated breakpoint value will be different.';
+		@warn 'The value of #{$end} for the last breakpoint is not a multiple of #{$round_to}, so its interpolated breakpoint value will be different.';
 	}
 	
 	$values: list.join((0,), interpolate(
@@ -873,7 +873,7 @@
 				$size_index == 1
 				and not $is_first_breakpoint
 			{
-				@warn 'The first font size (' + $breakpoint + ': ' + $size + ') is defined as fixed, so there will be no font size for breakpoints below ' + $breakpoint;
+				@warn 'The first font size (#{$breakpoint}: #{$size}) is defined as fixed, so there will be no font size for breakpoints below #{$breakpoint}';
 			}
 		}
 		
@@ -956,7 +956,7 @@
 	
 	@each $selector, $sizes in $set {
 		@debug '';
-		@debug '$sizes (' + meta.type_of($sizes) + '):';
+		@debug '$sizes (#{meta.type_of($sizes)}):';
 		@debug $sizes;
 		
 		@if meta.type_of($sizes) == number {
@@ -981,10 +981,10 @@
 	}
 	
 	
-	@debug '$all_largest_sizes (' + meta.type_of($all_largest_sizes) + '):';
+	@debug '$all_largest_sizes (#{meta.type_of($all_largest_sizes)}):';
 	@debug $all_largest_sizes;
 	
-	@debug '$all_differences (' + meta.type_of($all_differences) + '):';
+	@debug '$all_differences (#{meta.type_of($all_differences)}):';
 	@debug $all_differences;
 	
 	$lowest: 0;

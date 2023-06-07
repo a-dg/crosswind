@@ -560,7 +560,7 @@ $grid_setup_4: (
 					}
 				}
 				&:not(.hang-extended):not(.hang-full) {
-					@include warning('Hanging without .hang-extended or .hang-full probably should not be used within .c-max, as it will only hang into the outer gutter. Consider defining $content_max_width_extended_breakpoint (currently set to "' + $content_max_width_extended_breakpoint + '") and using .hang-extended to extend beyond the outer gutter.');
+					@include warning('Hanging without .hang-extended or .hang-full probably should not be used within .c-max, as it will only hang into the outer gutter. Consider defining $content_max_width_extended_breakpoint (currently set to "#{$content_max_width_extended_breakpoint}") and using .hang-extended to extend beyond the outer gutter.');
 				}
 			}
 			
@@ -594,7 +594,7 @@ $grid_setup_4: (
 					}
 				}
 				&:not(.hang-extended):not(.hang-full) {
-					@include warning('Hanging without .hang-extended or .hang-full probably should not be used within .c-max, as it will only hang into the outer gutter. Consider defining $content_max_width_extended (currently set to ' + $content_max_width_extended + ') and using .hang-extended to extend beyond the outer gutter.');
+					@include warning('Hanging without .hang-extended or .hang-full probably should not be used within .c-max, as it will only hang into the outer gutter. Consider defining $content_max_width_extended (currently set to #{$content_max_width_extended}) and using .hang-extended to extend beyond the outer gutter.');
 				}
 			}
 		}
