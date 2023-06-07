@@ -42,7 +42,8 @@
 		//   h2: (
 		//     sm: 24px,
 		//     md: 32px [fixed],
-		//     lg: 36px,
+		//     lg: 42px [snap 24px],
+		//     xl: 36px,
 		//   ),
 		// ),
 		@else {
@@ -76,19 +77,27 @@
 					}
 				}
 				
-				// For multiple input sizes, we skip the last entry, because:
+				// For multiple input sizes, we skip the last entry, because either:
 				// - its value is already accounted for in the clamp() that starts
 				//   with the second-to-last entry and defines a maximum size that is
 				//   equal to the size on the largest breakpoint
-				// - the size of the last entry is fixed, in which case the it has
+				// - or the size of the last entry is fixed, in which case the it has
 				//   already been included by the simple check for fixed values above
 				@else if $size_index < $size_count {
 					$next_breakpoint: list.nth(map.keys($sizes), $size_index + 1);
 					$next_size: list.nth(map.values($sizes), $size_index + 1);
 					
-					// If size includes any keywords, isolate size value
+					// If size includes any keywords, isolate first size value
 					@if meta.type_of($next_size) == list {
 						$next_size: list.nth($next_size, 1);
+					}
+					
+					// If size includes snap keyword, use last size as minimum
+					@if
+						meta.type_of($size) == list
+						and list.nth($size, 2) == snap
+					{
+						$size: list.nth($size, 3);
 					}
 					
 					$fancy_set: (

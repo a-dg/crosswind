@@ -36,6 +36,11 @@ $all_font_sizes: (
 		lg: 36px,
 		yl: 36px,
 	),
+	'h1.snap': (
+		sm: 24px,
+		ch: 44px snap 24px,
+		yl: 36px,
+	),
 	'h1.fixed-last': (
 		sm: 24px,
 		ch: 28px fixed,
