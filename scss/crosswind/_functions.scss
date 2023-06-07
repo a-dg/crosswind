@@ -765,80 +765,46 @@
 		$round: true
 	));
 	
-	$map: ();
+	$generated: ();
 	@for $i from 1 through list.length($names) {
 		$name: list.nth($names, $i);
 		$value: (list.nth($values, $i) * $round_to * 1px);
-		$map: map.set($map, $name, $value);
+		$generated: map.set($generated, $name, $value);
 	}
 	
+	@if list.length(map.values($additional)) == 0 {
+		@return $generated;
+	}
+	
+	// Remove entries from generated breakpoints if they match either the name or
+	// size of an additional breakpoint defined explicitly
 	$remove_additional_keys: ();
 	@each $key, $value in $additional {
-		$additional_index_in_main: list.index(map.values($map), $value);
-		@if $additional_index_in_main != null {
-			$name_main: list.nth($names, $additional_index_in_main);
-			@warn 'The value for "#{$key}" in $breakpoint_additional (#{$value}) is the same as the generated breakpoint value for "#{$name_main}". The "#{$key}" breakpoint has been removed.';
+		$additional_key_index: list.index(map.keys($generated), $key);
+		$additional_value_index: list.index(map.values($generated), $value);
+		
+		@if $additional_key_index != null {
+			$value_generated: map.get($generated, $key);
+			@warn 'The breakpoint named "#{$key}" in $breakpoint_additional (#{$value}) already exists as a generated breakpoint. The generated "#{$key}" breakpoint (#{$value_generated}) has been removed.';
 			$remove_additional_keys: list.append($remove_additional_keys, $key);
-			
-			// TODO: consider whether to remove additional key or generated key
+		}
+		
+		@else if $additional_value_index != null {
+			$key_generated: list.nth(map.keys($generated), $additional_value_index);
+			@warn 'The value for "#{$key}" in $breakpoint_additional (#{$value}) is the same as the generated breakpoint value for "#{$key_generated}". The generated "#{$key}" breakpoint has been removed.';
+			$remove_additional_keys: list.append($remove_additional_keys, $key_generated);
 		}
 	}
+	
+	@debug '$remove_additional_keys (' + meta.type_of($remove_additional_keys) + '):';
+	@debug $remove_additional_keys;
 	
 	@each $key in $remove_additional_keys {
-		$additional: map.remove($additional, $key);
+		$generated: map.remove($generated, $key);
 	}
 	
-	$additional_values_sorted: quick_sort(map.values($additional));
-	$additional_sorted: ();
-	@each $item in $additional_values_sorted {
-		$index_additional: list.index(map.values($additional), $item);
-		$name_additional: list.nth(map.keys($additional), $index_additional);
-		$additional_sorted: map.set($additional_sorted, $name_additional, $item);
-	}
-	
-	// Insert additional values into generated map
-	@each $key, $value in $map {
-		@each $add_key, $add_value in $additional_sorted {
-			$stop: false;
-			@if
-				$value > $add_value
-				and not map.has_key($map, $add_key)
-				and not $stop
-			{
-				$before_map: map_subset($map, $before: $key);
-				$from_map: map_subset($map, $from: $key);
-				
-				$map: map.merge(
-					map.merge(
-						$before_map,
-						(#{$add_key}: $add_value),
-					),
-					$from_map
-				);
-				
-				$stop: true;
-			}
-		}
-	}
-	
-	// If last additional value is larger than last generated value, append it
-	$last_value: list.nth(
-		map.values($map),
-		list.length(map.values($map))
-	);
-	$last_additional_value: list.nth(
-		map.values($additional_sorted),
-		list.length(map.values($additional_sorted))
-	);
-	@if $last_additional_value > $last_value {
-		$last_additional_key: list.nth(
-			map.keys($additional_sorted),
-			list.length(map.keys($additional_sorted))
-		);
-		$map: map.set($map, $last_additional_key, $last_additional_value);
-	}
-	
-	@return $map;
+	$generated: map_insert($generated, $additional);
+	@return $generated;
 }
 
 

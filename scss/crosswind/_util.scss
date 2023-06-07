@@ -141,6 +141,74 @@
 }
 
 
+/// Sort map by numeric values
+/// @param {map} $input
+/// @return {map} *
+@function map_sort($input) {
+	$values_sorted: quick_sort(map.values($input));
+	$map_sorted: ();
+	@each $value in $values_sorted {
+		$index: list.index(map.values($input), $value);
+		$key: list.nth(map.keys($input), $index);
+		$map_sorted: map.set($map_sorted, $key, $value);
+	}
+	@return $map_sorted;
+}
+
+
+/// Inject one sorted map into another, maintaining sort order
+/// @param {map} $source
+/// @param {map} $insert
+/// @return {map} *
+@function map_insert($source, $insert) {
+	$insert_sorted: map_sort($insert);
+	
+	// Insert values into source map
+	@each $key, $value in $source {
+		@each $insert_key, $insert_value in $insert_sorted {
+			$stop: false;
+			@if
+				$value > $insert_value
+				and not map.has_key($source, $insert_key)
+				and not $stop
+			{
+				$before_map: map_subset($source, $before: $key);
+				$from_map: map_subset($source, $from: $key);
+				
+				$source: map.merge(
+					map.merge(
+						$before_map,
+						(#{$insert_key}: $insert_value),
+					),
+					$from_map
+				);
+				
+				$stop: true;
+			}
+		}
+	}
+	
+	// If last insertion value is larger than last source value, append it
+	$last_value: list.nth(
+		map.values($source),
+		list.length(map.values($source))
+	);
+	$last_insert_value: list.nth(
+		map.values($insert_sorted),
+		list.length(map.values($insert_sorted))
+	);
+	@if $last_insert_value > $last_value {
+		$last_insert_key: list.nth(
+			map.keys($insert_sorted),
+			list.length(map.keys($insert_sorted))
+		);
+		$source: map.set($source, $last_insert_key, $last_insert_value);
+	}
+	
+	@return $source;
+}
+
+
 /// Get subset of map keys and values
 /// @param {map} $map
 /// @param {string} $before
