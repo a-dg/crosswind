@@ -10,7 +10,9 @@
 /// Note that this may include an unnecessary media query for the last entry
 /// if it has a fixed value, but we need it there in case the second-to-last
 /// value is also fixed, and therefore doesn't yield a clamp() value that
-/// would obviate the need for another media query.
+/// would obviate the need for another media query. We may also need it if
+/// using the between operator, as that would also cause the value to revert
+/// to the smallest breakpoint value after the last clamp().
 /// 
 /// Example input: (
 ///   h1: 56px,
@@ -109,6 +111,10 @@
 					// range, rather than overriding them at every breakpoint
 					$use_between_operator: true;
 					
+					// Use regular >= operator for second-to-last breakpoint, because
+					// there is no media query after it that sets a fixed size
+					$is_second_to_last_breakpoint: $size_index == $size_count - 1;
+					
 					// For the first size, since we're using clamp to set the minimum
 					// size, which may occur at a breakpoint that's not zero, we should
 					// not included a media query
@@ -117,7 +123,10 @@
 							#{$property}: fancy_font_size($fancy_set);
 						}
 					} @else {
-						@if $use_between_operator {
+						@if
+							$use_between_operator
+							and not $is_second_to_last_breakpoint
+						{
 							$next_smallest_breakpoint: find_next_smallest_breakpoint(
 								map.keys($sizes), $breakpoint
 							);
