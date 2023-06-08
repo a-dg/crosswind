@@ -29,8 +29,7 @@ $breakpoint_scale_curve: 1.75;
 // Define additional breakpoints in addition to automatically generated
 // breakpoints, in any order, in the format:
 // [breakpoint name]: [breakpoint size]
-// TODO: warn if any of these values are smaller than $content_min_width
-$breakpoint_additional: (
+$breakpoint_additional_test: (
 	qa: 1302px,
 	qb: 576px,
 	qc: 1702px,

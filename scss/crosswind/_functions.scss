@@ -744,7 +744,7 @@
 /// @return {map} *
 @function create_breakpoints($names, $start, $end, $curve, $additional, $round_to: 4) {
 	@if $start < $content_min_width {
-		@warn 'A value of #{$start} for the first non-zero breakpoint might be a bit small. The minimum content width is #{$content_min_width}, which means that users would never see the first breakpoint.';
+		@warn 'A value of #{$start} for the first non-zero breakpoint ($breakpoint_width_min) might be a bit small. The minimum content width is #{$content_min_width}, which means that users would never see the first breakpoint.';
 	}
 	
 	$start: strip_units($start);
@@ -796,15 +796,22 @@
 		}
 	}
 	
-	@debug '$remove_additional_keys (' + meta.type_of($remove_additional_keys) + '):';
-	@debug $remove_additional_keys;
-	
 	@each $key in $remove_additional_keys {
 		$generated: map.remove($generated, $key);
 	}
 	
-	$generated: map_insert($generated, $additional);
-	@return $generated;
+	$all: map_insert($generated, $additional);
+	
+	@each $key, $value in $all {
+		@if
+			not is_zero($value)
+			and $value < $content_min_width
+		{
+			@warn 'A value of #{$value} for the breakpoint named "#{$key}" might be a bit small. The minimum content width is #{$content_min_width}, which means that users would never see the first breakpoint.';
+		}
+	}
+	
+	@return $all;
 }
 
 

@@ -3,6 +3,11 @@
 @use 'sass:map';
 @use 'sass:math';
 
+$breakpoint_names: () !default;
+$breakpoint_width_min: 0 !default;
+$breakpoint_width_max: 0 !default;
+$breakpoint_scale_curve: 1 !default;
+$breakpoint_additional: () !default;
 
 $breakpoints: create_breakpoints(
 	$breakpoint_names,

@@ -65,11 +65,9 @@ $font_style_signatures: (
 	'sans light upper',
 );
 
-
 $all_line_heights: (
 	h1: 25px 10px,
 );
-
 
 /*
 
@@ -94,6 +92,6 @@ $all_font_sizes: (
 	'sans light upper': 1.8 1.6,
 );
 
-Do we really want this?
+Do we really want this? Only if it assigns a line height that's appropriate for the current size, as sizes can scale non-linearly, and be fixed, and snap to other values. The min/max shouldn't indiscriminately scale line-height irrespective of font size. The min/max shouldn't be specific to a tag, which can have its own min/max breakpoint scale settings, but should be generally applicable to any tag that uses that signature.
 
 */
