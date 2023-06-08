@@ -6,23 +6,53 @@
 
 @import 'util';
 
-$has_normalized_color: false;
+
+/// Create duplicate hyphenated variant keys for keys using underscores
+/// 
+/// If a variant name contains underscores, a duplicate variant is created that
+/// uses hyphens. This is so we can define nice, clean variant names using
+/// underscores, but can still use the hyphenated version when using them in
+/// class names. Example: the "extra_dark" variant becomes usable through the
+/// CSS class ".v-extra-dark", as well as ".v-extra_dark".
+/// 
+/// TODO: Is this necessary? Is this the right approach? This same logic
+/// *does not* apply to color keys within variants. "button_bg" will always be
+/// accessible through "color(button_bg)".
+/// 
+/// @param {map} $variants
+/// @return {map} *
+@function convert_variant_keys($variants) {
+	$normalized_variants: ();
+	@each $key, $value in $variants {
+		$key: '' + $key;
+		$normalized_variants: map.set($normalized_variants, $key, $value);
+		@if string.index($key, '_') != null {
+			$hyphenated_key: replace($key, '_', '-');
+			$normalized_variants: map.set($normalized_variants, $hyphenated_key, $value);
+		}
+	}
+	@return $normalized_variants;
+}
+
+
+/// Convert raw color keys to strings
+/// @param {map} $colors
+/// @return {map} *
+@function convert_raw_color_keys($colors) {
+	$normalized_colors: ();
+	@each $key, $value in $colors {
+		$normalized_colors: map.set($normalized_colors, '' + $key, $value);
+	}
+	@return $normalized_colors;
+}
 
 
 /// Get color by name
 /// @param {string | color} $color_name
 /// @return {color} *
 @function color($color_name) {
-	$color_name: '' + $color_name;
-	
-	// Convert all color keys to strings
-	@if not $has_normalized_color {
-		$normalized_color: ();
-		@each $key, $value in $colors {
-			$normalized_color: map.set($normalized_color, '' + $key, $value);
-		}
-		$colors: $normalized_color !global;
-		$has_normalized_color: true !global;
+	@if meta.type_of($color_name) == color {
+		$color_name: '' + $color_name;
 	}
 	
 	@if
@@ -39,8 +69,11 @@ $has_normalized_color: false;
 }
 
 
+/// Format color name as CSS variable
+/// @param {string} $name
+/// @return {string} *
 @function color_var($name) {
-	@return --#{$color_prefix}-#{replace($name, '_', '-')};
+	@return --#{$color_variable_prefix}-#{replace($name, '_', '-')};
 }
 
 

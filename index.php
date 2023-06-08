@@ -505,6 +505,7 @@ include __DIR__.'/incl/header.php';
 	<div class="variant-test v-<?= $variant ?>" cw-v="<?= $variant ?>">
 		<h3>It is a theme test!</h3>
 		<p>Some things are so nice, it’s just very good</p>
+		<hr>
 		<a href="#" class="btn">How about you?</a>
 	</div>
 <? endforeach; ?>

@@ -784,6 +784,13 @@ $grid_setup_4: (
 	border-radius: 20px;
 	h3 {
 		color: color(header);
+		border-bottom: 10px solid color(line);
+	}
+	hr {
+		margin: 20px 0;
+		height: 0;
+		border: none;
+		border-bottom: 6px solid color(border);
 	}
 	p {
 		color: color(text);

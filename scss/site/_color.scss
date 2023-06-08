@@ -1,7 +1,7 @@
 @import '../crosswind/function';
 
 
-$color_prefix: color;
+$color_variable_prefix: color;
 
 $colors: (
 	white: #fff,
@@ -17,13 +17,22 @@ $colors: (
 	warning: #f09,
 );
 
-// TODO: Currently, if a variant name contains underscores, a duplicate variant
-// is created that uses hyphens. This is so we can define nice, clean variant
-// names using underscores, but can still use the hyphenated version when using
-// them in class names. Example: "extra_dark" becomes ".v-extra-dark", as well
-// as ".v-extra_dark". Is this necessary? Is this the right approach? This same
-// logic *does not* apply to color keys within variants. "button_bg" will
-// always be referenced as "color(button_bg)".
+
+/*
+
+Themes in Tailwind:
+- Colors
+- Not responsive
+
+Variants in Crosswind:
+- Colors
+- Spacing
+- Alignment
+- Responsive
+
+*/
+
+
 $variants: (
 	default: (
 		bg: white,
@@ -31,6 +40,8 @@ $variants: (
 		text: gray,
 		button_bg: pink,
 		button_text: black,
+		line: black 30%,
+		border: blue 0.4,
 	),
 	light: (
 		bg: fog,
