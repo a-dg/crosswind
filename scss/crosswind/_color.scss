@@ -28,7 +28,7 @@ $variant: $normalized_variant !global;
 		#{color_var($key)}: #{$value};
 	}
 	@each $key, $value in map.get($variant, default) {
-		#{color_var($key)}: #{'' + $value};
+		#{color_var($key)}: #{color('' + $value)};
 	}
 }
 
@@ -37,7 +37,7 @@ $variant: $normalized_variant !global;
 @each $variant_name, $variant_map in $variant {
 	.v-#{$variant_name} {
 		@each $key, $value in $variant_map {
-			#{color_var($key)}: #{'' + $value};
+			#{color_var($key)}: #{color('' + $value)};
 		}
 	}
 }

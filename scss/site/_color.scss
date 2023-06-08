@@ -31,44 +31,51 @@ $color: (
 	mint: #5ec,
 );
 
+// TODO: Currently, if a variant name contains underscores, a duplicate variant
+// is created that uses hyphens. This is so we can define nice, clean variant
+// names using underscores, but can still use the hyphenated version when using
+// them in class names. Example: "extra_dark" becomes ".v-extra-dark", as well
+// as ".v-extra_dark". Is this necessary? Is this the right approach? This same
+// logic *does not* apply to color keys within variants. "button_bg" will
+// always be referenced as "color(button_bg)".
 $variant: (
 	default: (
-		bg: color(blue),
-		header: color(blue),
-		text: color(gray),
-		button_bg: color(pink),
-		button_text: color(black),
+		bg: white,
+		header: blue,
+		text: gray,
+		button_bg: pink,
+		button_text: black,
 	),
 	light: (
-		bg: color(fog),
-		header: color(cement),
-		button_bg: color(cement),
-		button_text: color(white),
+		bg: fog,
+		header: cement,
+		button_bg: cement,
+		button_text: white,
 	),
 	dark: (
-		bg: color(black),
-		header: color(gray),
-		text: color(white),
-		button_bg: color(purple),
-		button_text: color(white),
+		bg: black,
+		header: gray,
+		text: white,
+		button_bg: purple,
+		button_text: white,
 	),
 	loud: (
-		bg: color(blue),
-		header: color(purple),
-		text: color(pink),
-		button_bg: color(mint),
+		bg: blue,
+		header: purple,
+		text: pink,
+		button_bg: mint,
 	),
 	pink: (
-		bg: color(pink),
-		header: color(white),
-		text: color(white),
-		button_bg: color(white),
-		button_text: color(pink),
+		bg: pink,
+		header: white,
+		text: white,
+		button_bg: white,
+		button_text: pink,
 	),
 	extra_dark: (
-		bg: color(black),
-		header: color(gray),
-		button_bg: color(gray),
+		bg: black,
+		header: gray,
+		button_bg: gray,
 	),
 );
 
