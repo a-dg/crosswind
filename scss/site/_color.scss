@@ -3,7 +3,7 @@
 
 $color_prefix: color;
 
-$color: (
+$colors: (
 	white: #fff,
 	fog: #eee,
 	smoke: #ddd,
@@ -24,7 +24,7 @@ $color: (
 // as ".v-extra_dark". Is this necessary? Is this the right approach? This same
 // logic *does not* apply to color keys within variants. "button_bg" will
 // always be referenced as "color(button_bg)".
-$variant: (
+$variants: (
 	default: (
 		bg: white,
 		header: blue,

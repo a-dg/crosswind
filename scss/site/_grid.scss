@@ -24,17 +24,17 @@ $breakpoint_width_max: 1664px;
 // 1 = Linear scaling
 // < 1 = Logarithmic scaling, ramping up
 // > 1 = Logarithmic scaling, ramping down
-$breakpoint_scale_curve: 1.75;
+$breakpoint_scale_curve: 1.75; // TODO: why does 0.34 lead to infinity?
 
 // Define additional breakpoints in addition to automatically generated
 // breakpoints, in any order, in the format:
 // [breakpoint name]: [breakpoint size]
-$breakpoint_additional_test: (
-	qa: 1302px,
-	qb: 576px,
-	qc: 1702px,
-	qd: 511px,
-	tn: 20px,
+$breakpoint_additional: (
+	// qa: 1302px,
+	// qb: 576px,
+	// qc: 1702px,
+	// qd: 511px,
+	// tn: 20px,
 );
 
 // Non-zero breakpoints should not be smaller than this

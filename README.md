@@ -1,12 +1,12 @@
 # Crosswind
 
 Goals:
-- Parametric layout system, effortlessly configurable
+- Effortlessly configurable, parametric layout system
 - Efficient, intuitive syntax
 - Focused on common needs, while making room for customization
 
 Capabilities:
 - Layout: grids, gutters
 - Spacing: vertical rhythm, contextual hierarchical spacing
-- Typography: scaling, spacing
-- Theming: colors
+- Typography: non-linear fluid scaling, spacing
+- Variants: colors

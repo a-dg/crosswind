@@ -1,6 +1,6 @@
 // TODO: put this in a function
 $normalized_variant: ();
-@each $key, $value in $variant {
+@each $key, $value in $variants {
 	$key: '' + $key;
 	$normalized_variant: map.set($normalized_variant, $key, $value);
 	@if string.index($key, '_') != null {
@@ -8,12 +8,12 @@ $normalized_variant: ();
 		$normalized_variant: map.set($normalized_variant, $hyphenated_key, $value);
 	}
 }
-$variant: $normalized_variant !global;
+$variants: $normalized_variant !global;
 
 
 // Warn if color key is defined in variant that is not in the default
-@each $variant_name, $variant_map in $variant {
-	$default: map.get($variant, default);
+@each $variant_name, $variant_map in $variants {
+	$default: map.get($variants, default);
 	@each $color_key in map.keys($variant_map) {
 		@if not map.has_key($default, $color_key) {
 			@warn 'Color "#{$color_key}" in variant "#{$variant_name}" is not defined in default variant';
@@ -24,17 +24,17 @@ $variant: $normalized_variant !global;
 
 // Define raw colors and default variant colors
 :root {
-	@each $key, $value in $color {
+	@each $key, $value in $colors {
 		#{color_var($key)}: #{$value};
 	}
-	@each $key, $value in map.get($variant, default) {
+	@each $key, $value in map.get($variants, default) {
 		#{color_var($key)}: #{color('' + $value)};
 	}
 }
 
 
 // Define all variant colors
-@each $variant_name, $variant_map in $variant {
+@each $variant_name, $variant_map in $variants {
 	.v-#{$variant_name} {
 		@each $key, $value in $variant_map {
 			#{color_var($key)}: #{color('' + $value)};

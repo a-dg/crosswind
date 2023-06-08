@@ -18,23 +18,23 @@ $has_normalized_color: false;
 	// Convert all color keys to strings
 	@if not $has_normalized_color {
 		$normalized_color: ();
-		@each $key, $value in $color {
+		@each $key, $value in $colors {
 			$normalized_color: map.set($normalized_color, '' + $key, $value);
 		}
-		$color: $normalized_color !global;
+		$colors: $normalized_color !global;
 		$has_normalized_color: true !global;
 	}
 	
 	@if
-		not map.has_key($color, $color_name)
-		and not map.has_key($variant, default, $color_name)
+		not map.has_key($colors, $color_name)
+		and not map.has_key($variants, default, $color_name)
 	{
 		@error 'Unknown color name: #{$color_name}';
 	}
 	
 	@return var(color_var($color_name));
 	
-	// $this_color: map.get($color, $color_name);
+	// $this_color: map.get($colors, $color_name);
 	// @return $this_color;
 }
 

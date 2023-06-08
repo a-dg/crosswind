@@ -10,17 +10,22 @@ $constants: (
 	STATE_NAV_MOBILE_WIDE: 'wide mobile nav',
 	STATE_NAV_DESKTOP: 'desktop nav',
 	STATE_NAV_DESKTOP_WIDE: 'wide desktop nav',
+	FONT_SANS_BOLD: 'sans bold',
+	FONT_SANS_BOLD_UPPER: 'sans bold upper',
+	FONT_SANS_LIGHT_UPPER: 'sans light upper',
 );
 
 
 // TODO: define nav states, or layout states in general
 // $nav_states: (
-// 	zo: const(STATE_NAV_MOBILE),
-// 	md: const(STATE_NAV_MOBILE_WIDE),
-// 	av: const(STATE_NAV_DESKTOP),
-// 	lg: const(STATE_NAV_DESKTOP_WIDE),
+// 	zo: STATE_NAV_MOBILE,
+// 	md: STATE_NAV_MOBILE_WIDE,
+// 	av: STATE_NAV_DESKTOP,
+// 	lg: STATE_NAV_DESKTOP_WIDE,
 // );
+// TODO: for any values that are access through a function and not meant to be accessed directly (constants, colors, variants), they can be specified in maps like this using just their key, excluding the accessor function
 
+// TODO: create a b() alias within Crosswind that points to Breakbeat, but allows for some additional functionality, such as checking if the breakpoint param exists as a key in $constants, then cross-referencing that in the breakpoint states map to get the actual breakpoint name. This is basically the same as creating semantic breakpoint variables, but as constants.
 
 // @include b($bp_desktop_nav) {
 // 	// Styles for desktop nav
