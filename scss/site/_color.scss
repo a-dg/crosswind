@@ -1,18 +1,3 @@
-$color_warning: #f09;
-
-$color_white: #fff;
-$color_fog: #eee;
-$color_smoke: #ddd;
-$color_cement: #ccc;
-$color_gray: #666;
-$color_black: #000;
-
-$color_purple: #90f;
-$color_blue: #09f;
-$color_pink: #f09;
-$color_mint: #5ec;
-
-
 @import '../crosswind/function';
 
 
@@ -29,6 +14,7 @@ $color: (
 	blue: #09f,
 	pink: #f09,
 	mint: #5ec,
+	warning: #f09,
 );
 
 // TODO: Currently, if a variant name contains underscores, a duplicate variant

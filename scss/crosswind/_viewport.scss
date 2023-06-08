@@ -7,9 +7,9 @@
 	width: 60px;
 	height: 48px;
 	padding: 8px 12px;
-	background: $color_gray;
+	background: color(gray);
 	text-align: center;
-	color: $color_white;
+	color: color(white);
 	text-transform: uppercase;
 	letter-spacing: 0.05em;
 	
@@ -33,7 +33,7 @@
 		margin: 2px 0;
 		padding: 0 8px;
 		height: $line_height;
-		background: $color_cement;
+		background: color(cement);
 		font-size: 14px;
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
@@ -45,7 +45,7 @@
 			top: 0;
 			display: block;
 			height: 0;
-			border-top: ($line_height - 1px) solid $color_white;
+			border-top: ($line_height - 1px) solid color(white);
 			border-left: 1px solid transparent;
 		}
 	}
@@ -62,7 +62,7 @@
 		.#{$key} {
 			width: $next_size;
 			@include b('= #{$key}') {
-				background: $color_mint;
+				background: color(mint);
 			}
 			&::after {
 				border-left-width: $wedge_width;

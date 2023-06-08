@@ -90,10 +90,10 @@ span.i-label {
 	display: block;
 	margin: 0;
 	padding: $item_label_padding;
-	// border: 2px solid $color_pink;
+	// border: 2px solid color(pink);
 	// border-width: 0 2px;
-	background: $color_pink;
-	color: $color_white;
+	background: color(pink);
+	color: color(white);
 	font-size: 32px;
 	text-transform: uppercase;
 	letter-spacing: 0.05em;
@@ -186,14 +186,14 @@ $grid_setup_4: (
 
 .g > * {
 	@if $show_item_boundaries {
-		outline: 4px dotted $color_mint;
+		outline: 4px dotted color(mint);
 	}
 	// display: flex; // TODO: this fucks up floating
 }
 
 
 .g-wire {
-	$border_color: $color_black;
+	$border_color: color(black);
 	$border_width: 8px;
 	$content_inset: gutter(x, $as_list: true); // TODO: make sure you can do this with gutter
 	
@@ -277,7 +277,7 @@ $grid_setup_4: (
 
 .g-flush {
 	$flush_border_width: 2px;
-	$flush_border_color: $color_cement;
+	$flush_border_color: color(cement);
 	
 	display: grid;
 	margin: 0 0 0 ($flush_border_width * -1);
@@ -319,7 +319,7 @@ $grid_setup_4: (
 	}
 	span.i-label {
 		background: none;
-		color: $color_black;
+		color: color(black);
 	}
 	
 	.c-max & {
@@ -353,7 +353,7 @@ $grid_setup_4: (
 }
 
 .g-guide {
-	border-bottom: 4px solid $color_black;
+	border-bottom: 4px solid color(black);
 	outline: none;
 	@include b('< md') {
 		&:nth-child(6) ~ & {
@@ -372,12 +372,12 @@ $grid_setup_4: (
 		av: (4 4 r 3, 5 r 1, 3 r 3, 5 r 2, 6 o -1, 3 4 r 1 o -2, 6 4),
 	), $repeat: false);
 	
-	> :nth-child(1) .i-label { background: $color_pink; }
-	> :nth-child(2) .i-label { background: $color_mint; }
-	> :nth-child(3) .i-label { background: $color_purple; }
-	> :nth-child(4) .i-label { background: $color_blue; }
-	> :nth-child(5) .i-label { background: $color_pink; }
-	> :nth-child(6) .i-label { background: $color_purple; }
+	> :nth-child(1) .i-label { background: color(pink); }
+	> :nth-child(2) .i-label { background: color(mint); }
+	> :nth-child(3) .i-label { background: color(purple); }
+	> :nth-child(4) .i-label { background: color(blue); }
+	> :nth-child(5) .i-label { background: color(pink); }
+	> :nth-child(6) .i-label { background: color(purple); }
 	
 	span.i-label {
 		height: 100%;
@@ -394,11 +394,11 @@ $grid_setup_4: (
 		ch: (6, 6, 3 r 3, 6 r 3, 3 r 3),
 	));
 	
-	> :nth-child(1) .i-label { background: $color_pink; }
-	> :nth-child(2) .i-label { background: $color_pink; }
-	> :nth-child(3) .i-label { background: $color_purple; }
-	> :nth-child(4) .i-label { background: $color_blue; }
-	> :nth-child(5) .i-label { background: $color_pink; }
+	> :nth-child(1) .i-label { background: color(pink); }
+	> :nth-child(2) .i-label { background: color(pink); }
+	> :nth-child(3) .i-label { background: color(purple); }
+	> :nth-child(4) .i-label { background: color(blue); }
+	> :nth-child(5) .i-label { background: color(pink); }
 	
 	span.i-label {
 		height: 100%;
@@ -461,7 +461,7 @@ $grid_setup_4: (
 	
 	> :nth-child(2n) {
 		.i-label {
-			background: $color_blue;
+			background: color(blue);
 		}
 	}
 		
@@ -491,13 +491,13 @@ $grid_setup_4: (
 		// left: grid_element_offset(3, var(--content-width));
 		
 		.i-label {
-			background: $color_mint;
+			background: color(mint);
 			opacity: 0.7;
 		}
 	}
 	> :nth-child(2) {
 		.i-label {
-			background: $color_blue;
+			background: color(blue);
 		}
 		position: relative;
 		// left: grid_element_width(1, 3, $is_negative: false, $include_external_gutter: true);
@@ -631,19 +631,19 @@ $grid_setup_4: (
 
 
 .unhang {
-	background: $color_fog;
+	background: color(fog);
 }
 
 .hang-content {
 	padding: 1em 0;
-	background: $color_blue;
+	background: color(blue);
 }
 
 
 .bg {
 	padding-top: 30px;
 	padding-bottom: 30px;
-	background: $color_fog;
+	background: color(fog);
 }
 
 .f {
@@ -663,7 +663,7 @@ $grid_setup_4: (
 	.float-instead-of-hang & {
 		box-sizing: content-box;
 		padding-right: gutter_extended(true, false);
-		background: $color_purple;
+		background: color(purple);
 		@include grid_float_auto_container(
 			// $direction: right,
 			$direction: (
@@ -771,7 +771,7 @@ $grid_setup_4: (
 			top: 0;
 			width: $divider_width;
 			height: 100%;
-			background: $color_gray;
+			background: color(gray);
 		}
 	}
 	
