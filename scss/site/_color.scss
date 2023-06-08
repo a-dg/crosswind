@@ -1,0 +1,80 @@
+$color_warning: #f09;
+
+$color_white: #fff;
+$color_fog: #eee;
+$color_smoke: #ddd;
+$color_cement: #ccc;
+$color_gray: #666;
+$color_black: #000;
+
+$color_purple: #90f;
+$color_blue: #09f;
+$color_pink: #f09;
+$color_mint: #5ec;
+
+
+@import '../crosswind/function';
+
+
+$color_prefix: color;
+
+$color: (
+	white: #fff,
+	fog: #eee,
+	smoke: #ddd,
+	cement: #ccc,
+	gray: #666,
+	black: #000,
+	purple: #90f,
+	blue: #09f,
+	pink: #f09,
+	mint: #5ec,
+);
+
+$variant: (
+	default: (
+		bg: color(blue),
+		header: color(blue),
+		text: color(gray),
+		button_bg: color(pink),
+		button_text: color(black),
+	),
+	light: (
+		bg: color(fog),
+		header: color(cement),
+		button_bg: color(cement),
+		button_text: color(white),
+	),
+	dark: (
+		bg: color(black),
+		header: color(gray),
+		text: color(white),
+		button_bg: color(purple),
+		button_text: color(white),
+	),
+	loud: (
+		bg: color(blue),
+		header: color(purple),
+		text: color(pink),
+		button_bg: color(mint),
+	),
+	pink: (
+		bg: color(pink),
+		header: color(white),
+		text: color(white),
+		button_bg: color(white),
+		button_text: color(pink),
+	),
+	extra_dark: (
+		bg: color(black),
+		header: color(gray),
+		button_bg: color(gray),
+	),
+);
+
+
+[class*=" v-"],
+[class^="v-"],
+[cw-v] {
+	background: color(bg);
+}

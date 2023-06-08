@@ -501,13 +501,18 @@ include __DIR__.'/incl/header.php';
 	</div>
 </div>
 
-
-<div class="variant-test v-dark" cw-v="dark">
-	<h3>It is a theme test!</h3>
-	<p>Some things are so nice, it’s just very good</p>
-	<a href="#" class="btn">How about you?</a>
-</div>
-
+<? foreach (['extra-dark', 'dark', 'light', 'loud', 'default', 'pink'] as $variant): ?>
+	<div class="variant-test v-<?= $variant ?>" cw-v="<?= $variant ?>">
+		<h3>It is a theme test!</h3>
+		<p>Some things are so nice, it’s just very good</p>
+		<a href="#" class="btn">How about you?</a>
+	</div>
+	<div class="v-<?= $variant ?> variant-test" cw-v="<?= $variant ?>">
+		<h3>It is a theme test!</h3>
+		<p>Some things are so nice, it’s just very good</p>
+		<a href="#" class="btn">How about you?</a>
+	</div>
+<? endforeach; ?>
 
 <?
 include __DIR__.'/incl/footer.php';

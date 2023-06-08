@@ -6,6 +6,43 @@
 
 @import 'util';
 
+$has_normalized_color: false;
+
+
+/// Get color by name
+/// @param {string | color} $color_name
+/// @return {color} *
+@function color($color_name) {
+	$color_name: '' + $color_name;
+	
+	// Convert all color keys to strings
+	@if not $has_normalized_color {
+		$normalized_color: ();
+		@each $key, $value in $color {
+			$normalized_color: map.set($normalized_color, '' + $key, $value);
+		}
+		$color: $normalized_color !global;
+		$has_normalized_color: true !global;
+	}
+	
+	@if
+		not map.has_key($color, $color_name)
+		and not map.has_key($variant, default, $color_name)
+	{
+		@error 'Unknown color name: #{$color_name}';
+	}
+	
+	@return var(color_var($color_name));
+	
+	// $this_color: map.get($color, $color_name);
+	// @return $this_color;
+}
+
+
+@function color_var($name) {
+	@return --#{$color_prefix}-#{replace($name, '_', '-')};
+}
+
 
 // TODO: keep clamp values separated as long as possible, so they can be used
 // individually for calculations (or figure out how to separate them)
@@ -506,9 +543,14 @@
 		@return $input;
 	}
 	
-	@return string.slice($input, 1, $index - 1) + $replace + replace(
-		string.slice($input, $index + string.length($search)), $search, $replace
-	);
+	@return string.slice($input, 1, $index - 1)
+		+ $replace
+		+ replace(
+				string.slice($input, $index + string.length($search)),
+				$search,
+				$replace
+			)
+	;
 }
 
 

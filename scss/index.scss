@@ -4,21 +4,47 @@
 @use 'sass:map';
 @use 'sass:meta';
 
+/*
+@use 'lib/everything-red' as red with (
+	$stuff: 100px,
+);
+
+$something_config: (
+	bork: 10px,
+	hork: 20px,
+);
+
+@use 'something';
+
+@include something.configure($something_config);
+
+h1 {
+	@include red.red;
+	content: something.hello(Roger);
+	@include something.hi_there(Roger);
+	@include something.blah;
+	@include red.great;
+}
+
+*/
+
+
 @import 'lib/breakbeat';
 
 // TODO: use @use and make these make sense
 @import 'site/general';
 @import 'site/grid';
-@import 'site/colors';
+@import 'site/color';
 @import 'site/typography';
 @import 'site/demo';
 
 @import 'util/stuff';
 
-@import 'crosswind/functions';
-@import 'crosswind/mixins';
+@import 'crosswind/function';
+@import 'crosswind/mixin';
 @import 'crosswind/grid';
 @import 'crosswind/typography';
+@import 'crosswind/color';
 @import 'crosswind/viewport';
 @import 'crosswind/util';
 
@@ -756,19 +782,19 @@ $grid_setup_4: (
 	margin: 20px;
 	padding: 20px;
 	border-radius: 20px;
-}
-h3 {
-	color: var(--c-header);
-}
-p {
-	color: var(--c-text);
-}
-a.btn {
-	display: inline-block;
-	padding: 12px 16px;
-	background: var(--c-button-bg);
-	color: var(--c-button-text);
-	text-decoration: none;
+	h3 {
+		color: color(header);
+	}
+	p {
+		color: color(text);
+	}
+	a.btn {
+		display: inline-block;
+		padding: 12px 16px;
+		background: color(button_bg);
+		color: color(button_text);
+		text-decoration: none;
+	}
 }
 
 
