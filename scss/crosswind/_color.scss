@@ -95,7 +95,8 @@ $color_variable_prefix: color !default;
 				$color_name_new: '#{$color_name}-#{$opacity_int}';
 				
 				// TODO: do not use rgba() syntax
-				$color_value_new: color.scale($color_value, $alpha: ($opacity_int * -1%));
+				$transparency: ((100 - $opacity_int) * -1%);
+				$color_value_new: color.scale($color_value, $alpha: $transparency);
 				
 				// Update maps with transparentized colors
 				$new_colors: map.set($new_colors, $color_name_new, $color_value_new);
@@ -108,38 +109,6 @@ $color_variable_prefix: color !default;
 		colors: $new_colors,
 		variants: $new_variants,
 	);
-}
-
-
-
-@mixin create_transparent_variant_colors_for_idiots {
-	@each $variant_name, $variant_map in config.$variants {
-		@each $color_key, $color_name in $variant_map {
-			@if meta.type_of($color_name) == list {
-				$opacity: util.convert_to_number(list.nth($color_name, 2));
-				$color_name: '' + list.nth($color_name, 1);
-				
-				@if math.unit($opacity) == '%' {
-					$opacity: calc($opacity / 1%);
-				}
-				
-				$opacity_int: $opacity;
-				@if $opacity < 1 {
-					$opacity_int: ($opacity * 100);
-				}
-				
-				$color_value: map.get(config.$colors, $color_name);
-				$color_name_new: '#{$color_name}-#{$opacity_int}';
-				
-				// TODO: do not use rgba() syntax
-				$color_value_new: color.scale(map.get(config.$colors, $color_name), $alpha: ($opacity_int * -1%));
-				
-				// Update maps with transparentized colors
-				config.$colors: map.set(config.$colors, $color_name_new, $color_value_new);
-				config.$variants: map.set(config.$variants, $variant_name, $color_key, $color_name_new);
-			}
-		}
-	}
 }
 
 
