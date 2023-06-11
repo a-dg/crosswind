@@ -31,9 +31,13 @@ $breakpoints: grid.create_breakpoints(
 	config.$breakpoint_additions
 );
 
-
+// TODO: make all params optional
 @include breakbeat.b_configure((
 	breakpoints: $breakpoints,
+	output_em_queries: config.$output_em_queries,
+	output_query_comments: config.$output_query_comments,
+	// global_font_size: config.$global_font_size,
+	// height_breakpoints_key: config.$height_breakpoints_key,
 ));
 
 
