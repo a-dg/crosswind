@@ -55,6 +55,10 @@ span.i-label {
 	text-transform: uppercase;
 	letter-spacing: 0.05em;
 	text-align: center;
+	
+	@include b(lg) {
+		color: color(cement);
+	}
 }
 
 .g-3 {
@@ -85,14 +89,6 @@ span.i-label {
 		lg: 5,
 		yl: 6,
 	));
-}
-
-
-.g > * {
-	@if config.$show_item_boundaries {
-		outline: 4px dotted color(mint);
-	}
-	// display: flex; // TODO: this fucks up floating
 }
 
 

@@ -32,7 +32,7 @@
       $character == '.'
       or list.index(map.keys($numbers), $character)
     ) {
-      @return append_unit_to_value(if($is_negative, ($result * -1), $result), string.slice($value, $i));
+      @return _append_unit_to_value(if($is_negative, ($result * -1), $result), string.slice($value, $i));
     }
     
     @if $character == '.' {
@@ -55,7 +55,7 @@
 /// @param {Number} $value - Value to add unit to
 /// @param {String} $unit - String representation of the unit
 /// @return {Number} - `$value` expressed in `$unit`
-@function append_unit_to_value($value, $unit) {
+@function _append_unit_to_value($value, $unit) {
   $units: ('px': 1px, 'cm': 1cm, 'mm': 1mm, '%': 1%, 'ch': 1ch, 'pc': 1pc, 'in': 1in, 'em': 1em, 'rem': 1rem, 'pt': 1pt, 'ex': 1ex, 'vw': 1vw, 'vh': 1vh, 'vmin': 1vmin, 'vmax': 1vmax);
   @if not list.index(map.keys($units), $unit) {
     @error 'Invalid unit: #{$unit}';
@@ -94,7 +94,7 @@
 /// Strip units from number by string manipulation
 /// @param {number} $number
 /// @return {unitless number} *
-@function strip_units_by_string($number) {
+@function _strip_units_by_string($number) {
   @if
     meta.type_of($number) == number
     and not math.is_unitless($number)
@@ -113,7 +113,7 @@
 /// @author Sam Richards
 /// @param {List} $list - list to sort
 /// @return {List} *
-@function quick_sort($list) {
+@function _sort_list($list) {
   $less_than: ();
   $equal: ();
   $greater_than: ();
@@ -133,10 +133,10 @@
 		
     @return list.join(
 			list.join(
-				quick_sort($less_than),
+				_sort_list($less_than),
 				$equal
 			),
-			quick_sort($greater_than)
+			_sort_list($greater_than)
 		);
   }
 	
@@ -147,8 +147,8 @@
 /// Sort map by numeric values
 /// @param {map} $input
 /// @return {map} *
-@function map_sort($input) {
-	$values_sorted: quick_sort(map.values($input));
+@function _map_sort($input) {
+	$values_sorted: _sort_list(map.values($input));
 	$map_sorted: ();
 	@each $value in $values_sorted {
 		$index: list.index(map.values($input), $value);
@@ -164,7 +164,7 @@
 /// @param {map} $insert
 /// @return {map} *
 @function map_insert($source, $insert) {
-	$insert_sorted: map_sort($insert);
+	$insert_sorted: _map_sort($insert);
 	
 	// Insert values into source map
 	@each $key, $value in $source {
@@ -175,8 +175,8 @@
 				and not map.has_key($source, $insert_key)
 				and not $stop
 			{
-				$before_map: map_subset($source, $before: $key);
-				$from_map: map_subset($source, $from: $key);
+				$before_map: _map_subset($source, $before: $key);
+				$from_map: _map_subset($source, $from: $key);
 				
 				$source: map.merge(
 					map.merge(
@@ -219,11 +219,11 @@
 /// @param {string} $from
 /// @param {string} $after
 /// @return {map} *
-@function map_subset($map, $before: null, $to: null, $from: null, $after: null) {
+@function _map_subset($map, $before: null, $to: null, $from: null, $after: null) {
 	$output: ();
 	
 	@if $from != null and $to != null {
-		@return map_subset(map_subset($map, $from: $from), $to: $to);
+		@return _map_subset(_map_subset($map, $from: $from), $to: $to);
 	}
 	
 	// Get all pairs before but not including $before key
@@ -352,21 +352,11 @@
 }
 
 
-/// Show inline warning
-/// @param {string} $message
-@mixin warning($message) {
-	@extend %cw-inline-warning;
-	&::before {
-		content: $message;
-	}
-}
-
-
 /// @param {list} $a
 /// @param {list} $b
 /// @return {list} *
 @function add_lists($a, $b) {
-	@return combine_lists($a, $b, '+');
+	@return _combine_lists($a, $b, '+');
 }
 
 
@@ -375,7 +365,7 @@
 /// @param {list} $b
 /// @return {list} *
 @function subtract_lists($a, $b) {
-	@return combine_lists($a, $b, '-');
+	@return _combine_lists($a, $b, '-');
 }
 
 
@@ -384,16 +374,16 @@
 /// @param {list} $b
 /// @param {string} $operator
 /// @return {list} *
-@function combine_lists($a, $b, $operator) {
+@function _combine_lists($a, $b, $operator) {
 	@if
 		meta.type_of($a) != list
 		and meta.type_of($b) != list
 	{
-		@return operate($a, $b, $operator);
+		@return _operate($a, $b, $operator);
 	}
 	
 	@if list.length($a) != list.length($b) {
-		@error 'Lists passed to combine_lists() must be of same length';
+		@error 'Lists passed to _combine_lists() must be of same length';
 	}
 	
 	$separator: list.separator($a);
@@ -401,7 +391,7 @@
 	$index: 1;
 	@each $a_item in $a {
 		$b_item: list.nth($b, $index);
-		$item_result: operate($a_item, $b_item, $operator);
+		$item_result: _operate($a_item, $b_item, $operator);
 		$result: list.append($result, $item_result, $separator);
 		$index: $index + 1;
 	}
@@ -414,7 +404,7 @@
 /// @param {number} $b
 /// @param {string} $operator
 /// @return {number} *
-@function operate($a, $b, $operator) {
+@function _operate($a, $b, $operator) {
 	$result: 0;
 	@if $operator == '+' {
 		$result: ($a + $b);
@@ -437,14 +427,14 @@
 @function operate_list($input, $multiply: 1, $add: 0) {
 	@if meta.type_of($input) != list {
 		$list_item_result: $input;
-		@return operate_value($input, $multiply, $add);
+		@return _operate_value($input, $multiply, $add);
 	}
 	
 	$separator: list.separator($input);
 	$result: ();
 	@each $value in $input {
 		$unit: math.unit($value);
-		$list_item_result: operate_value($value, $multiply, $add);
+		$list_item_result: _operate_value($value, $multiply, $add);
 		$result: list.append(
 			$result,
 			$list_item_result,
@@ -460,7 +450,7 @@
 /// @param {number} $multiply
 /// @param {number} $add
 /// @return {number} *
-@function operate_value($input, $multiply: 1, $add: 0) {
+@function _operate_value($input, $multiply: 1, $add: 0) {
 	$result: $input;
 	@if $multiply != 1 {
 		$result: ($result * $multiply);
@@ -814,6 +804,16 @@
 	}
 	
 	@return $complete_sizes;
+}
+
+
+/// Show inline warning
+/// @param {string} $message
+@mixin warning($message) {
+	@extend %cw-inline-warning;
+	&::before {
+		content: $message;
+	}
 }
 
 

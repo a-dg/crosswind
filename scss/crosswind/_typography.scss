@@ -14,7 +14,7 @@
 /// Fancy font size
 /// 
 /// Usage for linear scaling:
-/// font-size: fancy_font_size((
+/// font-size: _fancy_font_size((
 ///   sm: 24px,
 ///   xl: 72px,
 /// ));
@@ -23,7 +23,7 @@
 /// 
 /// @param {map} param
 /// @return {number | calculation} Fixed size or clamp()
-@function fancy_font_size($set) {
+@function _fancy_font_size($set) {
 	$min: list.nth(map.values($set), 1);
 	@if list.length(map.values($set)) == 1 {
 		@return $min;
@@ -54,7 +54,7 @@
 /// Convert two-item list to map, using default font scaling breakpoints
 /// @param {list} $sizes
 /// @return {map} *
-@function convert_font_size_list_to_map($sizes) {
+@function _convert_font_size_list_to_map($sizes) {
 	@return (
 		config.$font_scale_breakpoint_min: list.nth($sizes, 1),
 		config.$font_scale_breakpoint_max: list.nth($sizes, 2),
@@ -158,7 +158,7 @@
 		// ),
 		@else {
 			@if meta.type_of($sizes) == list {
-				$sizes: convert_font_size_list_to_map($sizes);
+				$sizes: _convert_font_size_list_to_map($sizes);
 			}
 			
 			$is_integer: util.is_zero(list.nth(map.values($sizes), 1) % 1);
@@ -228,7 +228,7 @@
 					// not included a media query
 					@if $size_index == 1 {
 						#{$selector} {
-							#{$property}: fancy_font_size($fancy_set);
+							#{$property}: _fancy_font_size($fancy_set);
 						}
 					} @else {
 						@if
@@ -240,13 +240,13 @@
 							);
 							@include b('>< #{$breakpoint} #{$next_smallest_breakpoint}') {
 								#{$selector} {
-									#{$property}: fancy_font_size($fancy_set);
+									#{$property}: _fancy_font_size($fancy_set);
 								}
 							}
 						} @else {
 							@include b($breakpoint) {
 								#{$selector} {
-									#{$property}: fancy_font_size($fancy_set);
+									#{$property}: _fancy_font_size($fancy_set);
 								}
 							}
 						}

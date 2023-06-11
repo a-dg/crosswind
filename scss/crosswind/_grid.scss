@@ -17,21 +17,11 @@ $content_max_width: null;
 $content_max_width_extended: null;
 
 
-$breakpoint_names: () !default;
-$breakpoint_width_min: 0 !default;
-$breakpoint_width_max: 0 !default;
-$breakpoint_scale_curve: 1 !default;
-$breakpoint_additions: () !default;
-
-// $breakpoints: create_breakpoints(
-// 	config.$breakpoint_names,
-// 	config.$breakpoint_width_min,
-// 	config.$breakpoint_width_max,
-// 	config.$breakpoint_scale_curve,
-// 	config.$breakpoint_additions
-// );
-
-
+// $breakpoint_names: () !default;
+// $breakpoint_width_min: 0 !default;
+// $breakpoint_width_max: 0 !default;
+// $breakpoint_scale_curve: 1 !default;
+// $breakpoint_additions: () !default;
 
 
 // TODO: what is the advantage of using CSS variables?
@@ -57,13 +47,13 @@ $gutter_stepped: (
 $gutter_flexible: ();
 
 $gutter_type: flexible !default;
-$gutter: ();
+$_gutter: ();
 
 // @debug '$gutter_type (#{meta.type_of($gutter_type)}):';
 // @debug $gutter_type;
 
-// @debug '$gutter (#{meta.type_of($gutter)}):';
-// @debug $gutter;
+// @debug '$_gutter (#{meta.type_of($_gutter)}):';
+// @debug $_gutter;
 
 
 
@@ -78,7 +68,7 @@ $gutter: ();
 /// @param {map} $gutter_set
 /// @param {string} $caller
 /// @return {number | calculation} *
-@function gutter($property, $invert: false, $as_list: false, $gutter_set: $gutter, $caller: '') {
+@function gutter($property, $invert: false, $as_list: false, $gutter_set: $_gutter, $caller: '') {
 	// @debug 'gutter() called from: #{$caller}';
 	$gutter_value: map.get($gutter_set, $property);
 	@if meta.type_of($gutter_value) != list {
@@ -106,8 +96,8 @@ $gutter: ();
 /// @param {string} $axis
 /// @param {boolean} $invert
 /// @return {number | string} *
-@function gutter_max($axis, $invert: false) {
-	$gutter_value: map.get($gutter, $axis);
+@function _gutter_max($axis, $invert: false) {
+	$gutter_value: map.get($_gutter, $axis);
 	@if meta.type_of($gutter_value) != list {
 		@return if($invert, calc($gutter_value * -1), $gutter_value);
 	}
@@ -124,8 +114,8 @@ $gutter: ();
 /// viewport or stopping at $content_max_width_extended
 /// 
 /// Alternate expressions:
-/// - calc(((100vw - ($content_max_width - (gutter_max(x) * 2))) / -2));
-/// - calc(((100vw - $content_max_width) / -2) - gutter_max(x));
+/// - calc(((100vw - ($content_max_width - (_gutter_max(x) * 2))) / -2));
+/// - calc(((100vw - $content_max_width) / -2) - _gutter_max(x));
 /// 
 /// @param {boolean} $to_viewport_edge
 /// @param {boolean} $invert
@@ -134,13 +124,13 @@ $gutter: ();
 @function gutter_extended($to_viewport_edge: true, $invert: true, $offset: 0px) {
 	$inversion: if($invert, -1, 1);
 	
-	// TODO: is gutter_max() ever what we want? We have clamp
+	// TODO: is _gutter_max() ever what we want? We have clamp
 	// Well, as long as gutter_extended() takes effect once we reach
 	// $content_max_width, then it's ok
 	$something_special: calc(
 		(50vw * $inversion)
 		- (
-			(($content_max_width / 2) - gutter_max(outer) + $offset)
+			(($content_max_width / 2) - _gutter_max(outer) + $offset)
 			* $inversion
 		)
 	);
@@ -152,13 +142,13 @@ $gutter: ();
 	// Difference between $content_max_width and $content_max_width_extended,
 	// noting that $content_max_width includes the space taken up by the outer
 	// gutter, while $content_max_width_extended does not
-	$content_extension: calc(((($content_max_width_extended - $content_max_width) / 2) + gutter_max(outer)) * $inversion);
+	$content_extension: calc(((($content_max_width_extended - $content_max_width) / 2) + _gutter_max(outer)) * $inversion);
 	
 	// TODO: check this with all gutter types
 	$stuff: (
 		$content_extension,
 		$something_special,
-		(gutter_max(outer) * $inversion)
+		(_gutter_max(outer) * $inversion)
 	);
 	@if not $invert {
 		$stuff: util.reverse_list($stuff);
@@ -174,7 +164,7 @@ $gutter: ();
 	$something_special: calc(
 		(50vw * $inversion)
 		- (
-			(($content_max_width / 2) - gutter_max(outer) + $offset)
+			(($content_max_width / 2) - _gutter_max(outer) + $offset)
 			* $inversion
 		)
 	);
@@ -187,7 +177,7 @@ $gutter: ();
 	@return clamp(
 		calc(($content_max_width_extended - $content_max_width) / -2),
 		$something_special,
-		(gutter_max(outer) * -1)
+		(_gutter_max(outer) * -1)
 	);
 }
 
@@ -386,8 +376,8 @@ $gutter: ();
 /// @param {int} $round_to
 /// @return {map} *
 @function create_breakpoints($names, $start, $end, $curve, $additional, $round_to: 4) {
-	@if $start < config.$content_min_width {
-		@warn 'A value of #{$start} for the first non-zero breakpoint ($breakpoint_width_min) might be a bit small. The minimum content width is #{config.$content_min_width}, which means that users would never see the first breakpoint.';
+	@if $start < config.$device_min_width {
+		@warn 'A value of #{$start} for the first non-zero breakpoint ($breakpoint_width_min) might be a bit small. The minimum content width is #{config.$device_min_width}, which means that users would never see the first breakpoint.';
 	}
 	
 	$start: util.strip_units($start);
@@ -448,9 +438,9 @@ $gutter: ();
 	@each $key, $value in $all {
 		@if
 			not util.is_zero($value)
-			and $value < config.$content_min_width
+			and $value < config.$device_min_width
 		{
-			@warn 'A value of #{$value} for the breakpoint named "#{$key}" might be a bit small. The minimum content width is #{config.$content_min_width}, which means that users would never see the first breakpoint.';
+			@warn 'A value of #{$value} for the breakpoint named "#{$key}" might be a bit small. The minimum content width is #{config.$device_min_width}, which means that users would never see the first breakpoint.';
 		}
 	}
 	
@@ -458,19 +448,14 @@ $gutter: ();
 }
 
 
-
-
-
-
-@mixin set_max() {
+@mixin set_max {
 	$content_max_width: map.get($breakpoints, config.$content_max_width_breakpoint) !global;
 	$content_max_width_extended: map.get($breakpoints, config.$content_max_width_extended_breakpoint) !global;
 }
 
 
-
 @mixin set_gutter_by_type {
-	$gutter: map.get((
+	$_gutter: map.get((
 		fixed: $gutter_fixed,
 		stepped: $gutter_stepped,
 		flexible: $gutter_flexible,
@@ -497,9 +482,6 @@ $gutter: ();
 		),
 	) !global;
 }
-
-
-
 
 
 /// Define column counts
@@ -654,7 +636,7 @@ $gutter: ();
 				
 				@if $self {
 					// TODO: is there a better way to do this?
-					@include grid_plot($column, $row, $order);
+					@include _grid_plot($column, $row, $order);
 				} @else {
 					@if $index == 1 and $repeat {
 						// TODO: could possibly see how many items there are in the
@@ -662,11 +644,11 @@ $gutter: ();
 						// that's more like :nth-child(2n+1), so that it doesn't apply to
 						// all items in the grid, most of which are then overridden
 						> * {
-							@include grid_plot($column, $row, $order);
+							@include _grid_plot($column, $row, $order);
 						}
 					} @else {
 						> :nth-child(#{$index}#{if($repeat, n, '')}) {
-							@include grid_plot($column, $row, $order);
+							@include _grid_plot($column, $row, $order);
 						}
 					}
 				}
@@ -680,12 +662,12 @@ $gutter: ();
 /// @param {int | list} $column
 /// @param {int | list} $row
 /// @param {int} $order
-@mixin grid_plot($column, $row, $order) {
+@mixin _grid_plot($column, $row, $order) {
 	@if $column {
-		@include grid_plot_axis(column, $column);
+		@include _grid_plot_axis(column, $column);
 	}
 	@if $row {
-		@include grid_plot_axis(row, $row);
+		@include _grid_plot_axis(row, $row);
 	}
 	@if $order {
 		order: $order;
@@ -696,7 +678,7 @@ $gutter: ();
 /// Grid plot axis
 /// @param {string} $type (row or column)
 /// @param {int | list} $params
-@mixin grid_plot_axis($type, $params) {
+@mixin _grid_plot_axis($type, $params) {
 	@if 
 		meta.type_of($params) == list
 		and list.length($params) == 1

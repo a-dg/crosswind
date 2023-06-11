@@ -23,7 +23,7 @@
 // TODO: maybe this is where everything should be augmented, copied, and gathered into one place to be accessible throughout Crosswind
 
 
-$breakpoints: grid.create_breakpoints(
+$_breakpoints: grid.create_breakpoints(
 	config.$breakpoint_names,
 	config.$breakpoint_width_min,
 	config.$breakpoint_width_max,
@@ -33,7 +33,7 @@ $breakpoints: grid.create_breakpoints(
 
 // TODO: make all params optional
 @include breakbeat.b_configure((
-	breakpoints: $breakpoints,
+	breakpoints: $_breakpoints,
 	output_em_queries: config.$output_em_queries,
 	output_query_comments: config.$output_query_comments,
 	// global_font_size: config.$global_font_size,
@@ -56,11 +56,11 @@ config.$variants: variant.convert_variant_keys(config.$variants);
 
 @include color.check_variant_keys();
 
-$fuck: color.create_transparent_variant_colors();
-// $global_colors: map.get($fuck, colors);
-config.$colors: map.deep_merge(config.$colors, map.get($fuck, colors));
-// $global_variants: map.get($fuck, variants);
-config.$variants: map.deep_merge(config.$variants, map.get($fuck, variants));
+$_transparent_colors: color.create_transparent_variant_colors();
+// $global_colors: map.get($_transparent_colors, colors);
+config.$colors: map.deep_merge(config.$colors, map.get($_transparent_colors, colors));
+// $global_variants: map.get($_transparent_colors, variants);
+config.$variants: map.deep_merge(config.$variants, map.get($_transparent_colors, variants));
 
 @include color.define_color_variables();
 @include color.define_variant_classes();

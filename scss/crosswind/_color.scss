@@ -22,7 +22,7 @@ $color_variable_prefix: color !default;
 /// Format color name as CSS variable
 /// @param {string} $name
 /// @return {string} *
-@function color_var($name) {
+@function _color_var($name) {
 	@return --#{$color_variable_prefix}-#{util.replace($name, '_', '-')};
 }
 
@@ -54,7 +54,7 @@ $color_variable_prefix: color !default;
 		@error 'Unknown color name: #{$color_name}';
 	}
 	
-	@return var(color_var($color_name));
+	@return var(_color_var($color_name));
 }
 
 
@@ -116,10 +116,10 @@ $color_variable_prefix: color !default;
 @mixin define_color_variables {
 	:root {
 		@each $key, $value in config.$colors {
-			#{color_var($key)}: #{$value};
+			#{_color_var($key)}: #{$value};
 		}
 		@each $key, $value in map.get(config.$variants, default) {
-			#{color_var($key)}: #{color($value)};
+			#{_color_var($key)}: #{color($value)};
 		}
 	}
 }
@@ -129,7 +129,7 @@ $color_variable_prefix: color !default;
 	@each $variant_name, $variant_map in config.$variants {
 		.v-#{'' + $variant_name} {
 			@each $key, $value in $variant_map {
-				#{color_var($key)}: #{color($value)};
+				#{_color_var($key)}: #{color($value)};
 			}
 		}
 	}
