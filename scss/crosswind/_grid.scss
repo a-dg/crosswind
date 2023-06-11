@@ -799,7 +799,7 @@ $gutter: ();
 			or $gutter_float_offset != $previous_gutter_float_offset
 		) {
 			@include b($breakpoint) {
-				@if not is_zero($float_offset_percentage) {
+				@if not util.is_zero($float_offset_percentage) {
 					margin-#{$direction}: calc($float_offset_percentage - $gutter_float_offset);
 				} @else {
 					margin-#{$direction}: 0;
@@ -873,7 +873,7 @@ $gutter: ();
 				$smaller_offset: find_largest_smaller_breakpoint(map.keys($float_offset_columns), $breakpoint);
 				$offset_columns: map.get($float_offset_columns, $smaller_offset);
 				
-				@if is_zero($offset_columns) {
+				@if util.is_zero($offset_columns) {
 					margin-#{$offset_direction}: 0;
 				} @else {
 					$offset_factor: calc($offset_columns / var(--content-width));
