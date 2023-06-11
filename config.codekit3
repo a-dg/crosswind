@@ -33,17 +33,11 @@
       "oAP" : "\/Crosswind PRFAQ.docx",
       "oF" : 0
     },
-    "\/css\/index.css" : {
-      "aP" : 1,
-      "bl" : 0,
-      "ci" : 0,
-      "co" : 0,
-      "ft" : 16,
-      "ma" : 0,
-      "oA" : 0,
-      "oAP" : "\/css\/index-min.css",
-      "oF" : 0,
-      "pg" : 0
+    "\/css" : {
+      "ft" : 65536,
+      "oA" : 1,
+      "oAP" : "\/css",
+      "oF" : 0
     },
     "\/incl\/footer.php" : {
       "cB" : 0,
@@ -99,7 +93,7 @@
       "oA" : 1,
       "oAP" : "\/scss\/css\/_color.css",
       "oF" : 0,
-      "oS" : 0,
+      "oS" : 1,
       "pg" : 0,
       "sct" : 0
     },
@@ -114,7 +108,7 @@
       "oA" : 1,
       "oAP" : "\/scss\/css\/_config.css",
       "oF" : 0,
-      "oS" : 0,
+      "oS" : 1,
       "pg" : 0,
       "sct" : 0
     },
@@ -129,7 +123,7 @@
       "oA" : 1,
       "oAP" : "\/scss\/css\/_constant.css",
       "oF" : 0,
-      "oS" : 0,
+      "oS" : 1,
       "pg" : 0,
       "sct" : 0
     },
@@ -144,7 +138,7 @@
       "oA" : 1,
       "oAP" : "\/scss\/css\/_grid.css",
       "oF" : 0,
-      "oS" : 0,
+      "oS" : 1,
       "pg" : 0,
       "sct" : 0
     },
@@ -159,7 +153,7 @@
       "oA" : 1,
       "oAP" : "\/scss\/css\/_option.css",
       "oF" : 0,
-      "oS" : 0,
+      "oS" : 1,
       "pg" : 0,
       "sct" : 0
     },
@@ -174,7 +168,7 @@
       "oA" : 1,
       "oAP" : "\/scss\/css\/_typography.css",
       "oF" : 0,
-      "oS" : 0,
+      "oS" : 1,
       "pg" : 0,
       "sct" : 0
     },
@@ -189,7 +183,7 @@
       "oA" : 1,
       "oAP" : "\/scss\/css\/_variant.css",
       "oF" : 0,
-      "oS" : 0,
+      "oS" : 1,
       "pg" : 0,
       "sct" : 0
     },
@@ -204,7 +198,7 @@
       "oA" : 1,
       "oAP" : "\/scss\/css\/_color.css",
       "oF" : 0,
-      "oS" : 0,
+      "oS" : 1,
       "pg" : 0,
       "sct" : 0
     },
@@ -219,7 +213,7 @@
       "oA" : 1,
       "oAP" : "\/scss\/css\/_grid.css",
       "oF" : 0,
-      "oS" : 0,
+      "oS" : 1,
       "pg" : 0,
       "sct" : 0
     },
@@ -234,7 +228,7 @@
       "oA" : 1,
       "oAP" : "\/scss\/css\/_helper.css",
       "oF" : 0,
-      "oS" : 0,
+      "oS" : 1,
       "pg" : 0,
       "sct" : 0
     },
@@ -249,7 +243,7 @@
       "oA" : 1,
       "oAP" : "\/scss\/css\/_setup.css",
       "oF" : 0,
-      "oS" : 0,
+      "oS" : 1,
       "pg" : 0,
       "sct" : 0
     },
@@ -264,7 +258,7 @@
       "oA" : 1,
       "oAP" : "\/scss\/css\/_typography.css",
       "oF" : 0,
-      "oS" : 0,
+      "oS" : 1,
       "pg" : 0,
       "sct" : 0
     },
@@ -279,7 +273,7 @@
       "oA" : 1,
       "oAP" : "\/scss\/css\/_util.css",
       "oF" : 0,
-      "oS" : 0,
+      "oS" : 1,
       "pg" : 0,
       "sct" : 0
     },
@@ -294,7 +288,7 @@
       "oA" : 1,
       "oAP" : "\/scss\/css\/_variant.css",
       "oF" : 0,
-      "oS" : 0,
+      "oS" : 1,
       "pg" : 0,
       "sct" : 0
     },
@@ -309,7 +303,7 @@
       "oA" : 1,
       "oAP" : "\/scss\/crosswind\/css\/_component.css",
       "oF" : 0,
-      "oS" : 0,
+      "oS" : 1,
       "pg" : 0,
       "sct" : 0
     },
@@ -321,10 +315,10 @@
       "ec" : 1,
       "ft" : 4,
       "ma" : 0,
-      "oA" : 1,
+      "oA" : 0,
       "oAP" : "\/scss\/css\/index.css",
       "oF" : 0,
-      "oS" : 0,
+      "oS" : 1,
       "pg" : 0,
       "sct" : 0
     },
@@ -339,7 +333,7 @@
       "oA" : 0,
       "oAP" : "\/css\/index.css",
       "oF" : 0,
-      "oS" : 0,
+      "oS" : 1,
       "pg" : 0,
       "sct" : 0
     },
@@ -354,37 +348,7 @@
       "oA" : 1,
       "oAP" : "\/scss\/css\/_breakbeat.css",
       "oF" : 0,
-      "oS" : 0,
-      "pg" : 0,
-      "sct" : 0
-    },
-    "\/scss\/lib\/_everything-red.scss" : {
-      "aP" : 0,
-      "bl" : 0,
-      "co" : 0,
-      "dP" : 10,
-      "ec" : 1,
-      "ft" : 4,
-      "ma" : 0,
-      "oA" : 1,
-      "oAP" : "\/scss\/css\/_everything-red.css",
-      "oF" : 0,
-      "oS" : 0,
-      "pg" : 0,
-      "sct" : 0
-    },
-    "\/scss\/site.scss" : {
-      "aP" : 0,
-      "bl" : 0,
-      "co" : 0,
-      "dP" : 10,
-      "ec" : 1,
-      "ft" : 4,
-      "ma" : 0,
-      "oA" : 0,
-      "oAP" : "\/css\/site.css",
-      "oF" : 2,
-      "oS" : 0,
+      "oS" : 1,
       "pg" : 0,
       "sct" : 0
     }
@@ -1852,7 +1816,7 @@
       "cssoStyle" : 0,
       "decimalPrecision" : 10,
       "emitCharset" : 1,
-      "outputStyle" : 0,
+      "outputStyle" : 1,
       "purgeCSSStyle" : 0,
       "shouldRunAutoprefixer" : 0,
       "shouldRunBless" : 0,
@@ -1967,7 +1931,7 @@
     ],
     "rollupTreeshakingEnabled" : 1,
     "rollupTreeshakingModuleSideEffects" : 1,
-    "skippedFoldersString" : "log, _logs, logs, _cache, cache, .idea, \/storage\/framework\/sessions, node_modules",
+    "skippedFoldersString" : "_logs,_cache,node_modules,\/css,.idea,logs,cache,\/storage\/framework\/sessions,log",
     "sourceFolderName" : "source",
     "susyVersion" : 3,
     "tsAllowArbitraryExtensions" : 0,
