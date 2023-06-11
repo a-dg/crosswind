@@ -1,0 +1,535 @@
+@use 'sass:math';
+@use 'sass:string';
+@use 'sass:list';
+@use 'sass:map';
+@use 'sass:meta';
+
+@use '../../lib/breakbeat' as *;
+
+@use '../../app/config';
+@use '../grid';
+@use '../color' as *;
+@use '../util';
+
+
+// TODO: define vertical spacing using same methods as font sizing, using start and end breakpoints and values for scaling pixel values, rather than basing vertical spacing on font size
+
+
+.c {
+	margin: grid.gutter(y, $caller: '.c') auto;
+	// TODO: think about what this means, because if the vertical gutter is governed by the viewport width, then that overrides any vertical rhythm established by margin and padding on text. Think about what the vertical gutter means, because there are cases where vertical spacing should be governed by horizontal spacing, such as the spacing around an element in a flush grid. Vertical gutter may not serve the same purpose as horizontal gutter at all. Vertical gutter may not play as big a role in vertical rhythm and spacing as horizontal gutter does.
+	
+	> .c {
+		margin: 0 auto;
+	}
+}
+
+.c-full {
+}
+
+.c-max {
+	max-width: grid.$content_max_width;
+	
+	&.stepped-max-width {
+		@each $breakpoint, $width in $breakpoints {
+			@if $width == 0 {
+				$width: 100%;
+			}
+			@include b($breakpoint) {
+				max-width: $width;
+			}
+		}
+	}
+}
+.c-pad {
+	padding-left: grid.gutter(outer, $caller: '.c-pad left');
+	padding-right: grid.gutter(outer, $caller: '.c-pad right');
+}
+
+.g {
+	display: grid;
+	gap: grid.gutter(x, $caller: '.g gap');
+	margin: grid.gutter(x, $caller: '.g margin') 0;
+	// grid-auto-rows: minmax(120px, auto);
+	
+	.gutter-fixed {
+		gap: grid.gutter(x, $gutter_set: grid.$gutter_fixed, $caller: '.fixed');
+	}
+	.gutter-stepped {
+		gap: grid.gutter(x, $gutter_set: grid.$gutter_stepped, $caller: '.stepped');
+	}
+	.gutter-flexible {
+		gap: grid.gutter(x, $gutter_set: grid.$gutter_flexible, $caller: '.flexible');
+	}
+}
+
+// TODO: any grid that has changes past the max width will either need to
+// always be within a full-width container, or will have to have its responsive
+// changes past the max width suppressed when it's in a max-width container
+
+// TODO: make a mixin for this
+.g-auto {
+	grid-template-columns: repeat(auto-fill, minmax(200px, auto));
+}
+
+.g > * {
+	@if config.$show_item_boundaries {
+		outline: 4px dotted color(mint);
+	}
+	// display: flex; // TODO: this fucks up floating
+}
+
+
+.g-wire {
+	$border_color: color(black);
+	$border_width: 8px;
+	$content_inset: grid.gutter(x, $as_list: true, $caller: '.wire inset'); // TODO: make sure you can do this with gutter
+	
+	$inverted_gutter: if(
+		meta.type_of($content_inset) == list,
+		util.list_to_clamp(util.invert_clamp_list($content_inset)),
+		($content_inset * -1)
+	);
+	
+	display: grid;
+	gap: 0;
+	margin: 0 $inverted_gutter;
+	margin-bottom: $border_width;
+	
+	--wire-end-left: auto;
+	--wire-end-right: auto;
+	--wire-end-margin-right: #{$border_width * -1};
+	--wire-end-border-left: #{$border_width};
+	--wire-end-border-right: #{$border_width};
+	--wire-end-width: 0;
+	--wire-end-width-visible: #{grid.gutter_extended2(
+		$invert: false,
+		$offset: var(--wire-end-offset)
+	)};
+	
+	// Use a CSS variable to accommodate .c-max and .c-full without
+	// having to write explicit styles for both
+	// TODO: this removes the -50vw margin built into gutter_extended() but it
+	// would be better to have an alternate version that doesn't need that to be
+	// removed, perhaps by passing a parameter indicating that we're not trying
+	// to compensate for $content_max_width
+	--wire-end-offset: 50vw - #{calc((grid.$content_max_width / 2) - util.list_to_clamp($content_inset))};
+	@include b(grid.$content_max_width) {
+		.c-max & {
+			--wire-end-offset: #{util.list_to_clamp($content_inset)};
+		}
+	}
+	
+	> * {
+		margin: 0 var(--wire-end-margin-right) ($border_width * -1) 0;
+		padding: if(
+			meta.type_of($content_inset) == list,
+			util.list_to_clamp($content_inset),
+			$content_inset
+		);
+		border: $border_width solid $border_color;
+		border-left-width: var(--wire-end-border-left);
+		border-right-width: var(--wire-end-border-right);
+		position: relative;
+		
+		&::before,
+		&::after {
+			content: '';
+			position: absolute;
+			left: var(--wire-end-left);
+			right: var(--wire-end-right);
+			width: var(--wire-end-width);
+			height: $border_width;
+			background: $border_color;
+		}
+		&::before {
+			top: ($border_width * -1);
+		}
+		&::after {
+			bottom: ($border_width * -1);
+		}
+	}
+	
+	&.g-6 {
+		@include grid.wire_setup((
+			zo: 1,
+			sm: 2,
+			av: 3,
+			ch: 4,
+			lg: 5,
+			yl: 6,
+		));
+	}
+}
+
+
+.g-flush {
+	$flush_border_width: 2px;
+	$flush_border_color: color(cement);
+	
+	display: grid;
+	margin: 0 0 0 ($flush_border_width * -1);
+	overflow: hidden;
+	border-top: $flush_border_width solid $flush_border_color;
+	
+	> * {
+		margin: ($flush_border_width * -1) ($flush_border_width * -1) 0 0;
+		border: $flush_border_width solid $flush_border_color;
+		// border-width: 1px 1px 0 0;
+		
+		/*
+		border-width: 0 1px 1px 0;
+		
+		// Left column
+		&:nth-child(2n+1) {
+			padding-left: 0;
+		}
+		
+		// Right column
+		&:nth-child(2n+2) {
+			padding-right: 0;
+			border-right: none;
+		}
+		
+		// First row
+		&:nth-child(-n+2) {
+			padding-top: 0;
+		}
+		
+		// Last row
+		&:nth-last-child(-n+2):nth-child(2n+1) {
+			&, & ~ div {
+				padding-bottom: 0;
+				border-bottom: none;
+			}
+		}
+		*/
+	}
+	span.i-label {
+		background: none;
+		color: color(black);
+	}
+	
+	.c-max & {
+		// @include util.warning('.g-flush may not be used within .c-max, as its container must be allowed to use the full width of the viewport');
+		margin-left: 0;
+		
+		&.g-4 {
+			$grid_setup_4: (
+				zo: 1,
+				sm: 2,
+				av: 3,
+				lg: 4,
+			);
+			$grid_setup_keys: map.keys($grid_setup_4);
+			@each $breakpoint in $grid_setup_keys {
+				$next_smallest_breakpoint: grid.find_next_smallest_breakpoint($grid_setup_keys, $breakpoint);
+				> * {
+					@include b('>< #{$breakpoint} #{$next_smallest_breakpoint}') {
+						&:nth-child(#{map.get($grid_setup_4, $breakpoint)}n) {
+							margin-right: 0;
+						}
+					}
+				}
+			}
+		}
+		
+	}
+}
+
+
+.g-layout {
+	@each $breakpoint, $columns in config.$grid_columns {
+		@include b($breakpoint) {
+			grid-template-columns: repeat($columns, 1fr);
+		}
+	}
+}
+
+.g-guide {
+	border-bottom: 4px solid color(black);
+	outline: none;
+	@include b('< md') {
+		&:nth-child(6) ~ & {
+			display: none;
+		}
+	}
+}
+
+// TODO: get first breakpoint automatically
+.col-f {
+	@include grid.layout((
+		zo: -1,
+	));
+}
+
+
+// TODO: allow for grid-sized content in any hung element
+@each $direction in (left, right) {
+	.hang-#{string.slice($direction, 1, 1)} {
+		
+		// Reverse margin to undo hanging:
+		// Hung grid items have negative margin, children of grid items use .unhang
+		// to undo hanging by adding back margin
+		&.v1 {
+			margin-#{$direction}: grid.gutter(outer, $invert: true, $caller: '.v1');
+			content: 'narrow';
+			.c-max & {
+				&.hang-extended {
+					.unhang {
+						margin-#{$direction}: grid.gutter(outer, $caller: '.v1 unhang');
+					}
+					@include b(grid.$content_max_width) {
+						margin-#{$direction}: grid.gutter_extended(false);
+						content: 'after max width';
+						.unhang {
+							margin-#{$direction}: grid.gutter_extended(false, false);
+							content: 'unhang in extended';
+							// padding-#{$direction}: grid.gutter(outer);
+						}
+					}
+				}
+				&.hang-full {
+					.unhang {
+						margin-#{$direction}: grid.gutter(outer, $caller: '.unhang full');
+					}
+					@include b(grid.$content_max_width) {
+						margin-#{$direction}: grid.gutter_extended();
+						.unhang {
+							margin-#{$direction}: grid.gutter_extended(true, false);
+							content: 'this is the one';
+						}
+					}
+				}
+				&:not(.hang-extended):not(.hang-full) {
+					@include util.warning('Hanging without .hang-extended or .hang-full probably should not be used within .c-max, as it will only hang into the outer gutter. Consider defining $content_max_width_extended_breakpoint (currently set to "#{config.$content_max_width_extended_breakpoint}") and using .hang-extended to extend beyond the outer gutter.');
+				}
+			}
+			
+			.c-full & {
+				.unhang {
+					margin-#{$direction}: grid.gutter(outer, $caller: '.c-full unhang');
+				}
+			}
+		}
+		
+		// Classes on nested child elements:
+		// .hang-* classes go on elements inside of grid items, grid item columns
+		// remain untouched by negative margins
+		// TODO: this method is seemingly "truer" to the grid, in that the grid
+		// items themselves don't deviate from the bounds of their respective grid
+		// areas, but it might be that we still need to unhang contents of a hung
+		// element, which would be quite common
+		&.v2 {
+			margin-#{$direction}: grid.gutter(outer, $invert: true, $caller: '.v2');
+			content: 'narrow v2';
+			.c-max & {
+				&.hang-extended {
+					@include b(grid.$content_max_width) {
+						margin-#{$direction}: grid.gutter_extended(false);
+						content: 'wide v2';
+					}
+				}
+				&.hang-full {
+					@include b(grid.$content_max_width) {
+						margin-#{$direction}: grid.gutter_extended();
+					}
+				}
+				&:not(.hang-extended):not(.hang-full) {
+					@include util.warning('Hanging without .hang-extended or .hang-full probably should not be used within .c-max, as it will only hang into the outer gutter. Consider defining $content_max_width_extended_breakpoint (currently set to #{config.$content_max_width_extended_breakpoint}) and using .hang-extended to extend beyond the outer gutter.');
+				}
+			}
+		}
+		
+		
+	}
+}
+
+
+.unhang {
+	background: color(fog);
+}
+
+.hang-content {
+	padding: 1em 0;
+	background: color(blue);
+}
+
+
+.bg {
+	padding-top: 30px;
+	padding-bottom: 30px;
+	background: color(fog);
+}
+
+.f {
+	display: flex;
+	justify-content: space-between;
+	gap: grid.gutter(x, $caller: '.f');
+	padding-top: grid.gutter(y, $caller: '.f');
+	padding-bottom: grid.gutter(y, $caller: '.f');
+}
+.f-item {
+	flex: 0 1 160px;
+}
+
+
+.g-float {
+	
+	.float-instead-of-hang & {
+		box-sizing: content-box;
+		padding-right: grid.gutter_extended(true, false);
+		background: color(purple);
+		@include grid.grid_float_auto_container(
+			// $direction: right,
+			$direction: (
+				zo: left,
+			),
+			// $width: 7,
+			$width: (
+				zo: 6,
+				md: 9,
+			),
+			// $offset: 5
+			$offset: (
+				md: 0,
+			)
+		);
+	}
+	
+	.col-6-temp & {
+		// Implicit container width, explicit float offset
+		@include grid.grid_float_auto_container(
+			// $direction: right,
+			$direction: (
+				tn: left,
+				sm: right,
+				md: left,
+				lg: right,
+			),
+			// $width: 7,
+			$width: (
+				tn: 2,
+				md: 5,
+			),
+			// $offset: 5
+			$offset: (
+				zo: 0,
+				av: 2,
+				ch: 3,
+			)
+		);
+	}
+	
+	.col-f & {
+		// Explicit container width, optionally implicit float offset
+		@include grid.grid_float(
+			$direction: right,
+			$in: 12,
+			$width: 3,
+			$offset: 0
+		);
+	}
+	
+	.col-4-left & {
+		// Explicit container width, optionally implicit float offset
+		@include grid.grid_float(
+			$direction: right,
+			$in: 4,
+			$width: 3,
+			$offset: 3
+		);
+	}
+	
+	+ p {
+		margin-top: 0;
+		text-align: justify;
+		hyphens: auto;
+	}
+}
+
+
+.crossing-into-gutter {
+	@include grid.layout((
+		zo: 6,
+	));
+	
+	// Item crosses gutter to be flush with next
+	> :nth-child(1) {
+		margin-right: grid.gutter(x, $invert: true, $caller: '.crossing');
+	}
+	
+	// Items meet in the middle of the gutter
+	$gutter_local: grid.gutter(x, $invert: true, $as_list: true, $caller: '.crossing local');
+	$gutter_local: util.list_to_clamp(util.operate_list($gutter_local, $multiply: 0.5));
+	> :nth-child(1) {
+		margin-right: $gutter_local;
+	}
+	> :nth-child(2) {
+		margin-left: $gutter_local;
+	}
+	
+	// Border in middle of gutter
+	$divider_width: 2px;
+	$gutter_local: grid.gutter(x, $invert: true, $as_list: true, $caller: '.crossing local');
+	$gutter_local: util.list_to_clamp(util.operate_list(
+		$gutter_local,
+		$multiply: 0.5,
+		$add: ($divider_width * -0.5)
+	));
+	
+	> :nth-child(2n-1) {
+		position: relative;
+		&::after {
+			content: '';
+			position: absolute;
+			right: $gutter_local;
+			top: 0;
+			width: $divider_width;
+			height: 100%;
+			background: color(gray);
+		}
+	}
+	
+}
+
+
+
+
+// Imitation Tailwind classes
+@if config.$generate_tailwind_classes {
+	// TODO: address specificity, normal selector isn't specific enough to
+	// override dimensions defined by parent element
+	@for $i from 1 through 11 {
+		@each $breakpoint in map.keys($breakpoints) {
+			$is_first_breakpoint: list.index(map.keys($breakpoints), $breakpoint) == 1;
+			
+			@if $is_first_breakpoint {
+				.tw-col-span-#{$i}.tw-col-span-#{$i} {
+					@include grid.layout((
+						#{$breakpoint}: $i,
+					), $self: true);
+				}
+				
+				// TODO: support defining only start in layout
+				.tw-col-start-#{$i}.tw-col-start-#{$i} {
+					@include grid.layout((
+						#{$breakpoint}: _ $i,
+					), $self: true);
+				}
+			}
+			
+			.#{$breakpoint}\:tw-col-span-#{$i}.#{$breakpoint}\:tw-col-span-#{$i} {
+				@include grid.layout((
+					#{$breakpoint}: $i,
+				), $self: true);
+			}
+			
+			.#{$breakpoint}\:tw-col-start-#{$i}.#{$breakpoint}\:tw-col-start-#{$i} {
+				@include grid.layout((
+					#{$breakpoint}: _ $i,
+				), $self: true);
+			}
+		}
+	}
+}

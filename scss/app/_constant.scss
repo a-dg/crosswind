@@ -1,9 +1,3 @@
-@use '../util/stuff' as *;
-
-// $show_item_boundaries: true;
-$output_query_comments: true;
-$generate_tailwind_classes: false;
-
 // Usage: const(STATE_NAV_MOBILE_WIDE)
 $constants: (
 	STATE_NAV_MOBILE: 'mobile nav',

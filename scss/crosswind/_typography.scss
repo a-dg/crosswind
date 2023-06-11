@@ -4,6 +4,114 @@
 @use 'sass:map';
 @use 'sass:meta';
 
+@use 'util';
+@use '../lib/breakbeat' as *;
+
+@use '../app/config';
+@use 'grid';
+
+
+/// Fancy font size
+/// 
+/// Usage for linear scaling:
+/// font-size: fancy_font_size((
+///   sm: 24px,
+///   xl: 72px,
+/// ));
+/// 
+/// For non-linear scaling, use parabolic_font_sizes()
+/// 
+/// @param {map} param
+/// @return {number | calculation} Fixed size or clamp()
+@function fancy_font_size($set) {
+	$min: list.nth(map.values($set), 1);
+	@if list.length(map.values($set)) == 1 {
+		@return $min;
+	}
+	
+	$max: list.nth(map.values($set), 2);
+	$start: map.get($breakpoints, list.nth(map.keys($set), 1));
+	$end: map.get($breakpoints, list.nth(map.keys($set), 2));
+	
+	$size_fixed: calc(($max - $min) / ($end - $start));
+	@if $size_fixed == 0 {
+		@return $min;
+	}
+	
+	$size_fluid: ($size_fixed * 100vw);
+	$size_preferred: calc(util.trunx($size_fluid) + util.trunx($min - ($size_fixed * $start)));
+	
+	@if $min > $max {
+		$min_swap: $min;
+		$min: $max;
+		$max: $min_swap;
+	}
+	
+	@return clamp($min, $size_preferred, $max);
+}
+
+
+/// Convert two-item list to map, using default font scaling breakpoints
+/// @param {list} $sizes
+/// @return {map} *
+@function convert_font_size_list_to_map($sizes) {
+	@return (
+		config.$font_scale_breakpoint_min: list.nth($sizes, 1),
+		config.$font_scale_breakpoint_max: list.nth($sizes, 2),
+	);
+}
+
+
+/// Find closest font size to target
+/// @param {map} $set
+/// @param {number} $target_size
+/// @return {map} *
+@function closest_font_size($set, $target_size) {
+	
+	$all_largest_sizes: ();
+	$all_differences: ();
+	
+	@each $selector, $sizes in $set {
+		@debug '';
+		@debug '$sizes (#{meta.type_of($sizes)}):';
+		@debug $sizes;
+		
+		@if meta.type_of($sizes) == number {
+			$all_largest_sizes: map.set($all_largest_sizes, $selector, $sizes);
+			$all_differences: map.set($all_differences, $selector, math.abs($sizes - $target_size));
+		}
+		
+		@else if meta.type_of($sizes) == list {
+			$all_largest_sizes: map.set($all_largest_sizes, $selector, list.nth($sizes, 1));
+			$all_differences: map.set($all_differences, $selector, math.abs(list.nth($sizes, 1) - $target_size));
+		}
+		
+		@else {
+			$last_size: list.nth(map.values($sizes), list.length(map.keys($sizes)));
+			@if meta.type_of($last_size) == list {
+				$last_size: list.nth($last_size, 1);
+			}
+			
+			$all_largest_sizes: map.set($all_largest_sizes, $selector, $last_size);
+			$all_differences: map.set($all_differences, $selector, math.abs($last_size - $target_size));
+		}
+	}
+	
+	
+	@debug '$all_largest_sizes (#{meta.type_of($all_largest_sizes)}):';
+	@debug $all_largest_sizes;
+	
+	@debug '$all_differences (#{meta.type_of($all_differences)}):';
+	@debug $all_differences;
+	
+	$lowest: 0;
+	@each $selector, $difference in $all_differences {
+		
+	}
+	
+	@return '';
+}
+
 
 /// Create parabolic responsive font sizes
 /// 
@@ -53,8 +161,8 @@
 				$sizes: convert_font_size_list_to_map($sizes);
 			}
 			
-			$is_integer: is_zero(list.nth(map.values($sizes), 1) % 1);
-			$sizes: create_intermediate_sizes($sizes, $is_integer);
+			$is_integer: util.is_zero(list.nth(map.values($sizes), 1) % 1);
+			$sizes: util.create_intermediate_sizes($sizes, $is_integer);
 			$size_count: list.length(map.keys($sizes));
 			
 			$size_index: 1;
@@ -127,7 +235,7 @@
 							$use_between_operator
 							and not $is_second_to_last_breakpoint
 						{
-							$next_smallest_breakpoint: find_next_smallest_breakpoint(
+							$next_smallest_breakpoint: grid.find_next_smallest_breakpoint(
 								map.keys($sizes), $breakpoint
 							);
 							@include b('>< #{$breakpoint} #{$next_smallest_breakpoint}') {

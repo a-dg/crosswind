@@ -1,0 +1,32 @@
+@use 'sass:string';
+@use 'sass:map';
+
+@use 'util';
+
+
+/// Create duplicate hyphenated variant keys for keys using underscores
+/// 
+/// If a variant name contains underscores, a duplicate variant is created that
+/// uses hyphens. This is so we can define nice, clean variant names using
+/// underscores, but can still use the hyphenated version when using them in
+/// class names. Example: the "extra_dark" variant becomes usable through the
+/// CSS class ".v-extra-dark", as well as ".v-extra_dark".
+/// 
+/// TODO: Is this necessary? Is this the right approach? This same logic
+/// *does not* apply to color keys within variants. "button_bg" will always be
+/// accessible through "color(button_bg)".
+/// 
+/// @param {map} $variants
+/// @return {map} *
+@function convert_variant_keys($variants) {
+	$normalized_variants: ();
+	@each $key, $value in $variants {
+		$key: '' + $key;
+		$normalized_variants: map.set($normalized_variants, $key, $value);
+		@if string.index($key, '_') != null {
+			$hyphenated_key: util.replace($key, '_', '-');
+			$normalized_variants: map.set($normalized_variants, $hyphenated_key, $value);
+		}
+	}
+	@return $normalized_variants;
+}

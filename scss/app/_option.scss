@@ -1,8 +1,10 @@
+$output_query_comments: true;
+$generate_tailwind_classes: false;
+$show_item_boundaries: false;
+
 $label_margin: 1em 0;
 $label_padding: 0 0.75em 0.5em 0.75em;
 $label_border_width: 4px;
 $label_border_color: #09f;
 
 $item_label_padding: 1em 1em;
-
-$show_item_boundaries: false !default;

@@ -4,6 +4,9 @@
 @use 'sass:meta';
 @use 'sass:list';
 
+@use '../app/config';
+@use './../lib/breakbeat';
+
 
 /// Convert string to number
 /// @link https://kittygiraudel.com/2014/01/15/sass_string_to_number/
@@ -278,6 +281,77 @@
 }
 
 
+/// Invert and reverse list of arguments for clamp()
+/// @param {list} $list
+/// @return {list} *
+@function invert_clamp_list($list) {
+	$result: reverse_list($list);
+	@return invert_list($result);
+}
+
+
+/// Invert all values in list
+/// @param {list} $list
+/// @return {list} *
+@function invert_list($list) {
+	$separator: list.separator($list);
+	$result: ();
+	@each $value in $list {
+		$result: list.append($result, ($value * -1), $separator);
+	}
+	@return $result;
+}
+
+
+/// Reverse list
+/// @link https://kittygiraudel.com/2013/08/08/advanced-sass-list-functions/
+/// @param {list} $list
+/// @param {boolean} $recursive
+/// @return {list} *
+@function reverse_list($list, $recursive: false) {
+	$separator: list.separator($list);
+	$result: ();
+	
+	@for $i from (list.length($list) * -1) through -1 {
+		@if
+			$recursive
+			and meta.type_of(list.nth($list, math.abs($i))) == list
+		{
+			$result: list.append(
+				$result,
+				reverse_list(list.nth($list, math.abs($i)), $recursive),
+				$separator
+			);
+		} @else {
+			$result: list.append($result, list.nth($list, math.abs($i)), $separator);
+		}
+	}
+	
+	@return $result;
+}
+
+
+/// Convert three-element list to clamp(), or return first element
+/// @param {list} $list
+/// @return {calculation} *
+@function list_to_clamp($list) {
+	@if meta.type_of($list) != list {
+		@return $list;
+	}
+	
+	@if list.length($list) != 3 {
+		@error 'List passed to list_to_clamp() was not three elements: ' + $list;
+		@return list.nth($list, 1);
+	}
+	
+	@return clamp(
+		list.nth($list, 1),
+		list.nth($list, 2),
+		list.nth($list, 3)
+	);
+}
+
+
 /// Show inline warning
 /// @param {string} $message
 @mixin warning($message) {
@@ -292,12 +366,468 @@
 		top: 12px;
 		padding: 12px 16px;
 		border-radius: 8px;
-		background: color(warning);
+		background: #f00; // color(warning); // TODO: create CW-specific colors
 		box-shadow: 0 8px 24px rgb(0 0 0 / 0.5);
 		font-size: 20px;
-		color: color(white);
+		color: #fff; // color(white); // TODO: create CW-specific colors
 		text-align: left;
 		text-transform: none;
 		letter-spacing: normal;
 	}
 }
+
+
+/// @param {list} $a
+/// @param {list} $b
+/// @return {list} *
+@function add_lists($a, $b) {
+	@return combine_lists($a, $b, '+');
+}
+
+
+/// Subtract elements from two lists
+/// @param {list} $a
+/// @param {list} $b
+/// @return {list} *
+@function subtract_lists($a, $b) {
+	@return combine_lists($a, $b, '-');
+}
+
+
+/// Perform calculation on two lists
+/// @param {list} $a
+/// @param {list} $b
+/// @param {string} $operator
+/// @return {list} *
+@function combine_lists($a, $b, $operator) {
+	@if
+		meta.type_of($a) != list
+		and meta.type_of($b) != list
+	{
+		@return operate($a, $b, $operator);
+	}
+	
+	@if list.length($a) != list.length($b) {
+		@error 'Lists passed to combine_lists() must be of same length';
+	}
+	
+	$separator: list.separator($a);
+	$result: ();
+	$index: 1;
+	@each $a_item in $a {
+		$b_item: list.nth($b, $index);
+		$item_result: operate($a_item, $b_item, $operator);
+		$result: list.append($result, $item_result, $separator);
+		$index: $index + 1;
+	}
+	@return $result;
+}
+
+
+/// Perform calculation on two values
+/// @param {number} $a
+/// @param {number} $b
+/// @param {string} $operator
+/// @return {number} *
+@function operate($a, $b, $operator) {
+	$result: 0;
+	@if $operator == '+' {
+		$result: ($a + $b);
+	} @else if $operator == '-' {
+		$result: ($a - $b);
+	} @else if $operator == '*' {
+		$result: ($a * $b);
+	} @else if $operator == '/' {
+		$result: calc($a / $b);
+	}
+	@return $result;
+}
+
+
+/// Peform calculation on each element in list
+/// @param {list | number} $input
+/// @param {number} $multiply
+/// @param {number} $add
+/// @return {list | number} *
+@function operate_list($input, $multiply: 1, $add: 0) {
+	@if meta.type_of($input) != list {
+		$list_item_result: $input;
+		@return operate_value($input, $multiply, $add);
+	}
+	
+	$separator: list.separator($input);
+	$result: ();
+	@each $value in $input {
+		$unit: math.unit($value);
+		$list_item_result: operate_value($value, $multiply, $add);
+		$result: list.append(
+			$result,
+			$list_item_result,
+			$separator
+		);
+	}
+	@return $result;
+}
+
+
+/// Peform calculation on value
+/// @param {number} $input
+/// @param {number} $multiply
+/// @param {number} $add
+/// @return {number} *
+@function operate_value($input, $multiply: 1, $add: 0) {
+	$result: $input;
+	@if $multiply != 1 {
+		$result: ($result * $multiply);
+	}
+	@if not is_zero($add) {
+		$result: calc($result + $add);
+	}
+	@return $result;
+}
+
+
+/// Round number to nearest multiple
+/// @param {number} $value
+/// @return {int} *
+@function round_to($value, $multiple) {
+	@return (math.round(calc($value / $multiple)) * $multiple);
+}
+
+
+/// Round number to nearest multiple of 2
+/// @param {number} $value
+/// @return {int} *
+@function round_even($value) {
+	@return round_to($value, 2);
+}
+
+
+/// Round number to nearest multiple of 4
+/// @param {number} $value
+/// @return {int} *
+@function round_four($value) {
+	@return round_to($value, 4);
+}
+
+
+/// Round number to nearest multiple of 16
+/// @param {number} $value
+/// @return {int} *
+@function round_sixteen($value) {
+	@return round_to($value, 16);
+}
+
+
+/// Is this value a percentage?
+/// @param {number} $value
+/// @return {boolean} *
+@function is_percent($value) {
+	@return math.unit($value) == '%';
+}
+
+
+/// Truncate decimal to specified number of places
+/// @param {number | list} $value
+/// @param {int} $places
+/// @return {number} *
+@function truncate($value, $places: 4) {
+	@return $value;
+	
+	// TODO: verify that flooring does not cause elements to accidentally reflow
+	// when using negative numbers
+	
+	@if meta.type_of($value) == list {
+		$separator: list.separator($value);
+		$result: ();
+		@each $list_item in $value {
+			$result: list.append($result, truncate($list_item), $separator);
+		}
+		@return $result;
+	}
+	
+	@return calc(math.floor($value * math.pow(10, $places)) / math.pow(10, $places));
+}
+
+
+/// Truncate decimal to specified number of places
+/// @param {number | list} $value
+/// @param {int} $places
+/// @return {number} *
+@function trunx($value, $places: 4) {
+	// TODO: verify that flooring does not cause elements to accidentally reflow
+	// when using negative numbers
+	
+	@if meta.type_of($value) == list {
+		$separator: list.separator($value);
+		$result: ();
+		@each $list_item in $value {
+			$result: list.append($result, truncate($list_item), $separator);
+		}
+		@return $result;
+	}
+	
+	@return calc(math.floor($value * math.pow(10, $places)) / math.pow(10, $places));
+}
+
+
+/// Replace in string
+/// @param {string} $input
+/// @param {string} $search
+/// @param {string} $replace
+/// @return {string} *
+@function replace($input, $search, $replace: '') {
+	$index: string.index($input, $search);
+	@if not $index {
+		@return $input;
+	}
+	
+	@return string.slice($input, 1, $index - 1)
+		+ $replace
+		+ replace(
+				string.slice($input, $index + string.length($search)),
+				$search,
+				$replace
+			)
+	;
+}
+
+
+/// Split list at first occurrence of delimiter
+/// @param {list} $input
+/// @param {string} $delimiter
+/// @return {map} List parts as a, b
+@function split_list($input, $delimiter) {
+	@if
+		type_of($input) != list
+		or not list.index($input, $delimiter)
+	{
+		@return (
+			a: $input,
+			b: null,
+		);
+	}
+	
+	$list_a: ();
+	$list_b: ();
+	$is_before_split: true;
+	
+	@each $item in $input {
+		@if $item == $delimiter {
+			$is_before_split: false;
+		} @else {
+			@if $is_before_split {
+				$list_a: list.append($list_a, $item, $separator: space);
+			} @else {
+				$list_b: list.append($list_b, $item, $separator: space);
+			}
+		}
+	}
+	
+	// TODO: consider this method of splitting lists
+	// $list: 3 4 r 1 o -2;
+	// $string: meta.inspect($list);
+	// $split_list: string.split($string, o);
+	// @debug $split_list;
+	// @debug meta.type_of($split_list);
+	
+	@return (
+		a: $list_a,
+		b: $list_b,
+	);
+}
+
+
+/// Interpolate numbers on a curve
+/// 
+/// Control acceleration of intervals with $curve:
+/// - 0: No curvature, evenly-spaced numbers
+/// - 0.5: Some curvature, smaller intervals at start of range
+/// - 1: Greater curvature, more drastic change in intervals
+/// - -0.5: Opposite curvature, larger intervals at start of range
+/// 
+/// @param {int} $start: starting number
+/// @param {int} $end: ending number
+/// @param {int} $count: total number of numbers
+/// @param {float} $curve: acceleration of intervals
+/// @param {bool} $round: round values
+/// @return {list} *
+@function interpolate($start, $end, $count, $curve: 1, $round: false) {
+	$step: calc(($end - $start) / ($count - 1));
+	$is_negative_curve: $curve < 0;
+	$inversion: if($is_negative_curve, -1, 1);
+	@if $is_negative_curve {
+		$curve: ($curve * -1);
+		$start_swap: $start;
+		$start: $end;
+		$end: $start_swap;
+	}
+	
+	$values: ();
+	@for $i from 0 through ($count - 1) {
+		$x: calc($i / ($count - 1));
+		$y: calc(math.pow($curve, $x) / $curve);
+		$value: ($start + ($i * $step * $y * $inversion));
+		@if $round {
+			$value: math.round($value);
+		}
+		$values: append($values, $value);
+	}
+	
+	@if $is_negative_curve {
+		$values: reverse_list($values);
+	}
+	
+	@return $values;
+}
+
+
+/// Get constant
+/// @param {string} $key
+/// @return {mixed} *
+@function const($key) {
+	@if not map.has_key($constants, $key) {
+		@error 'Unknown constant: #{$key}';
+	}
+	
+	@return map.get($constants, $key);
+}
+
+
+/// Create interpolated sizes for intermediate breakpoints
+/// 
+/// Output is a map defining explicit sizes for every breakpoint between
+/// start and end breakpoints. Used in conjunction with mixins for creating
+/// parabolic responsive values, like parabolic_font_sizes().
+/// 
+/// Note: this process has the potential to create some redundant key/value
+/// pairs. However, since map entries are assigned by specifying the key and
+/// value, any redundant key simply overwrites the existing pair, so it makes
+/// no difference in the end.
+/// 
+/// Input: (
+///   sm: 24px,
+///   xl: 36px,
+/// )
+/// Output: (
+///   sm: 24px,
+///   md: 28px, <- Creates interpolates sizes
+///   lg: 32px, <- for intermediate breakpoints
+///   xl: 36px,
+/// )
+/// 
+/// Use the "fixed" keyword to hold a fixed font size until the next defined
+/// breakpoint. (Alternatively, define consecutive breakpoints having the
+/// same value.)
+/// 
+/// Input with "fixed": (
+///   sm: 24px,
+///   md: 28px fixed,
+///   xl: 36px,
+/// )
+/// Output with "fixed": (
+///   sm: 24px,
+///   md: 28px fixed,
+///   (No "lg" size generated)
+///   xl: 36px,
+/// )
+/// 
+/// @param {map} $sizes
+/// @return {map} *
+@function create_intermediate_sizes($sizes, $with_rounding: true) {
+	@if list.length(map.keys($sizes)) == 1 {
+		@return $sizes;
+	}
+	
+	$complete_sizes: ();
+	$breakpoint_names: map.keys(breakbeat.$breakpoints);
+	
+	$size_index: 1;
+	@each $breakpoint, $size in $sizes {
+		$has_keyword: meta.type_of($size) == list;
+		
+		// If this size has a keyword (such as "fixed"), do not interpolate between
+		// this and the next in the set
+		@if $has_keyword {
+			$complete_sizes: map.set(
+				$complete_sizes,
+				$breakpoint,
+				$size
+			);
+			
+			$is_first_breakpoint: list.index($breakpoint_names, $breakpoint) == 1;
+			@if
+				$size_index == 1
+				and not $is_first_breakpoint
+			{
+				@warn 'The first font size (#{$breakpoint}: #{$size}) is defined as fixed, so there will be no font size for breakpoints below #{$breakpoint}';
+			}
+		}
+		
+		@else {
+			@if $size_index < list.length(map.keys($sizes)) {
+				$this_index_in_all: list.index($breakpoint_names, $breakpoint);
+				
+				$next_breakpoint: list.nth(map.keys($sizes), $size_index + 1);
+				$next_size: list.nth(map.values($sizes), $size_index + 1);
+				$next_size_keyword: null;
+				@if meta.type_of($next_size) == list {
+					$next_size_keyword: list.nth($next_size, 2);
+					$next_size: list.nth($next_size, 1);
+				}
+				$next_index_in_all: list.index($breakpoint_names, $next_breakpoint);
+				
+				$intermediate_size_count: ($next_index_in_all - $this_index_in_all) - 1;
+				@if $intermediate_size_count > 0 {
+					$intermediate_sizes: interpolate(
+						$start: $size,
+						$end: $next_size,
+						$count: $intermediate_size_count + 2,
+						$curve: config.$font_scale_curve,
+						$round: $with_rounding
+					);
+					
+					// Pair each intermediate size with a breakpoint
+					$intermediate_index: 1;
+					@each $intermediate_size in $intermediate_sizes {
+						// If there is a keyword on the next size, and we're on the last
+						// intermediate size, that means we're on the one with the keyword,
+						// and we need to add the keyword back so that it's represented in
+						// the complete list
+						@if
+							$next_size_keyword != null
+							and $intermediate_index == list.length($intermediate_sizes)
+						{
+							$intermediate_size: ($intermediate_size $next_size_keyword);
+						}
+						
+						$intermediate_breakpoint_index: ($this_index_in_all + $intermediate_index) - 1;
+						$complete_sizes: map.set(
+							$complete_sizes,
+							list.nth($breakpoint_names, $intermediate_breakpoint_index),
+							$intermediate_size
+						);
+						$intermediate_index: $intermediate_index + 1;
+					}
+					
+				} @else {
+					$complete_sizes: map.set($complete_sizes, $breakpoint, $size);
+				}
+			}
+			
+			// If this is the last entry, add it manually
+			@else {
+				$complete_sizes: map.set(
+					$complete_sizes,
+					$breakpoint,
+					$size
+				);
+			}
+		}
+		
+		$size_index: $size_index + 1;
+	}
+	
+	@return $complete_sizes;
+}
+

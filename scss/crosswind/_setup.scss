@@ -1,0 +1,67 @@
+@use 'sass:map';
+@use 'sass:meta';
+
+@use '../app/config';
+
+// @use 'function';
+// @use 'util';
+
+@use '../lib/breakbeat';
+
+@use 'color';
+@use 'variant';
+@use 'grid'; // needs Breakbeat when mixin called
+@use 'typography'; // needs Breakbeat but only when mixin parabolic is called
+
+@forward 'color';
+@forward 'variant';
+@forward 'grid';
+@forward 'typography';
+
+
+
+// TODO: maybe this is where everything should be augmented, copied, and gathered into one place to be accessible throughout Crosswind
+
+
+$breakpoints: grid.create_breakpoints(
+	config.$breakpoint_names,
+	config.$breakpoint_width_min,
+	config.$breakpoint_width_max,
+	config.$breakpoint_scale_curve,
+	config.$breakpoint_additions
+);
+
+
+@include breakbeat.b_configure((
+	breakpoints: $breakpoints,
+));
+
+
+
+
+
+// This needs BB
+@include grid.gutter_settings();
+@include grid.set_max();
+@include grid.set_gutter_flexible();
+@include grid.set_gutter_by_type();
+
+
+config.$colors: color.convert_raw_color_keys(config.$colors);
+config.$variants: variant.convert_variant_keys(config.$variants);
+
+@include color.check_variant_keys();
+
+$fuck: color.create_transparent_variant_colors();
+// $global_colors: map.get($fuck, colors);
+config.$colors: map.deep_merge(config.$colors, map.get($fuck, colors));
+// $global_variants: map.get($fuck, variants);
+config.$variants: map.deep_merge(config.$variants, map.get($fuck, variants));
+
+@include color.define_color_variables();
+@include color.define_variant_classes();
+
+
+@include typography.parabolic_font_sizes(config.$all_font_sizes);
+// @include parabolic_font_sizes($all_line_heights, 'line-height');
+// @debug closest_font_size($all_font_sizes, 32px);

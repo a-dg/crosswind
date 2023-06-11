@@ -2,74 +2,168 @@
 @use 'sass:map';
 @use 'sass:meta';
 @use 'sass:math';
+@use 'sass:color';
 
+@use '../app/config';
 @use 'util';
 
 
 $color_variable_prefix: color !default;
-$colors: convert_raw_color_keys($colors);
-$variants: convert_variant_keys($variants);
 
+
+// @debug config.$colors;
+
+// TODO: consider making a local copy of user's site config to be augmented by Crosswind in the setup process
 
 // TODO: a lot of this will need to be updated if variants include things other than colors
 
+
+
+/// Format color name as CSS variable
+/// @param {string} $name
+/// @return {string} *
+@function color_var($name) {
+	@return --#{$color_variable_prefix}-#{util.replace($name, '_', '-')};
+}
+
+
+/// Convert raw color keys to strings
+/// @param {map} $colors
+/// @return {map} *
+@function convert_raw_color_keys($colors) {
+	$normalized_colors: ();
+	@each $key, $value in $colors {
+		$normalized_colors: map.set($normalized_colors, '' + $key, $value);
+	}
+	@return $normalized_colors;
+}
+
+
+/// Get color by name
+/// @param {string | color} $color_name
+/// @return {string} CSS color variable
+@function color($color_name) {
+	@if meta.type_of($color_name) == color {
+		$color_name: '' + $color_name;
+	}
+	
+	@if
+		not map.has_key(config.$colors, $color_name)
+		and not map.has_key(config.$variants, default, $color_name)
+	{
+		@error 'Unknown color name: #{$color_name}';
+	}
+	
+	@return var(color_var($color_name));
+}
+
+
 // Warn if color key is defined in variant that is not in the default
-@each $variant_name, $variant_map in $variants {
-	$default: map.get($variants, default);
-	@each $color_key in map.keys($variant_map) {
-		@if not map.has_key($default, $color_key) {
-			@warn 'Color "#{$color_key}" in variant "#{$variant_name}" is not defined in default variant';
+@mixin check_variant_keys {
+	@each $variant_name, $variant_map in config.$variants {
+		$default: map.get(config.$variants, default);
+		@each $color_key in map.keys($variant_map) {
+			@if not map.has_key($default, $color_key) {
+				@warn 'Color "#{$color_key}" in variant "#{$variant_name}" is not defined in default variant';
+			}
 		}
 	}
 }
 
 
 // Create new colors for variant values with opacity
-@each $variant_name, $variant_map in $variants {
-	@each $color_key, $color_name in $variant_map {
-		@if meta.type_of($color_name) == list {
-			$opacity: util.convert_to_number(list.nth($color_name, 2));
-			$color_name: '' + list.nth($color_name, 1);
-			
-			@if math.unit($opacity) == '%' {
-				$opacity: calc($opacity / 1%);
+@function create_transparent_variant_colors() {
+	$new_colors: ();
+	$new_variants: ();
+	
+	@each $variant_name, $variant_map in config.$variants {
+		@each $color_key, $color_name in $variant_map {
+			@if meta.type_of($color_name) == list {
+				$opacity: util.convert_to_number(list.nth($color_name, 2));
+				$color_name: '' + list.nth($color_name, 1);
+				
+				@if math.unit($opacity) == '%' {
+					$opacity: calc($opacity / 1%);
+				}
+				
+				$opacity_int: $opacity;
+				@if $opacity < 1 {
+					$opacity_int: ($opacity * 100);
+				}
+				
+				$color_value: map.get(config.$colors, $color_name);
+				$color_name_new: '#{$color_name}-#{$opacity_int}';
+				
+				// TODO: do not use rgba() syntax
+				$color_value_new: color.scale($color_value, $alpha: ($opacity_int * -1%));
+				
+				// Update maps with transparentized colors
+				$new_colors: map.set($new_colors, $color_name_new, $color_value_new);
+				$new_variants: map.set($new_variants, $variant_name, $color_key, $color_name_new);
 			}
-			
-			$opacity_float: $opacity;
-			$opacity_int: $opacity;
-			@if $opacity > 1 {
-				$opacity_float: calc($opacity / 100);
-			} @else {
-				$opacity_int: ($opacity * 100);
+		}
+	}
+	
+	@return (
+		colors: $new_colors,
+		variants: $new_variants,
+	);
+}
+
+
+
+@mixin create_transparent_variant_colors_for_idiots {
+	@each $variant_name, $variant_map in config.$variants {
+		@each $color_key, $color_name in $variant_map {
+			@if meta.type_of($color_name) == list {
+				$opacity: util.convert_to_number(list.nth($color_name, 2));
+				$color_name: '' + list.nth($color_name, 1);
+				
+				@if math.unit($opacity) == '%' {
+					$opacity: calc($opacity / 1%);
+				}
+				
+				$opacity_int: $opacity;
+				@if $opacity < 1 {
+					$opacity_int: ($opacity * 100);
+				}
+				
+				$color_value: map.get(config.$colors, $color_name);
+				$color_name_new: '#{$color_name}-#{$opacity_int}';
+				
+				// TODO: do not use rgba() syntax
+				$color_value_new: color.scale(map.get(config.$colors, $color_name), $alpha: ($opacity_int * -1%));
+				
+				// Update maps with transparentized colors
+				config.$colors: map.set(config.$colors, $color_name_new, $color_value_new);
+				config.$variants: map.set(config.$variants, $variant_name, $color_key, $color_name_new);
 			}
-			
-			$color_name_new: '#{$color_name}-#{$opacity_int}';
-			$color_value_new: transparentize(map.get($colors, $color_name), (1 - $opacity_float));
-			
-			// Update maps with transparentized colors
-			$colors: map.set($colors, $color_name_new, $color_value_new);
-			$variants: map.set($variants, $variant_name, $color_key, $color_name_new);
 		}
 	}
 }
 
 
 // Define raw colors and default variant colors
-:root {
-	@each $key, $value in $colors {
-		#{color_var($key)}: #{$value};
-	}
-	@each $key, $value in map.get($variants, default) {
-		#{color_var($key)}: #{color($value)};
-	}
-}
-
-
-// Define all variant classes
-@each $variant_name, $variant_map in $variants {
-	.v-#{$variant_name} {
-		@each $key, $value in $variant_map {
+@mixin define_color_variables {
+	:root {
+		@each $key, $value in config.$colors {
+			#{color_var($key)}: #{$value};
+		}
+		@each $key, $value in map.get(config.$variants, default) {
 			#{color_var($key)}: #{color($value)};
 		}
 	}
 }
+
+// Define all variant classes
+@mixin define_variant_classes {
+	@each $variant_name, $variant_map in config.$variants {
+		.v-#{'' + $variant_name} {
+			@each $key, $value in $variant_map {
+				#{color_var($key)}: #{color($value)};
+			}
+		}
+	}
+}
+
+

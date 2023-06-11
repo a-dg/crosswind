@@ -1,3 +1,11 @@
+@use 'sass:list';
+@use 'sass:map';
+
+@use '../lib/breakbeat' as *;
+@use '../app/config';
+@use 'color' as *;
+
+
 .breakpoint-detector {
 	position: fixed;
 	left: 0;
@@ -7,7 +15,7 @@
 	width: 60px;
 	height: 48px;
 	padding: 8px 12px;
-	background: color(gray);
+	background: color(cement);
 	text-align: center;
 	color: color(white);
 	text-transform: uppercase;
@@ -57,7 +65,7 @@
 			$next_index: $current_index;
 		}
 		$next_size: list.nth(map.values($breakpoints), $next_index);
-		$wedge_width: if($current_index != 1, $next_size - $value, $next_size - $content_min_width);
+		$wedge_width: if($current_index != 1, $next_size - $value, $next_size - config.$content_min_width);
 		
 		.#{$key} {
 			width: $next_size;
