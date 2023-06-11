@@ -355,24 +355,9 @@
 /// Show inline warning
 /// @param {string} $message
 @mixin warning($message) {
-	position: relative;
-	overflow: auto;
+	@extend %cw-inline-warning;
 	&::before {
 		content: $message;
-		position: absolute;
-		z-index: 9999;
-		left: 12px;
-		right: 12px;
-		top: 12px;
-		padding: 12px 16px;
-		border-radius: 8px;
-		background: #f00; // color(warning); // TODO: create CW-specific colors
-		box-shadow: 0 8px 24px rgb(0 0 0 / 0.5);
-		font-size: 20px;
-		color: #fff; // color(white); // TODO: create CW-specific colors
-		text-align: left;
-		text-transform: none;
-		letter-spacing: normal;
 	}
 }
 
@@ -831,3 +816,24 @@
 	@return $complete_sizes;
 }
 
+
+%cw-inline-warning {
+	position: relative;
+	overflow: auto;
+	&::before {
+		position: absolute;
+		z-index: 9999;
+		left: 12px;
+		right: 12px;
+		top: 12px;
+		padding: 12px 16px;
+		border-radius: 8px;
+		background: #f00; // color(warning); // TODO: create CW-specific colors
+		box-shadow: 0 8px 24px rgb(0 0 0 / 0.5);
+		font-size: 20px;
+		color: #fff; // color(white); // TODO: create CW-specific colors
+		text-align: left;
+		text-transform: none;
+		letter-spacing: normal;
+	}
+}
