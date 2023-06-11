@@ -33,7 +33,7 @@ $breakpoint_additions: (
 );
 
 // Non-zero breakpoints should not be smaller than this
-$content_min_width: 320px;
+$device_min_width: 320px;
 
 // Breakpoint at which normal content stops growing
 // (Note that a max-width container includes its outer gutter as padding,
@@ -55,7 +55,7 @@ $grid_columns: (
 
 // $gutter_type: fixed;
 // $gutter_type: stepped;
-$gutter_type: flexible;
+$gutter_type: flexible; // TODO: this isn't actually reaching CW setup
 
 $gutter_base_x: 16px;
 $gutter_base_y: 48px;
