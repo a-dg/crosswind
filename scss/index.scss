@@ -67,6 +67,12 @@ body {
 // @debug closest_font_size($all_font_sizes, 32px);
 
 
+[class*=" v-"],
+[class^="v-"],
+[cw-v] {
+	background: color(bg);
+}
+
 
 // TODO: define vertical spacing using same methods as font sizing, using start and end breakpoints and values for scaling pixel values, rather than basing vertical spacing on font size
 

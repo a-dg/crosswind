@@ -29,7 +29,7 @@ $breakpoint_scale_curve: 1.75; // TODO: why does 0.34 lead to infinity?
 // Define additional breakpoints in addition to automatically generated
 // breakpoints, in any order, in the format:
 // [breakpoint name]: [breakpoint size]
-$breakpoint_additional: (
+$breakpoint_additions: (
 	// qa: 1302px,
 	// qb: 576px,
 	// qc: 1702px,

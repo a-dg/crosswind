@@ -77,6 +77,7 @@ $variants: (
 );
 
 
+// TODO: this may need to be moved because it calls a function and therefore isn't strictly configuration
 [class*=" v-"],
 [class^="v-"],
 [cw-v] {

@@ -49,7 +49,7 @@
 
 /// Get color by name
 /// @param {string | color} $color_name
-/// @return {color} *
+/// @return {string} CSS color variable
 @function color($color_name) {
 	@if meta.type_of($color_name) == color {
 		$color_name: '' + $color_name;
@@ -63,9 +63,6 @@
 	}
 	
 	@return var(color_var($color_name));
-	
-	// $this_color: map.get($colors, $color_name);
-	// @return $this_color;
 }
 
 
@@ -860,13 +857,13 @@
 		
 		@if $additional_key_index != null {
 			$value_generated: map.get($generated, $key);
-			@warn 'The breakpoint named "#{$key}" in $breakpoint_additional (#{$value}) already exists as a generated breakpoint. The generated "#{$key}" breakpoint (#{$value_generated}) has been removed.';
+			@warn 'The breakpoint named "#{$key}" in $breakpoint_additions (#{$value}) already exists as a generated breakpoint. The generated "#{$key}" breakpoint (#{$value_generated}) has been removed.';
 			$remove_additional_keys: list.append($remove_additional_keys, $key);
 		}
 		
 		@else if $additional_value_index != null {
 			$key_generated: list.nth(map.keys($generated), $additional_value_index);
-			@warn 'The value for "#{$key}" in $breakpoint_additional (#{$value}) is the same as the generated breakpoint value for "#{$key_generated}". The generated "#{$key}" breakpoint has been removed.';
+			@warn 'The value for "#{$key}" in $breakpoint_additions (#{$value}) is the same as the generated breakpoint value for "#{$key_generated}". The generated "#{$key}" breakpoint has been removed.';
 			$remove_additional_keys: list.append($remove_additional_keys, $key_generated);
 		}
 	}

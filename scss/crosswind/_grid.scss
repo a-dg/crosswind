@@ -7,14 +7,14 @@ $breakpoint_names: () !default;
 $breakpoint_width_min: 0 !default;
 $breakpoint_width_max: 0 !default;
 $breakpoint_scale_curve: 1 !default;
-$breakpoint_additional: () !default;
+$breakpoint_additions: () !default;
 
 $breakpoints: create_breakpoints(
 	$breakpoint_names,
 	$breakpoint_width_min,
 	$breakpoint_width_max,
 	$breakpoint_scale_curve,
-	$breakpoint_additional
+	$breakpoint_additions
 );
 
 $content_max_width: map.get($breakpoints, $content_max_width_breakpoint);
@@ -42,6 +42,10 @@ $content_width_prop: --content-width;
 }
 
 // TODO: what is the advantage of using CSS variables?
+// "Custom properties make sense when we have CSS properties that change
+// relative to a condition in the DOM, especially a dynamic condition such as
+// :focus, :hover, media queries or with JavaScript."
+// - https://www.smashingmagazine.com/2018/05/css-custom-properties-strategy-guide/
 $gutter_fixed: (
 	x: $gutter_base_x,
 	y: $gutter_base_y,
