@@ -49,6 +49,78 @@
 }
 
 
+@function convert_units($value, $from, $to) {
+	@if $from == '%' and $to == 'px' {
+		@return percent_to_px($value);
+	}
+	
+	@if $from == 'px' and $to == 'em' {
+		@return px_to_em($value);
+	}
+	
+	@if $from == 'em' and $to == 'px' {
+		@return em_to_px($value);
+	}
+}
+
+
+/// Convert percentage to pixels
+/// @param {number} $value
+/// @return {number} *
+@function percent_to_px($value) {
+  @if math.is_unitless($value) {
+    $value: ($value * 1px);
+  }
+  @if math.unit($value) != '%' {
+    @return $value;
+  }
+  
+  @return (strip_units(calc($value / 100)) * config.$base_font_size);
+}
+
+
+/// Convert pixels to ems
+/// @param {number} $value
+/// @return {number} *
+@function px_to_em($value) {
+  @if is_zero($value) {
+    @return 0;
+  }
+  
+  @if math.is_unitless($value) {
+    $value: ($value * 1px);
+  }
+  @if math.unit($value) != 'px' {
+    @return $value;
+  }
+  
+  $global_font_size_px: percent_to_px(config.$base_font_size);
+  $em: (math.round(calc((($value / $global_font_size_px) * 10000) / 10000)));
+  @return ($em * 1em);
+}
+
+
+/// Convert ems to pixels
+/// @param {number} $value
+/// @return {number} *
+@function em_to_px($value) {
+  @if is_zero($value) {
+    @return 0;
+  }
+  
+  @if math.is_unitless($value) {
+    $value: ($value * 1em);
+  }
+  @if math.unit($value) != 'em' {
+    @return $value;
+  }
+  
+  $global_font_size_px: percent_to_px(config.$base_font_size);
+  $px: (calc($value / 1em) * $global_font_size_px);
+  @return $px;
+}
+
+
 /// Append unit to numeric value
 /// @link https://kittygiraudel.com/2014/01/15/sass_string_to_number/
 /// @author Kitty Giraudel
@@ -159,6 +231,26 @@
 }
 
 
+@function map_first_key($source) {
+	@return list.nth(map.keys($source), 1);
+}
+
+
+@function map_first_value($source) {
+	@return list.nth(map.values($source), 1);
+}
+
+
+@function map_last_key($source) {
+	@return list.nth(map.keys($source), list.length(map.keys($source)));
+}
+
+
+@function map_last_value($source) {
+	@return list.nth(map.values($source), list.length(map.values($source)));
+}	
+
+
 /// Inject one sorted map into another, maintaining sort order
 /// @param {map} $source
 /// @param {map} $insert
@@ -192,19 +284,10 @@
 	}
 	
 	// If last insertion value is larger than last source value, append it
-	$last_value: list.nth(
-		map.values($source),
-		list.length(map.values($source))
-	);
-	$last_insert_value: list.nth(
-		map.values($insert_sorted),
-		list.length(map.values($insert_sorted))
-	);
+	$last_value: util.map_last_value($source);
+	$last_insert_value: util.map_last_value($insert_sorted);
 	@if $last_insert_value > $last_value {
-		$last_insert_key: list.nth(
-			map.keys($insert_sorted),
-			list.length(map.keys($insert_sorted))
-		);
+		$last_insert_key: util.map_last_key($insert_sorted);
 		$source: map.set($source, $last_insert_key, $last_insert_value);
 	}
 	
@@ -686,7 +769,7 @@
 /// )
 /// Output: (
 ///   sm: 24px,
-///   md: 28px, <- Creates interpolates sizes
+///   md: 28px, <- Creates interpolated sizes
 ///   lg: 32px, <- for intermediate breakpoints
 ///   xl: 36px,
 /// )
@@ -723,6 +806,7 @@
 		
 		// If this size has a keyword (such as "fixed"), do not interpolate between
 		// this and the next in the set
+		// TODO: does this work with snap? NO IT DOES NOT
 		@if $has_keyword {
 			$complete_sizes: map.set(
 				$complete_sizes,

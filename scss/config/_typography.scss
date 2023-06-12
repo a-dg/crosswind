@@ -8,11 +8,16 @@ $font_scale_curve: 2;
 $font_scale_breakpoint_min: sm;
 $font_scale_breakpoint_max: lg;
 
+
+$base_font_size: 16px;
+
+
+// TODO: allow defining them here without writing out their rules automatically, so they can be applied arbitrarily to elements (similar to @include all_font_sizes(h1))
 $all_font_sizes: (
 	h1: (
-		sm: 24px,
+		sm: 20px,
 		// ch: 36px fixed,
-		lg: 40px, // TODO: fix this, it doesn't work
+		lg: 40px, // TODO: this doesn't work after fixed keyword
 		// xl: 70px,
 		
 		// Or ...
@@ -31,35 +36,60 @@ $all_font_sizes: (
 		// 	lg: 40px,
 		// 	xl: 70px,
 		// ),
-		// signature: FONT_SANS_BOLD_UPPER,
+		signature: FONT_SANS_BOLD_UPPER,
 	),
-	'h1.gap-after-fixed': (
-		sm: 24px,
-		av: 28px fixed,
-		lg: 36px,
-		yl: 36px,
-	),
+	// 'h1.gap-after-fixed': (
+	// 	sm: 24px,
+	// 	av: 28px fixed,
+	// 	lg: 36px,
+	// 	yl: 36px,
+	// ),
 	'h1.snap': (
 		sm: 24px,
-		ch: 44px snap 24px,
+		ch: 44px snap 24px, // TODO: this doesn't work yet with leading and tracking
 		yl: 36px,
+		signature: FONT_SANS_BOLD_UPPER,
 	),
-	'h1.fixed-last': (
-		sm: 24px,
-		ch: 28px fixed,
-		// lg: 36px,
-		xl: 70px fixed,
+	// 'h1.fixed-last': (
+	// 	sm: 24px,
+	// 	ch: 28px fixed,
+	// 	// lg: 36px,
+	// 	xl: 70px fixed,
+	// ),
+	// h2: (
+	// 	md: 18px,
+	// 	lg: 24px,
+	// ),
+	// h3: 32px 44px,
+	// 'h3.bork': (
+	// 	size: 32px 44px,
+	// 	signature: FONT_SANS_BOLD
+	// ),
+	// h4: 12px,
+	// h5: (
+	// 	sm: 23px,
+	// ),
+);
+
+
+// TODO: these are sort of like variant names, they don't really need to be constants and don't need to be upppercase
+$all_font_properties: (
+	DEFAULT: (
+		leading: 5.5 1.3,
 	),
-	h2: (
-		md: 18px,
-		lg: 24px,
+	FONT_SANS_BOLD: (
+		leading: 1.5 1.3,
 	),
-	h3: 32px 44px,
-	h4: 12px,
-	h5: (
-		sm: 23px,
+	FONT_SANS_BOLD_UPPER: (
+		leading: 1.6 1.4, // TODO: this doesn't work, it scales leading according to first font size, as fixed pixel values, so it actually gets tighter in absolute measurement, not relative
+		tracking: 1.1em 0.05em,
+	),
+	FONT_SANS_LIGHT_UPPER: (
+		leading: 1.8 1.6,
+		tracking: 0.15em 0.05em,
 	),
 );
+
 
 $font_style_signatures: (
 	'sans regular',

@@ -811,7 +811,7 @@ $_gutter: ();
 /// @param {int | map} $width ($float_column_count): Width of floated element
 /// @param {int | map} $offset ($float_offset_columns): Positive integer
 @mixin grid_float_auto_container($direction, $width, $offset: 0) {
-	$first_breakpoint_name: list.nth(map.keys($breakpoints), 1);
+	$first_breakpoint_name: util.map_first_key($breakpoints);
 	
 	// Convert single values to maps
 	@if meta.type_of($direction) != map {

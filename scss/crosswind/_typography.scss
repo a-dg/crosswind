@@ -3,6 +3,7 @@
 @use 'sass:list';
 @use 'sass:map';
 @use 'sass:meta';
+@use 'sass:math';
 
 @use 'util';
 @use '../lib/breakbeat' as *;
@@ -24,14 +25,22 @@
 /// @param {map} param
 /// @return {number | calculation} Fixed size or clamp()
 @function _fancy_font_size($set) {
-	$min: list.nth(map.values($set), 1);
+	$min: util.map_first_value($set);
 	@if list.length(map.values($set)) == 1 {
 		@return $min;
 	}
 	
 	$max: list.nth(map.values($set), 2);
-	$start: map.get($breakpoints, list.nth(map.keys($set), 1));
-	$end: map.get($breakpoints, list.nth(map.keys($set), 2));
+	$start: map.get($breakpoints, util.map_first_key($set));
+	$end: map.get($breakpoints, util.map_last_key($set));
+	
+	$unit_breakpoint: math.unit($start);
+	$unit_value: math.unit($min);
+	
+	@if $unit_breakpoint != $unit_value {
+		$start: util.convert_units($start, $from: $unit_breakpoint, $to: $unit_value);
+		$end: util.convert_units($end, $from: $unit_breakpoint, $to: $unit_value);
+	}
 	
 	$size_fixed: calc(($max - $min) / ($end - $start));
 	@if $size_fixed == 0 {
@@ -52,6 +61,12 @@
 
 
 /// Convert two-item list to map, using default font scaling breakpoints
+/// 
+/// Example output: (
+///   sm: 24px,
+///   lg: 32px,
+/// )
+/// 
 /// @param {list} $sizes
 /// @return {map} *
 @function _convert_font_size_list_to_map($sizes) {
@@ -87,7 +102,7 @@
 		}
 		
 		@else {
-			$last_size: list.nth(map.values($sizes), list.length(map.keys($sizes)));
+			$last_size: util.map_last_value($sizes);
 			@if meta.type_of($last_size) == list {
 				$last_size: list.nth($last_size, 1);
 			}
@@ -113,6 +128,14 @@
 }
 
 
+@function _convert_property_to_css($property_name) {
+	@return map.get((
+		leading: line-height,
+		tracking: letter-spacing,
+	), $property_name);
+}
+
+
 /// Create parabolic responsive font sizes
 /// 
 /// Note that this may include an unnecessary media query for the last entry
@@ -129,6 +152,11 @@
 ///     sm: 24px,
 ///     lg: 32px fixed,
 ///     xl: 36px,
+///     signature: FONT_SANS_BOLD_UPPER,
+///   ),
+///   h4: (
+///     size: 24px 32px,
+///     signature: FONT_SANS_LIGHT,
 ///   ),
 /// )
 /// 
@@ -147,6 +175,7 @@
 		// Sizes are formatted in a list, using default settings for font scaling
 		// breakpoints ($font_scale_breakpoint_min, $font_scale_breakpoint_max),
 		// or as a map with explicity defined breakpoints
+		// 
 		// Examples: (
 		//   h1: 24px 36px,
 		//   h2: (
@@ -154,6 +183,11 @@
 		//     md: 32px [fixed],
 		//     lg: 42px [snap 24px],
 		//     xl: 36px,
+		//     signature: FONT_SANS_BOLD_UPPER,
+		//   ),
+		//   h4: (
+		//     size: 24px 32px,
+		//     signature: FONT_SANS_LIGHT,
 		//   ),
 		// ),
 		@else {
@@ -161,9 +195,67 @@
 				$sizes: _convert_font_size_list_to_map($sizes);
 			}
 			
-			$is_integer: util.is_zero(list.nth(map.values($sizes), 1) % 1);
+			$signature: DEFAULT;
+			@if map.has_key($sizes, signature) {
+				$signature: map.get($sizes, signature);
+				$sizes: map.remove($sizes, signature);
+			}
+			
+			$is_integer: util.is_zero(util.map_first_value($sizes) % 1);
 			$sizes: util.create_intermediate_sizes($sizes, $is_integer);
 			$size_count: list.length(map.keys($sizes));
+			
+			// Create map of multiples of each value in relation to first value
+			$factors: _factor_map($sizes);
+			
+			$font_properties: map.get(config.$all_font_properties, $signature);
+			
+			$first_font_size: util.map_first_value($sizes);
+			
+			// Make all property units match font units
+			@each $propery_name, $property_values in $font_properties {
+				@if math.is_unitless(list.nth($property_values, 1)) {
+					$px_props: ();
+					@each $item in $property_values {
+						$px_props: list.append($px_props, $item * $first_font_size);
+					}
+					$font_properties: map.set($font_properties, $propery_name, $px_props);
+				}
+				
+				@else {
+					$unit_prop: math.unit(list.nth($property_values, 1));
+					$unit_font: math.unit($first_font_size);
+					@if $unit_prop != $unit_font {
+						$font_unit_propers: ();
+						@each $item in $property_values {
+							$bork: util.convert_units($item, $from: $unit_prop, $to: $unit_font);
+							$font_unit_propers: list.append($font_unit_propers, $bork);
+						}
+						$font_properties: map.set($font_properties, $propery_name, $font_unit_propers);
+					}
+				}
+			}
+			
+			// Use factors to create intermediate values for font properties
+			$nice_properties: ();
+			
+			// Min is always 1, because it's the first value divided by itself
+			$min_factor: util.map_first_value($factors);
+			$max_factor: util.map_last_value($factors);
+			
+			@each $propery_name, $property_values in $font_properties {
+				$min_prop: list.nth($property_values, 1);
+				$max_prop: list.nth($property_values, 2);
+				@each $factor_key, $factor_value in $factors {
+					$how_far_along: (1 - calc(
+						($max_factor - $factor_value) / ($max_factor - $min_factor)
+					));
+					$interpolated_value: (($max_prop - $min_prop) * $how_far_along) + $min_prop;
+					$css_prop: _convert_property_to_css($propery_name);
+					$nice_properties: map.set($nice_properties, $css_prop, $factor_key, $interpolated_value);
+				}
+			}
+			
 			
 			$size_index: 1;
 			@each $breakpoint, $size in $sizes {
@@ -174,6 +266,10 @@
 					@include b($breakpoint) {
 						#{$selector} {
 							#{$property}: list.nth($size, 1);
+							@each $k, $v in $nice_properties {
+								#{$k}: map.get($v, $breakpoint);
+							}
+							// TODO: do not scale other properties if fixed
 						}
 					}
 				}
@@ -183,6 +279,10 @@
 					@include b($breakpoint) {
 						#{$selector} {
 							#{$property}: $size;
+							@each $k, $v in $nice_properties {
+								#{$k}: map.get($v, $breakpoint);
+							}
+							// TODO: do not scale other properties if fixed
 						}
 					}
 				}
@@ -197,12 +297,22 @@
 					$next_breakpoint: list.nth(map.keys($sizes), $size_index + 1);
 					$next_size: list.nth(map.values($sizes), $size_index + 1);
 					
+					$next_props: ();
+					@each $kk, $vv in $nice_properties {
+						$next_prop: list.nth(map.values($vv), $size_index + 1);
+						$next_props: map.set($next_props, $kk, $next_prop);
+					}
+					
+					@debug '$next_props (#{meta.type_of($next_props)}):';
+					@debug $next_props;
+					
+					
 					// If size includes any keywords, isolate first size value
 					@if meta.type_of($next_size) == list {
 						$next_size: list.nth($next_size, 1);
 					}
 					
-					// If size includes snap keyword, use last size as minimum
+					// If size includes snap keyword, use second size as minimum
 					@if
 						meta.type_of($size) == list
 						and list.nth($size, 2) == snap
@@ -210,10 +320,19 @@
 						$size: list.nth($size, 3);
 					}
 					
-					$fancy_set: (
+					$fancy_as_fuck_font_size: _fancy_font_size((
 						$breakpoint: $size,
 						$next_breakpoint: $next_size,
-					);
+					));
+					
+					$fancy_properties: ();
+					@each $p, $pv in $nice_properties {
+						$fancy_what: _fancy_font_size((
+							$breakpoint: map.get($nice_properties, $p, $breakpoint),
+							$next_breakpoint: map.get($next_props, $p),
+						));
+						$fancy_properties: map.set($fancy_properties, $p, $fancy_what);
+					}
 					
 					// Use between operator to isolate font sizes to each breakpoint
 					// range, rather than overriding them at every breakpoint
@@ -228,7 +347,10 @@
 					// not included a media query
 					@if $size_index == 1 {
 						#{$selector} {
-							#{$property}: _fancy_font_size($fancy_set);
+							#{$property}: $fancy_as_fuck_font_size;
+							@each $fancy_key, $fancy_value in $fancy_properties {
+								#{$fancy_key}: $fancy_value;
+							}
 						}
 					} @else {
 						@if
@@ -240,13 +362,21 @@
 							);
 							@include b('>< #{$breakpoint} #{$next_smallest_breakpoint}') {
 								#{$selector} {
-									#{$property}: _fancy_font_size($fancy_set);
+									#{$property}: $fancy_as_fuck_font_size;
+									@each $fancy_key, $fancy_value in $fancy_properties {
+										#{$fancy_key}: $fancy_value;
+									}
+		
 								}
 							}
 						} @else {
 							@include b($breakpoint) {
 								#{$selector} {
-									#{$property}: _fancy_font_size($fancy_set);
+									#{$property}: $fancy_as_fuck_font_size;
+									@each $fancy_key, $fancy_value in $fancy_properties {
+										#{$fancy_key}: $fancy_value;
+									}
+		
 								}
 							}
 						}
@@ -257,4 +387,24 @@
 			}
 		}
 	}
+}
+
+
+@function _factor_map($sizes) {
+	$factors: ();
+	$first_size: util.map_first_value($sizes);
+	
+	@each $key, $size in $sizes {
+		@if meta.type_of($size) == list {
+			$keyword: list.nth($size, 2);
+			@if $keyword == fixed {
+				$size: list.nth($size, 1);
+			} @else if $keyword == snap {
+				$size: list.nth($size, 3);
+			}
+		}
+		$factors: map.set($factors, $key, calc($size / $first_size));
+	}
+	
+	@return $factors;
 }
