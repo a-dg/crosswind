@@ -94,7 +94,6 @@ $color_variable_prefix: color !default;
 				$color_value: map.get(config.$colors, $color_name);
 				$color_name_new: '#{$color_name}-#{$opacity_int}';
 				
-				// TODO: do not use rgba() syntax
 				$transparency: ((100 - $opacity_int) * -1%);
 				$color_value_new: color.scale($color_value, $alpha: $transparency);
 				

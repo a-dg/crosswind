@@ -123,6 +123,32 @@
 }
 
 
+/// Convert number 0-100 to hexidecimal
+/// @param {number} $value
+/// @return {string} *
+@function int_to_hex($value) {
+  @if $value == 0 {
+    @return '00';
+  }
+	
+  $hex: '';
+  $hex_digits: '0123456789ABCDEF';
+	$value: math.round($value * calc(256 / 100));
+	
+  @while $value > 0 {
+    $remainder: ($value % 16);
+    $hex: string.slice($hex_digits, ($remainder + 1), ($remainder + 1)) + $hex;
+    $value: math.floor(calc($value / 16));
+  }
+	
+	@while string.length($hex) < 2 {
+		$hex: '0' + $hex;
+	}
+	
+  @return $hex;
+}
+
+
 /// Append unit to numeric value
 /// @link https://kittygiraudel.com/2014/01/15/sass_string_to_number/
 /// @author Kitty Giraudel
