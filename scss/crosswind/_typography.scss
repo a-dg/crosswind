@@ -87,10 +87,6 @@
 	$all_differences: ();
 	
 	@each $selector, $sizes in $set {
-		@debug '';
-		@debug '$sizes (#{meta.type_of($sizes)}):';
-		@debug $sizes;
-		
 		@if meta.type_of($sizes) == number {
 			$all_largest_sizes: map.set($all_largest_sizes, $selector, $sizes);
 			$all_differences: map.set($all_differences, $selector, math.abs($sizes - $target_size));
@@ -112,7 +108,6 @@
 		}
 	}
 	
-	
 	@debug '$all_largest_sizes (#{meta.type_of($all_largest_sizes)}):';
 	@debug $all_largest_sizes;
 	
@@ -128,7 +123,7 @@
 }
 
 
-@function _convert_property_to_css($property_name) {
+@function _convert_property_name_to_css($property_name) {
 	@return map.get((
 		leading: line-height,
 		tracking: letter-spacing,
@@ -209,16 +204,22 @@
 			$factors: _factor_map($sizes);
 			
 			$font_properties: map.get(config.$all_font_properties, $signature);
+			@if $font_properties == null {
+				$font_properties: ();
+				@warn 'Undefined font signature: #{$signature}';
+			}
 			
+			// TODO: this probably won't work with keywords
 			$first_font_size: util.map_first_value($sizes);
+			$last_font_size: util.map_last_value($sizes);
 			
 			// Make all property units match font units
 			@each $propery_name, $property_values in $font_properties {
 				@if math.is_unitless(list.nth($property_values, 1)) {
-					$px_props: ();
-					@each $item in $property_values {
-						$px_props: list.append($px_props, $item * $first_font_size);
-					}
+					$px_props: (
+						list.nth($property_values, 1) * $first_font_size,
+						list.nth($property_values, 2) * $last_font_size,
+					);
 					$font_properties: map.set($font_properties, $propery_name, $px_props);
 				}
 				
@@ -226,12 +227,12 @@
 					$unit_prop: math.unit(list.nth($property_values, 1));
 					$unit_font: math.unit($first_font_size);
 					@if $unit_prop != $unit_font {
-						$font_unit_propers: ();
+						$font_unit_props: ();
 						@each $item in $property_values {
-							$bork: util.convert_units($item, $from: $unit_prop, $to: $unit_font);
-							$font_unit_propers: list.append($font_unit_propers, $bork);
+							$converted: util.convert_units($item, $from: $unit_prop, $to: $unit_font);
+							$font_unit_props: list.append($font_unit_props, $converted);
 						}
-						$font_properties: map.set($font_properties, $propery_name, $font_unit_propers);
+						$font_properties: map.set($font_properties, $propery_name, $font_unit_props);
 					}
 				}
 			}
@@ -247,15 +248,29 @@
 				$min_prop: list.nth($property_values, 1);
 				$max_prop: list.nth($property_values, 2);
 				@each $factor_key, $factor_value in $factors {
-					$how_far_along: (1 - calc(
-						($max_factor - $factor_value) / ($max_factor - $min_factor)
-					));
-					$interpolated_value: (($max_prop - $min_prop) * $how_far_along) + $min_prop;
-					$css_prop: _convert_property_to_css($propery_name);
+					$interpolated_value: null;
+					
+					@if meta.type_of($factor_value) == list {
+						$keyword: list.nth($factor_value, 2);
+						@if $keyword == fixed {
+							$factor_value: list.nth($factor_value, 1);
+							$a: _factor_into_value($factor_value, $min_factor, $max_factor, $min_prop, $max_prop);
+							$interpolated_value: $a fixed;
+						} @else if $keyword == snap {
+							$val_a: list.nth($factor_value, 1);
+							$val_b: list.nth($factor_value, 3);
+							$a: _factor_into_value($val_a, $min_factor, $max_factor, $min_prop, $max_prop);
+							$b: _factor_into_value($val_b, $min_factor, $max_factor, $min_prop, $max_prop);
+							$interpolated_value: $a snap $b;
+						}
+					} @else {
+						$interpolated_value: _factor_into_value($factor_value, $min_factor, $max_factor, $min_prop, $max_prop);
+					}
+					
+					$css_prop: _convert_property_name_to_css($propery_name);
 					$nice_properties: map.set($nice_properties, $css_prop, $factor_key, $interpolated_value);
 				}
 			}
-			
 			
 			$size_index: 1;
 			@each $breakpoint, $size in $sizes {
@@ -269,7 +284,6 @@
 							@each $k, $v in $nice_properties {
 								#{$k}: map.get($v, $breakpoint);
 							}
-							// TODO: do not scale other properties if fixed
 						}
 					}
 				}
@@ -282,7 +296,6 @@
 							@each $k, $v in $nice_properties {
 								#{$k}: map.get($v, $breakpoint);
 							}
-							// TODO: do not scale other properties if fixed
 						}
 					}
 				}
@@ -303,20 +316,16 @@
 						$next_props: map.set($next_props, $kk, $next_prop);
 					}
 					
-					@debug '$next_props (#{meta.type_of($next_props)}):';
-					@debug $next_props;
-					
-					
 					// If size includes any keywords, isolate first size value
 					@if meta.type_of($next_size) == list {
 						$next_size: list.nth($next_size, 1);
 					}
 					
 					// If size includes snap keyword, use second size as minimum
-					@if
+					@if (
 						meta.type_of($size) == list
 						and list.nth($size, 2) == snap
-					{
+					) {
 						$size: list.nth($size, 3);
 					}
 					
@@ -327,11 +336,26 @@
 					
 					$fancy_properties: ();
 					@each $p, $pv in $nice_properties {
-						$fancy_what: _fancy_font_size((
-							$breakpoint: map.get($nice_properties, $p, $breakpoint),
-							$next_breakpoint: map.get($next_props, $p),
+						$this_property: map.get($nice_properties, $p, $breakpoint);
+						$next_property: map.get($next_props, $p);
+						
+						@if (
+							meta.type_of($this_property) == list
+							and list.nth($this_property, 2) == snap
+						) {
+							$this_property: list.nth($this_property, 3);
+						}
+						
+						// If property includes any keywords, isolate first property value
+						@if meta.type_of($next_property) == list {
+							$next_property: list.nth($next_property, 1);
+						}
+	
+						$fancy_property: _fancy_font_size((
+							$breakpoint: $this_property,
+							$next_breakpoint: $next_property,
 						));
-						$fancy_properties: map.set($fancy_properties, $p, $fancy_what);
+						$fancy_properties: map.set($fancy_properties, $p, $fancy_property);
 					}
 					
 					// Use between operator to isolate font sizes to each breakpoint
@@ -399,12 +423,27 @@
 			$keyword: list.nth($size, 2);
 			@if $keyword == fixed {
 				$size: list.nth($size, 1);
+				$factors: map.set($factors, $key, calc($size / $first_size) fixed);
 			} @else if $keyword == snap {
+				$prev_size: list.nth($size, 1);
 				$size: list.nth($size, 3);
+				$factors: map.set($factors, $key, calc($prev_size / $first_size) snap calc($size / $first_size));
 			}
+		} @else {
+			$factors: map.set($factors, $key, calc($size / $first_size));
 		}
-		$factors: map.set($factors, $key, calc($size / $first_size));
 	}
 	
 	@return $factors;
+}
+
+
+@function _factor_into_value($factor_value, $min_factor, $max_factor, $min_prop, $max_prop) {
+	@if ($max_factor - $min_factor) == 0 {
+		@return $min_prop;
+	}
+	$how_far_along: (1 - calc(
+		($max_factor - $factor_value) / ($max_factor - $min_factor)
+	));
+	@return (($max_prop - $min_prop) * $how_far_along) + $min_prop;
 }

@@ -61,6 +61,8 @@
 	@if $from == 'em' and $to == 'px' {
 		@return em_to_px($value);
 	}
+	
+	@return $value;
 }
 
 
@@ -802,12 +804,17 @@
 	
 	$size_index: 1;
 	@each $breakpoint, $size in $sizes {
-		$has_keyword: meta.type_of($size) == list;
+		$is_fixed: (
+			meta.type_of($size) == list
+			and list.nth($size, 2) == fixed
+		);
+		$is_snap: (
+			meta.type_of($size) == list
+			and list.nth($size, 2) == snap
+		);
 		
-		// If this size has a keyword (such as "fixed"), do not interpolate between
-		// this and the next in the set
-		// TODO: does this work with snap? NO IT DOES NOT
-		@if $has_keyword {
+		// If size is fixed, do not interpolate between this and the next in the set
+		@if $is_fixed {
 			$complete_sizes: map.set(
 				$complete_sizes,
 				$breakpoint,
@@ -829,12 +836,19 @@
 				
 				$next_breakpoint: list.nth(map.keys($sizes), $size_index + 1);
 				$next_size: list.nth(map.values($sizes), $size_index + 1);
+				$next_size_original: $next_size;
 				$next_size_keyword: null;
-				@if meta.type_of($next_size) == list {
+				@if
+					meta.type_of($next_size) == list
+				{
 					$next_size_keyword: list.nth($next_size, 2);
 					$next_size: list.nth($next_size, 1);
 				}
 				$next_index_in_all: list.index($breakpoint_names, $next_breakpoint);
+				
+				@if $is_snap {
+					$size: list.nth($size, 3);
+				}
 				
 				$intermediate_size_count: ($next_index_in_all - $this_index_in_all) - 1;
 				@if $intermediate_size_count > 0 {
@@ -850,22 +864,29 @@
 					$intermediate_index: 1;
 					@each $intermediate_size in $intermediate_sizes {
 						// If there is a keyword on the next size, and we're on the last
-						// intermediate size, that means we're on the one with the keyword,
-						// and we need to add the keyword back so that it's represented in
-						// the complete list
+						// intermediate size for this subset of breakpoints, that means
+						// we're on the one that has the keyword (because the next size is
+						// represented both as the last item in the list before it, and as
+						// the first item in its own list), and we need to add the keyword
+						// back so that it's represented in the complete list (the easiest
+						// way to do this is to just use the original next size as defined)
 						@if
 							$next_size_keyword != null
 							and $intermediate_index == list.length($intermediate_sizes)
 						{
-							$intermediate_size: ($intermediate_size $next_size_keyword);
+							$intermediate_size: $next_size_original;
 						}
 						
 						$intermediate_breakpoint_index: ($this_index_in_all + $intermediate_index) - 1;
-						$complete_sizes: map.set(
-							$complete_sizes,
-							list.nth($breakpoint_names, $intermediate_breakpoint_index),
-							$intermediate_size
-						);
+						$intermediate_breakpoint_name: list.nth($breakpoint_names, $intermediate_breakpoint_index);
+						
+						@if not map.has_key($complete_sizes, $intermediate_breakpoint_name) {
+							$complete_sizes: map.set(
+								$complete_sizes,
+								$intermediate_breakpoint_name,
+								$intermediate_size
+							);
+						}
 						$intermediate_index: $intermediate_index + 1;
 					}
 					
