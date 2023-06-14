@@ -5,11 +5,10 @@
 @use 'sass:meta';
 @use 'sass:math';
 
-@use 'util';
 @use '../lib/breakbeat' as *;
-
-@use '../config';
+@use 'config' as cc;
 @use 'grid';
+@use 'util';
 
 
 /// Fancy font size
@@ -71,8 +70,8 @@
 /// @return {map} *
 @function _convert_font_size_list_to_map($sizes) {
 	@return (
-		config.$font_scale_breakpoint_min: list.nth($sizes, 1),
-		config.$font_scale_breakpoint_max: list.nth($sizes, 2),
+		cc.get(font_scale_breakpoint_min): list.nth($sizes, 1),
+		cc.get(font_scale_breakpoint_max): list.nth($sizes, 2),
 	);
 }
 
@@ -203,7 +202,7 @@
 			// Create map of multiples of each value in relation to first value
 			$factors: _factor_map($sizes);
 			
-			$font_properties: map.get(config.$all_font_properties, $signature);
+			$font_properties: map.get(cc.get(all_font_properties), $signature);
 			@if $font_properties == null {
 				$font_properties: ();
 				@warn 'Undefined font signature: #{$signature}';

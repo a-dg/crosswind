@@ -1,11 +1,9 @@
-@use 'sass:meta';
+@use '../../../lib/breakbeat' as *;
+@use '../../../scss' as *;
+@use '../../../scss/config' as cc;
+@use '../../../scss/component';
 
-// @use 'lib/breakbeat' as *;
-@use 'crosswind' as *;
-@use 'config';
-
-@use 'site/about';
-
+@use 'helper';
 
 
 * {
@@ -38,9 +36,9 @@ h1 {
 }
 
 h2 {
-	margin: config.$label_margin;
-	padding: config.$label_padding;
-	border-bottom: config.$label_border_width solid config.$label_border_color;
+	margin: cc.get(label_margin);
+	padding: cc.get(label_padding);
+	border-bottom: cc.get(label_border_width) solid cc.get(label_border_color);
 	font-weight: 400;
 	// font-size: 24px;
 	text-align: center;
@@ -49,7 +47,7 @@ span.i-label {
 	flex: 1 1 0;
 	display: block;
 	margin: 0;
-	padding: config.$item_label_padding;
+	padding: cc.get(item_label_padding);
 	// border: 2px solid color(pink);
 	// border-width: 0 2px;
 	background: color(pink);
@@ -63,6 +61,7 @@ span.i-label {
 		color: color(cement);
 	}
 }
+
 
 .g-3 {
 	@include grid_setup((
@@ -118,6 +117,7 @@ span.i-label {
 }
 
 
+
 .silly {
 	grid-auto-rows: minmax(120px, auto);
 	@include layout((
@@ -145,6 +145,8 @@ span.i-label {
 	));
 }
 
+
+
 .col-6 {
 	@include layout((
 		zo: 6,
@@ -166,21 +168,22 @@ span.i-label {
 	
 	.nine-in-six {
 		width: grid_element_width(9, 6);
-		#{$content_width_prop}: 9;
+		@include content_width(9);
 	}
 	.unhang.six-in-nine {
 		// margin: 0 !important;
 		width: grid_element_width(6, 9);
-		#{$content_width_prop}: 6;
+		@include content_width(6);
 	}
 	
 	.unhang.six-in-nine.in-ext {
 		// margin-right: 
 		// width: grid_element_width(6, 9);
 		width: auto;
-		#{$content_width_prop}: 6;
+		@include content_width(6);
 	}
 }
+
 
 
 .col-8-4-custom {
@@ -302,3 +305,4 @@ span.i-label {
 		text-decoration: none;
 	}
 }
+

@@ -5,10 +5,9 @@
 @use 'sass:meta';
 
 @use '../../lib/breakbeat' as *;
-
-@use '../../config';
-@use '../grid';
+@use '../config' as cc;
 @use '../color' as *;
+@use '../grid';
 @use '../util';
 
 
@@ -73,7 +72,7 @@
 }
 
 .g > * {
-	@if config.$show_item_boundaries {
+	@if cc.get(show_item_boundaries) {
 		outline: 4px dotted color(mint);
 	}
 	// display: flex; // TODO: this fucks up floating
@@ -239,7 +238,7 @@
 
 
 .g-layout {
-	@each $breakpoint, $columns in config.$grid_columns {
+	@each $breakpoint, $columns in cc.get(grid_columns) {
 		@include b($breakpoint) {
 			grid-template-columns: repeat($columns, 1fr);
 		}
@@ -302,7 +301,7 @@
 					}
 				}
 				&:not(.hang-extended):not(.hang-full) {
-					@include util.warning('Hanging without .hang-extended or .hang-full probably should not be used within .c-max, as it will only hang into the outer gutter. Consider defining $content_max_width_extended_breakpoint (currently set to "#{config.$content_max_width_extended_breakpoint}") and using .hang-extended to extend beyond the outer gutter.');
+					@include util.warning('Hanging without .hang-extended or .hang-full probably should not be used within .c-max, as it will only hang into the outer gutter. Consider defining $settings.content_max_width_extended_breakpoint (currently set to "#{cc.get(content_max_width_extended_breakpoint)}") and using .hang-extended to extend beyond the outer gutter.');
 				}
 			}
 			
@@ -336,7 +335,7 @@
 					}
 				}
 				&:not(.hang-extended):not(.hang-full) {
-					@include util.warning('Hanging without .hang-extended or .hang-full probably should not be used within .c-max, as it will only hang into the outer gutter. Consider defining $content_max_width_extended_breakpoint (currently set to #{config.$content_max_width_extended_breakpoint}) and using .hang-extended to extend beyond the outer gutter.');
+					@include util.warning('Hanging without .hang-extended or .hang-full probably should not be used within .c-max, as it will only hang into the outer gutter. Consider defining $settings.content_max_width_extended_breakpoint (currently set to "#{cc.get(content_max_width_extended_breakpoint)}") and using .hang-extended to extend beyond the outer gutter.');
 				}
 			}
 		}
@@ -497,7 +496,7 @@
 
 
 // Imitation Tailwind classes
-@if config.$generate_tailwind_classes {
+@if cc.get(generate_tailwind_classes) {
 	// TODO: address specificity, normal selector isn't specific enough to
 	// override dimensions defined by parent element
 	@for $i from 1 through 11 {

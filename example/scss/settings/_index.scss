@@ -1,0 +1,30 @@
+@use 'sass:map';
+
+@use 'color';
+@use 'grid';
+@use 'typography';
+@use 'variant';
+@use 'constant';
+@use 'option';
+
+
+/// Merge multiple maps
+/// @param {map} $maps
+/// @return {map} *
+@function map_collect($maps...) {
+  $collection: ();
+  @each $map in $maps {
+    $collection: map.merge($collection, $map);
+  }
+  @return $collection;
+}
+
+
+$all_settings: map_collect(
+	color.$settings,
+	grid.$settings,
+	typography.$settings,
+	variant.$settings,
+	constant.$settings,
+	option.$settings,
+);

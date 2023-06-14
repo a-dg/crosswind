@@ -1,0 +1,20 @@
+@use 'sass:map';
+
+
+$settings: ();
+
+
+/// Get setting by key
+/// @param {string} $key
+/// @return {mixed} *
+@function get($key) {
+	@return map.get($settings, $key);
+}
+
+
+/// Assign value to setting key
+/// @param {string} $key
+/// @param {mixed} $value
+@mixin set($key, $value) {
+	$settings: map.set($settings, $key, $value) !global;
+}

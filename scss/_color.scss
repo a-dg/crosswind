@@ -4,14 +4,14 @@
 @use 'sass:math';
 @use 'sass:color';
 
-@use '../config';
+@use 'config' as cc;
 @use 'util';
 
 
 $color_variable_prefix: color !default;
 
 
-// @debug config.$colors;
+// @debug cc.get(colors);
 
 // TODO: consider making a local copy of user's site config to be augmented by Crosswind in the setup process
 
@@ -48,8 +48,8 @@ $color_variable_prefix: color !default;
 	}
 	
 	@if
-		not map.has_key(config.$colors, $color_name)
-		and not map.has_key(config.$variants, default, $color_name)
+		not map.has_key(cc.get(colors), $color_name)
+		and not map.has_key(cc.get(variants), default, $color_name)
 	{
 		@error 'Unknown color name: #{$color_name}';
 	}
@@ -60,8 +60,8 @@ $color_variable_prefix: color !default;
 
 // Warn if color key is defined in variant that is not in the default
 @mixin check_variant_keys {
-	@each $variant_name, $variant_map in config.$variants {
-		$default: map.get(config.$variants, default);
+	@each $variant_name, $variant_map in cc.get(variants) {
+		$default: map.get(cc.get(variants), default);
 		@each $color_key in map.keys($variant_map) {
 			@if not map.has_key($default, $color_key) {
 				@warn 'Color "#{$color_key}" in variant "#{$variant_name}" is not defined in default variant';
@@ -76,7 +76,7 @@ $color_variable_prefix: color !default;
 	$new_colors: ();
 	$new_variants: ();
 	
-	@each $variant_name, $variant_map in config.$variants {
+	@each $variant_name, $variant_map in cc.get(variants) {
 		@each $color_key, $color_name in $variant_map {
 			@if meta.type_of($color_name) == list {
 				$opacity: util.convert_to_number(list.nth($color_name, 2));
@@ -91,7 +91,7 @@ $color_variable_prefix: color !default;
 					$opacity_int: ($opacity * 100);
 				}
 				
-				$color_value: map.get(config.$colors, $color_name);
+				$color_value: map.get(cc.get(colors), $color_name);
 				$color_name_new: '#{$color_name}-#{$opacity_int}';
 				
 				$transparency: ((100 - $opacity_int) * -1%);
@@ -114,10 +114,10 @@ $color_variable_prefix: color !default;
 // Define raw colors and default variant colors
 @mixin define_color_variables {
 	:root {
-		@each $key, $value in config.$colors {
+		@each $key, $value in cc.get(colors) {
 			#{_color_var($key)}: #{$value};
 		}
-		@each $key, $value in map.get(config.$variants, default) {
+		@each $key, $value in map.get(cc.get(variants), default) {
 			#{_color_var($key)}: #{color($value)};
 		}
 	}
@@ -125,7 +125,7 @@ $color_variable_prefix: color !default;
 
 // Define all variant classes
 @mixin define_variant_classes {
-	@each $variant_name, $variant_map in config.$variants {
+	@each $variant_name, $variant_map in cc.get(variants) {
 		.v-#{'' + $variant_name} {
 			@each $key, $value in $variant_map {
 				#{_color_var($key)}: #{color($value)};

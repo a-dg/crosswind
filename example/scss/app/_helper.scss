@@ -1,9 +1,9 @@
 @use 'sass:list';
 @use 'sass:map';
 
-@use '../lib/breakbeat' as *;
-@use '../config';
-@use 'color' as *;
+@use '../../../lib/breakbeat' as *;
+@use '../../../scss' as *;
+@use '../../../scss/config' as cc;
 
 
 .breakpoint-detector {
@@ -65,7 +65,7 @@
 			$next_index: $current_index;
 		}
 		$next_size: list.nth(map.values($breakpoints), $next_index);
-		$wedge_width: if($current_index != 1, $next_size - $value, $next_size - config.$device_min_width);
+		$wedge_width: if($current_index != 1, $next_size - $value, $next_size - cc.get(device_min_width));
 		
 		.#{$key} {
 			width: $next_size;

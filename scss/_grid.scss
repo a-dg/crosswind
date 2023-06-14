@@ -4,14 +4,10 @@
 @use 'sass:math';
 @use 'sass:meta';
 
-@use '../config';
+@use '../lib/breakbeat' as *;
+@use 'config' as cc;
 @use 'util';
 
-// @use 'function' as *;
-@use '../lib/breakbeat' as *;
-
-
-$content_width_prop: --content-width;
 
 $content_max_width: null;
 $content_max_width_extended: null;
@@ -29,21 +25,9 @@ $content_max_width_extended: null;
 // relative to a condition in the DOM, especially a dynamic condition such as
 // :focus, :hover, media queries or with JavaScript."
 // - https://www.smashingmagazine.com/2018/05/css-custom-properties-strategy-guide/
-$gutter_fixed: (
-	x: config.$gutter_base_x,
-	y: config.$gutter_base_y,
-	outer: config.$gutter_base_outer,
-	// x: var(--gutter-x),
-	// y: var(--gutter-y),
-	// outer: var(--gutter-outer),
-);
 
-$gutter_stepped: (
-	x: var(--gutter-stepped-x),
-	y: var(--gutter-stepped-y),
-	outer: var(--gutter-stepped-outer),
-);
-
+$gutter_fixed: ();
+$gutter_stepped: ();
 $gutter_flexible: ();
 
 $gutter_type: flexible !default;
@@ -69,7 +53,6 @@ $_gutter: ();
 /// @param {string} $caller
 /// @return {number | calculation} *
 @function gutter($property, $invert: false, $as_list: false, $gutter_set: $_gutter, $caller: '') {
-	// @debug 'gutter() called from: #{$caller}';
 	$gutter_value: map.get($gutter_set, $property);
 	@if meta.type_of($gutter_value) != list {
 		@return if($invert, calc($gutter_value * -1), $gutter_value);
@@ -376,8 +359,8 @@ $_gutter: ();
 /// @param {int} $round_to
 /// @return {map} *
 @function create_breakpoints($names, $start, $end, $curve, $additional, $round_to: 4) {
-	@if $start < config.$device_min_width {
-		@warn 'A value of #{$start} for the first non-zero breakpoint ($breakpoint_width_min) might be a bit small. The minimum content width is #{config.$device_min_width}, which means that users would never see the first breakpoint.';
+	@if $start < cc.get(device_min_width) {
+		@warn 'A value of #{$start} for the first non-zero breakpoint ($breakpoint_width_min) might be a bit small. The minimum device width is #{cc.get(device_min_width)}, which means that users would never see the first breakpoint.';
 	}
 	
 	$start: util.strip_units($start);
@@ -438,9 +421,9 @@ $_gutter: ();
 	@each $key, $value in $all {
 		@if
 			not util.is_zero($value)
-			and $value < config.$device_min_width
+			and $value < cc.get(device_min_width)
 		{
-			@warn 'A value of #{$value} for the breakpoint named "#{$key}" might be a bit small. The minimum content width is #{config.$device_min_width}, which means that users would never see the first breakpoint.';
+			@warn 'A value of #{$value} for the breakpoint named "#{$key}" might be a bit small. The minimum device width is #{cc.get(device_min_width)}, which means that users would never see the styles associated with this breakpoint.';
 		}
 	}
 	
@@ -449,8 +432,8 @@ $_gutter: ();
 
 
 @mixin set_max {
-	$content_max_width: map.get($breakpoints, config.$content_max_width_breakpoint) !global;
-	$content_max_width_extended: map.get($breakpoints, config.$content_max_width_extended_breakpoint) !global;
+	$content_max_width: map.get($breakpoints, cc.get(content_max_width_breakpoint)) !global;
+	$content_max_width_extended: map.get($breakpoints, cc.get(content_max_width_extended_breakpoint)) !global;
 }
 
 
@@ -466,9 +449,9 @@ $_gutter: ();
 @mixin set_gutter_flexible {
 	$gutter_flexible: (
 		x: (
-			config.$gutter_flexible_min_x,
-			(util.truncate(calc(config.$gutter_flexible_max_x / $content_max_width)) * 100vw),
-			config.$gutter_flexible_max_x,
+			cc.get(gutter_flexible_min_x),
+			(util.truncate(calc(cc.get(gutter_flexible_max_x) / $content_max_width)) * 100vw),
+			cc.get(gutter_flexible_max_x),
 		),
 		y: (
 			20px,
@@ -529,6 +512,13 @@ $_gutter: ();
 			}
 		}
 	}
+}
+
+
+/// Update content width (column count) CSS variable in element
+/// @param {int} $width
+@mixin content_width($width) {
+	#{cc.get(content_width_prop)}: #{$width};
 }
 
 
@@ -696,7 +686,7 @@ $_gutter: ();
 			$span: if(list.nth($params, 1) > 0, span, unquote(''));
 			grid-#{$type}: list.nth($params, 2) / $span list.nth($params, 1);
 			@if $type == column {
-				--content-width: #{list.nth($params, 1)};
+				#{cc.get(content_width_prop)}: #{list.nth($params, 1)};
 			}
 		}
 	}
@@ -706,7 +696,7 @@ $_gutter: ();
 		$span: if($params > 0, span, unquote(''));
 		grid-#{$type}: $start / $span $params;
 		@if $type == column {
-			--content-width: #{$params};
+			#{cc.get(content_width_prop)}: #{$params};
 		}
 	}
 }
@@ -757,7 +747,7 @@ $_gutter: ();
 	$previous_float_offset_percentage: null;
 	$previous_gutter_float_offset: null;
 	
-	@each $breakpoint, $columns in config.$grid_columns {
+	@each $breakpoint, $columns in cc.get(grid_columns) {
 		
 		// TODO: consider removing this auto calculation and making it a required parameter
 		// Set float offset automatically when not specified, assuming the content
@@ -858,8 +848,8 @@ $_gutter: ();
 				@if util.is_zero($offset_columns) {
 					margin-#{$offset_direction}: 0;
 				} @else {
-					$offset_factor: calc($offset_columns / var(--content-width));
-					$offset_percentage: calc(($offset_columns * -100%) / var(--content-width));
+					$offset_factor: calc($offset_columns / var(#{cc.get(content_width_prop)}));
+					$offset_percentage: calc(($offset_columns * -100%) / var(#{cc.get(content_width_prop)}));
 					margin-#{$offset_direction}: calc($offset_percentage - (gutter(x) * util.truncate($offset_factor)));
 				}
 			}
@@ -869,8 +859,8 @@ $_gutter: ();
 		@if map.has_key($float_column_count, $breakpoint) {
 			@include b($breakpoint) {
 				$float_columns: map.get($float_column_count, $breakpoint);
-				$float_width: calc(($float_columns * 100%) / var(--content-width));
-				$float_width_factor: calc(1 - ($float_columns / var(--content-width)));
+				$float_width: calc(($float_columns * 100%) / var(#{cc.get(content_width_prop)}));
+				$float_width_factor: calc(1 - ($float_columns / var(#{cc.get(content_width_prop)})));
 				width: calc($float_width - (gutter(x) * $float_width_factor));
 			}
 		}
@@ -880,24 +870,39 @@ $_gutter: ();
 
 @mixin gutter_settings {
 	
-	// @debug 'config.$gutter_base_x (#{meta.type_of(config.$gutter_base_x)}):';
-	// @debug config.$gutter_base_x;
+	// @debug 'cc.get(gutter_base_x) (#{meta.type_of(cc.get(gutter_base_x))}):';
+	// @debug cc.get(gutter_base_x);
+	
+	$gutter_fixed: (
+		x: cc.get(gutter_base_x),
+		y: cc.get(gutter_base_y),
+		outer: cc.get(gutter_base_outer),
+		// x: var(--gutter-x),
+		// y: var(--gutter-y),
+		// outer: var(--gutter-outer),
+	) !global;
+	
+	$gutter_stepped: (
+		x: var(--gutter-stepped-x),
+		y: var(--gutter-stepped-y),
+		outer: var(--gutter-stepped-outer),
+	) !global;
 	
 	
 	:root {
-		--gutter-x: #{config.$gutter_base_x};
-		--gutter-y: #{config.$gutter_base_y};
-		--gutter-outer: #{config.$gutter_base_outer};
-		--gutter-stepped-x: #{config.$gutter_base_x};
-		--gutter-stepped-y: #{config.$gutter_base_y};
-		--gutter-stepped-outer: #{config.$gutter_base_outer};
-		--content-width: 0;
+		--gutter-x: #{cc.get(gutter_base_x)};
+		--gutter-y: #{cc.get(gutter_base_y)};
+		--gutter-outer: #{cc.get(gutter_base_outer)};
+		--gutter-stepped-x: #{cc.get(gutter_base_x)};
+		--gutter-stepped-y: #{cc.get(gutter_base_y)};
+		--gutter-stepped-outer: #{cc.get(gutter_base_outer)};
+		#{cc.get(content_width_prop)}: 0;
 		
-		@each $breakpoint, $scale in config.$gutter_stepped_scale {
+		@each $breakpoint, $scale in cc.get(gutter_stepped_scale) {
 			@include b($breakpoint) {
-				--gutter-stepped-x: #{math.round(config.$gutter_base_x * $scale)};
-				--gutter-stepped-y: #{math.round(config.$gutter_base_y * $scale)};
-				--gutter-stepped-outer: #{math.round(config.$gutter_base_outer * $scale)};
+				--gutter-stepped-x: #{math.round(cc.get(gutter_base_x) * $scale)};
+				--gutter-stepped-y: #{math.round(cc.get(gutter_base_y) * $scale)};
+				--gutter-stepped-outer: #{math.round(cc.get(gutter_base_outer) * $scale)};
 			}
 		}
 	}
