@@ -10,8 +10,8 @@
 
 @use 'color';
 @use 'variant';
-@use 'grid'; // needs Breakbeat when mixin called
-@use 'typography'; // needs Breakbeat but only when mixin parabolic is called
+@use 'grid'; // Needs Breakbeat when mixin called
+@use 'typography'; // Needs Breakbeat but only when mixin parabolic is called
 
 @forward 'color';
 @forward 'variant';
@@ -32,7 +32,7 @@ $_breakpoints: grid.create_breakpoints(
 );
 
 // TODO: make all params optional
-@include breakbeat.b_configure((
+@include breakbeat.configure((
 	breakpoints: $_breakpoints,
 	output_em_queries: config.$output_em_queries,
 	output_query_comments: config.$output_query_comments,
@@ -44,8 +44,8 @@ $_breakpoints: grid.create_breakpoints(
 
 
 
-// This needs BB
-@include grid.gutter_settings();
+
+@include grid.gutter_settings(); // Needs Breakbeat
 @include grid.set_max();
 @include grid.set_gutter_flexible();
 @include grid.set_gutter_by_type();
