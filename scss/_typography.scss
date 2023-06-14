@@ -189,10 +189,17 @@
 				$sizes: _convert_font_size_list_to_map($sizes);
 			}
 			
-			$signature: DEFAULT;
+			$signature: default;
 			@if map.has_key($sizes, signature) {
 				$signature: map.get($sizes, signature);
 				$sizes: map.remove($sizes, signature);
+			}
+			
+			@if
+				map.has_key($sizes, size)
+				and meta.type_of(map.get($sizes, size)) == list
+			{
+				$sizes: _convert_font_size_list_to_map(map.get($sizes, size));
 			}
 			
 			$is_integer: util.is_zero(util.map_first_value($sizes) % 1);

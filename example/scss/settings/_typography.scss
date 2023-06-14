@@ -19,24 +19,7 @@ $settings: (
 			// ch: 36px fixed,
 			lg: 40px, // TODO: this doesn't work after fixed keyword
 			// xl: 70px,
-			
-			// Or ...
-			// size: (
-			// 	sm: 24px,
-			// 	ch: 36px fixed,
-			// 	lg: 40px,
-			// 	xl: 70px,
-			// ),
-			// leading: 1.5 1.3, // TODO: make leading a function of font size
-			
-			// Or ...
-			// size: (
-			// 	sm: 24px,
-			// 	ch: 36px fixed,
-			// 	lg: 40px,
-			// 	xl: 70px,
-			// ),
-			signature: FONT_SANS_BOLD_UPPER,
+			signature: font_sans_bold_upper,
 		),
 		'h1.gap-after-fixed': (
 			sm: 24px,
@@ -48,7 +31,7 @@ $settings: (
 			sm: 24px,
 			ch: 44px snap 24px,
 			yl: 36px,
-			signature: FONT_SANS_BOLD_UPPER,
+			signature: font_sans_bold_upper,
 		),
 		// 'h1.fixed-last': (
 		// 	sm: 24px,
@@ -63,7 +46,7 @@ $settings: (
 		// h3: 32px 44px,
 		// 'h3.bork': (
 		// 	size: 32px 44px,
-		// 	signature: FONT_SANS_BOLD
+		// 	signature: font_sans_bold
 		// ),
 		// h4: 12px,
 		// h5: (
@@ -71,35 +54,21 @@ $settings: (
 		// ),
 	),
 	
-	
-	// TODO: these are sort of like variant names, they don't really need to be constants and don't need to be upppercase
 	all_font_properties: (
-		DEFAULT: (
+		default: (
 			leading: 5.5 1.3,
 		),
-		FONT_SANS_BOLD: (
+		font_sans_bold: (
 			leading: 1.5 1.3,
 		),
-		FONT_SANS_BOLD_UPPER: (
+		font_sans_bold_upper: (
 			leading: 1.6 1.2,
 			tracking: 0.2em 0.05em,
 		),
-		FONT_SANS_LIGHT_UPPER: (
+		font_sans_light_upper: (
 			leading: 1.8 1.6,
 			tracking: 0.15em 0.05em,
 		),
-	),
-	
-	
-	font_style_signatures: (
-		'sans regular',
-		'sans bold',
-		'sans bold upper',
-		'sans light upper',
-	),
-	
-	all_line_heights: (
-		h1: 25px 10px,
 	),
 	
 	/*
