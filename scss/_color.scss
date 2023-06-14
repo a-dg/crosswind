@@ -63,7 +63,10 @@ $color_variable_prefix: color !default;
 	@each $variant_name, $variant_map in cc.get(variants) {
 		$default: map.get(cc.get(variants), default);
 		@each $color_key in map.keys($variant_map) {
-			@if not map.has_key($default, $color_key) {
+			@if
+				$color_key != inherit
+				and not map.has_key($default, $color_key)
+			{
 				@warn 'Color "#{$color_key}" in variant "#{$variant_name}" is not defined in default variant';
 			}
 		}
@@ -111,7 +114,7 @@ $color_variable_prefix: color !default;
 }
 
 
-// Define raw colors and default variant colors
+/// Define raw colors and default variant colors
 @mixin define_color_variables {
 	:root {
 		@each $key, $value in cc.get(colors) {
@@ -123,11 +126,13 @@ $color_variable_prefix: color !default;
 	}
 }
 
-// Define all variant classes
+
+/// Define all variant classes
 @mixin define_variant_classes {
 	@each $variant_name, $variant_map in cc.get(variants) {
 		.v-#{'' + $variant_name} {
-			@each $key, $value in $variant_map {
+			$result: _build_variant_map($variant_map);
+			@each $key, $value in $result {
 				#{_color_var($key)}: #{color($value)};
 			}
 		}
@@ -135,3 +140,24 @@ $color_variable_prefix: color !default;
 }
 
 
+/// Build map of all variant colors, with recursive inheritance
+/// @param {map} $variant_map
+/// @return {map} *
+@function _build_variant_map($variant_map) {
+	$has_inherit: false;
+	
+	$map: ();
+	@each $key, $value in $variant_map {
+		@if $key != inherit {
+			$map: map.set($map, $key, $value);
+		}
+	}
+	
+	$inherit_name: map.get($variant_map, inherit);
+	@if $inherit_name {
+		$inherit_map: map.get(cc.get(variants), #{$inherit_name});
+		$map: map.merge(_build_variant_map($inherit_map), $map);
+	}
+	
+	@return $map;
+}

@@ -25,9 +25,10 @@ $settings: (
 		),
 		light: (
 			bg: fog,
-			header: cement,
-			button_bg: cement,
-			button_text: white,
+			inherit: loud,
+			// header: cement,
+			// button_bg: cement,
+			// button_text: white,
 		),
 		dark: (
 			bg: black,
