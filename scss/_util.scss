@@ -772,11 +772,11 @@
 /// @param {string} $key
 /// @return {mixed} *
 @function const($key) {
-	@if not map.has_key($constants, $key) {
+	@if not map.has_key(cc.get(constants), $key) {
 		@error 'Unknown constant: #{$key}';
 	}
 	
-	@return map.get($constants, $key);
+	@return map.get(cc.get(constants), $key);
 }
 
 
