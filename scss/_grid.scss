@@ -58,6 +58,12 @@ $_gutter: ();
 		@return if($invert, calc($gutter_value * -1), $gutter_value);
 	}
 	
+	@if list.nth($gutter_value, 1) == list.nth($gutter_value, 3) {
+		@return list.nth($gutter_value, 1);
+	}
+	
+	$gutter_value: list.set_nth($gutter_value, 2, util.trunx(list.nth($gutter_value, 2)));
+	
 	@if $as_list {
 		@if not $invert {
 			@return $gutter_value;
