@@ -465,9 +465,9 @@ $_gutter: ();
 			48px,
 		),
 		outer: (
-			20px,
-			6vw,
-			48px
+			cc.get(gutter_flexible_min_outer),
+			(util.truncate(calc(cc.get(gutter_flexible_max_outer) / $content_max_width)) * 100vw),
+			cc.get(gutter_flexible_max_outer),
 		),
 	) !global;
 }
