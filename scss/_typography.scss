@@ -5,7 +5,7 @@
 @use 'sass:meta';
 @use 'sass:math';
 
-@use '../lib/breakbeat' as *;
+@use '../lib/breakbeat/scss' as *;
 @use 'config' as cc;
 @use 'grid';
 @use 'util';

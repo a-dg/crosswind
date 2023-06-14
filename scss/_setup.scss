@@ -6,7 +6,7 @@
 @use 'sass:map';
 @use 'sass:meta';
 
-@use '../lib/breakbeat';
+@use '../lib/breakbeat/scss' as breakbeat;
 @use 'config' as cc;
 @use 'color';
 @use 'variant';

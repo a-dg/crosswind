@@ -4,7 +4,7 @@
 @use 'sass:meta';
 @use 'sass:list';
 
-@use '../lib/breakbeat';
+@use '../lib/breakbeat/scss' as breakbeat;
 @use 'config' as cc;
 
 

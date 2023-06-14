@@ -1,7 +1,7 @@
 @use 'sass:list';
 @use 'sass:map';
 
-@use '../../../lib/breakbeat' as *;
+@use '../../../lib/breakbeat/scss' as *;
 @use '../../../scss' as *;
 @use '../../../scss/config' as cc;
 

@@ -4,7 +4,7 @@
 @use 'sass:map';
 @use 'sass:meta';
 
-@use '../../lib/breakbeat' as *;
+@use '../../lib/breakbeat/scss' as *;
 @use '../config' as cc;
 @use '../color' as *;
 @use '../grid';
