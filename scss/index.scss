@@ -4,6 +4,9 @@
 @use 'crosswind' as *;
 @use 'config';
 
+@use 'site/about';
+
+
 
 * {
 	box-sizing: border-box;
