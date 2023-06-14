@@ -437,6 +437,15 @@ $_gutter: ();
 }
 
 
+@function _build_gutter($min, $max) {
+	@return (
+		$min,
+		(util.truncate(calc($max / $content_max_width)) * 100vw),
+		$max,
+	);
+}
+
+
 @mixin set_max {
 	$content_max_width: map.get($breakpoints, cc.get(content_max_width_breakpoint)) !global;
 	$content_max_width_extended: map.get($breakpoints, cc.get(content_max_width_extended_breakpoint)) !global;
@@ -453,23 +462,21 @@ $_gutter: ();
 
 
 @mixin set_gutter_flexible {
-	$gutter_flexible: (
-		x: (
-			cc.get(gutter_flexible_min_x),
-			(util.truncate(calc(cc.get(gutter_flexible_max_x) / $content_max_width)) * 100vw),
-			cc.get(gutter_flexible_max_x),
-		),
-		y: (
-			20px,
-			8vw,
-			48px,
-		),
-		outer: (
-			cc.get(gutter_flexible_min_outer),
-			(util.truncate(calc(cc.get(gutter_flexible_max_outer) / $content_max_width)) * 100vw),
-			cc.get(gutter_flexible_max_outer),
-		),
-	) !global;
+	$flexible_gutter_values: cc.get(gutter_flexible);
+	
+	@each $key, $value in $flexible_gutter_values {
+		$min: $value;
+		$max: $value;
+		@if meta.type_of($value) == list {
+			$min: list.nth($value, 1);
+			$max: list.nth($value, 2);
+		}
+		$gutter_flexible: map.set(
+			$gutter_flexible,
+			$key,
+			_build_gutter($min, $max)
+		) !global;
+	}
 }
 
 
