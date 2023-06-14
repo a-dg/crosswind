@@ -22,7 +22,7 @@ $color_variable_prefix: color !default;
 /// Format color name as CSS variable
 /// @param {string} $name
 /// @return {string} *
-@function _color_var($name) {
+@function color_css_var($name) {
 	@return --#{$color_variable_prefix}-#{util.replace($name, '_', '-')};
 }
 
@@ -39,10 +39,11 @@ $color_variable_prefix: color !default;
 }
 
 
-/// Get color by name
+/// Get color by name, optionally from a specific variant
 /// @param {string | color} $color_name
+/// @param {string | color} $variant_name
 /// @return {string} CSS color variable
-@function color($color_name) {
+@function color($color_name, $variant_name: null) {
 	@if meta.type_of($color_name) == color {
 		$color_name: '' + $color_name;
 	}
@@ -54,7 +55,12 @@ $color_variable_prefix: color !default;
 		@error 'Unknown color name: #{$color_name}';
 	}
 	
-	@return var(_color_var($color_name));
+	// Get color from specific variant
+	@if $variant_name {
+		$color_name: #{cc.get(variants, #{$variant_name}, #{$color_name})};
+	}
+	
+	@return var(color_css_var($color_name));
 }
 
 
@@ -118,10 +124,10 @@ $color_variable_prefix: color !default;
 @mixin define_color_variables {
 	:root {
 		@each $key, $value in cc.get(colors) {
-			#{_color_var($key)}: #{$value};
+			#{color_css_var($key)}: #{$value};
 		}
 		@each $key, $value in map.get(cc.get(variants), default) {
-			#{_color_var($key)}: #{color($value)};
+			#{color_css_var($key)}: #{color($value)};
 		}
 	}
 }
@@ -129,14 +135,17 @@ $color_variable_prefix: color !default;
 
 /// Define all variant classes
 @mixin define_variant_classes {
+	$updated_variants: ();
 	@each $variant_name, $variant_map in cc.get(variants) {
 		.v-#{'' + $variant_name} {
 			$result: _build_variant_map($variant_map);
+			$updated_variants: map.set($updated_variants, variants, $variant_name, $result);
 			@each $key, $value in $result {
-				#{_color_var($key)}: #{color($value)};
+				#{color_css_var($key)}: #{color($value)};
 			}
 		}
 	}
+	@include cc.set_deep($updated_variants);
 }
 
 

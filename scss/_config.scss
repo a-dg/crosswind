@@ -5,10 +5,10 @@ $settings: ();
 
 
 /// Get setting by key
-/// @param {string} $key
+/// @param {string} $keys
 /// @return {mixed} *
-@function get($key) {
-	@return map.get($settings, $key);
+@function get($keys...) {
+	@return map.get($settings, $keys...);
 }
 
 
@@ -17,4 +17,11 @@ $settings: ();
 /// @param {mixed} $value
 @mixin set($key, $value) {
 	$settings: map.set($settings, $key, $value) !global;
+}
+
+
+/// Assign value to setting key
+/// @param {map} $map
+@mixin set_deep($map) {
+	$settings: map.deep_merge($settings, $map) !global;
 }
