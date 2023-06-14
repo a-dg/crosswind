@@ -222,6 +222,9 @@
 			// Make all property units match font units
 			@each $propery_name, $property_values in $font_properties {
 				@if math.is_unitless(list.nth($property_values, 1)) {
+					@if list.length($property_values) == 1 {
+						$property_values: list.append($property_values, list.nth($property_values, 1));
+					}
 					$px_props: (
 						list.nth($property_values, 1) * $first_font_size,
 						list.nth($property_values, 2) * $last_font_size,
