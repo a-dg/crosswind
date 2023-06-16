@@ -170,3 +170,13 @@ $color_variable_prefix: color !default;
 	
 	@return $map;
 }
+
+
+/// Assign specific variant
+/// @param {string} $name
+@mixin variant($name) {
+	$variant_map: map.get(cc.get(variants), #{$name});
+	@each $key, $value in $variant_map {
+		#{color_css_var($key)}: #{color($value)};
+	}
+}
