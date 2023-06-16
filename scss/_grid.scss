@@ -54,6 +54,10 @@ $_gutter: ();
 /// @return {number | calculation} *
 @function gutter($property, $invert: false, $as_list: false, $gutter_set: $_gutter, $caller: '') {
 	$gutter_value: map.get($gutter_set, $property);
+	@if not $gutter_value {
+		@error 'Unknown gutter property: #{$property}';
+	}
+	
 	@if meta.type_of($gutter_value) != list {
 		@return if($invert, calc($gutter_value * -1), $gutter_value);
 	}
