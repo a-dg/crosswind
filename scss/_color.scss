@@ -217,18 +217,26 @@ $_inset_variant_keyword: apply;
 ///   inverse: apply white, <- Refers to the variant named "white"
 /// ),
 @mixin define_inset_variants {
+	$default_variant: list.nth(map.values(cc.get(variants)), 1);
+	@include _create_inset_variant_css_var($default_variant);
+	
 	@each $variant_name, $variant_map in cc.get(variants) {
 		.v-#{'' + $variant_name} {
-			@each $key, $value in $variant_map {
-				@if _is_inset_variant($value) {
-					$variant_name: list.nth($value, 2);
-					$inset_map: map.get(cc.get(variants), #{$variant_name});
-					
-					.v-#{$key} {
-						@each $inset_key, $inset_value in $inset_map {
-							@include create_color_css_var($inset_key, $inset_value);
-						}
-					}
+			@include _create_inset_variant_css_var($variant_map);
+		}
+	}
+}
+
+
+@mixin _create_inset_variant_css_var($variant_map) {
+	@each $key, $value in $variant_map {
+		@if _is_inset_variant($value) {
+			$variant_name: list.nth($value, 2);
+			$inset_map: map.get(cc.get(variants), #{$variant_name});
+			
+			.v-#{$key} {
+				@each $inset_key, $inset_value in $inset_map {
+					@include create_color_css_var($inset_key, $inset_value);
 				}
 			}
 		}
