@@ -9,6 +9,7 @@
 
 
 $color_variable_prefix: color !default;
+$_inset_variant_keyword: apply;
 
 
 // @debug cc.get(colors);
@@ -23,7 +24,7 @@ $color_variable_prefix: color !default;
 /// @param {string} $name
 /// @return {string} *
 @function color_css_var($name) {
-	@return --#{$color_variable_prefix}-#{util.replace($name, '_', '-')};
+	@return --#{$color_variable_prefix}-#{util.replace(#{$name}, '_', '-')};
 }
 
 
@@ -48,11 +49,12 @@ $color_variable_prefix: color !default;
 		$color_name: '' + $color_name;
 	}
 	
+	$default_variant: list.nth(map.values(cc.get(variants)), 1);
 	@if
 		not map.has_key(cc.get(colors), $color_name)
-		and not map.has_key(cc.get(variants), default, $color_name)
+		and not map.has_key($default_variant, $color_name)
 	{
-		@error 'Unknown color name: #{$color_name}';
+		@warn 'Unknown color name: #{$color_name}';
 	}
 	
 	// Get color from specific variant
@@ -66,14 +68,15 @@ $color_variable_prefix: color !default;
 
 // Warn if color key is defined in variant that is not in the default
 @mixin check_variant_keys {
+	$default_key: list.nth(map.keys(cc.get(variants)), 1);
+	$default_variant: list.nth(map.values(cc.get(variants)), 1);
 	@each $variant_name, $variant_map in cc.get(variants) {
-		$default: map.get(cc.get(variants), default);
-		@each $color_key in map.keys($variant_map) {
+		@each $color_key, $color_value in $variant_map {
 			@if
-				$color_key != inherit
-				and not map.has_key($default, $color_key)
+				_is_creatable_color($color_key, $color_value)
+				and not map.has_key($default_variant, $color_key)
 			{
-				@warn 'Color "#{$color_key}" in variant "#{$variant_name}" is not defined in default variant';
+				@warn 'Color "#{$color_key}" in variant "#{$variant_name}" is not defined in default variant "#{$default_key}"';
 			}
 		}
 	}
@@ -87,7 +90,10 @@ $color_variable_prefix: color !default;
 	
 	@each $variant_name, $variant_map in cc.get(variants) {
 		@each $color_key, $color_name in $variant_map {
-			@if meta.type_of($color_name) == list {
+			@if
+				meta.type_of($color_name) == list
+				and _is_creatable_color($color_key, $color_name)
+			{
 				$opacity: util.convert_to_number(list.nth($color_name, 2));
 				$color_name: '' + list.nth($color_name, 1);
 				
@@ -122,12 +128,13 @@ $color_variable_prefix: color !default;
 
 /// Define raw colors and default variant colors
 @mixin define_color_variables {
+	$default_variant: list.nth(map.values(cc.get(variants)), 1);
 	:root {
 		@each $key, $value in cc.get(colors) {
 			#{color_css_var($key)}: #{$value};
 		}
-		@each $key, $value in map.get(cc.get(variants), default) {
-			#{color_css_var($key)}: #{color($value)};
+		@each $key, $value in $default_variant {
+			@include create_color_css_var($key, $value);
 		}
 	}
 }
@@ -141,7 +148,7 @@ $color_variable_prefix: color !default;
 			$result: _build_variant_map($variant_map);
 			$updated_variants: map.set($updated_variants, variants, $variant_name, $result);
 			@each $key, $value in $result {
-				#{color_css_var($key)}: #{color($value)};
+				@include create_color_css_var($key, $value);
 			}
 		}
 	}
@@ -153,11 +160,9 @@ $color_variable_prefix: color !default;
 /// @param {map} $variant_map
 /// @return {map} *
 @function _build_variant_map($variant_map) {
-	$has_inherit: false;
-	
 	$map: ();
 	@each $key, $value in $variant_map {
-		@if $key != inherit {
+		@if _is_creatable_color($key, $value) {
 			$map: map.set($map, $key, $value);
 		}
 	}
@@ -177,6 +182,79 @@ $color_variable_prefix: color !default;
 @mixin variant($name) {
 	$variant_map: map.get(cc.get(variants), #{$name});
 	@each $key, $value in $variant_map {
+		@include create_color_css_var($key, $value);
+	}
+}
+
+
+/// Is this value in the variant map a reference to an inset variant?
+/// @param {string | color | list} $value
+/// @return {boolean} *
+@function _is_inset_variant($value) {
+	@return (
+		meta.type_of($value) == list
+		and list.index($value, $_inset_variant_keyword)
+	);
+}
+
+
+/// Define inset variants
+/// 
+/// Inset variants allow nesting one variant inside of another, allowing
+/// relating multiple variants to one another dynamically. An inset variant is
+/// marked by the use of "apply" in its value, indicating that it's not an
+/// actual color. Variants can have an arbitrary number of inset variants.
+/// 
+/// Example:
+/// white: (
+///   bg: white,
+///   text: black,
+///   inverse: apply black, <- Refers to the variant named "black"
+/// ),
+/// black: (
+///   bg: black,
+///   text: white,
+///   inverse: apply white, <- Refers to the variant named "white"
+/// ),
+@mixin define_inset_variants {
+	@each $variant_name, $variant_map in cc.get(variants) {
+		.v-#{'' + $variant_name} {
+			@each $key, $value in $variant_map {
+				@if _is_inset_variant($value) {
+					$variant_name: list.nth($value, 2);
+					$inset_map: map.get(cc.get(variants), #{$variant_name});
+					
+					.v-#{$key} {
+						@each $inset_key, $inset_value in $inset_map {
+							@include create_color_css_var($inset_key, $inset_value);
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+
+@mixin create_color_css_var($key, $value) {
+	@if _is_creatable_color($key, $value) {
 		#{color_css_var($key)}: #{color($value)};
 	}
+}
+
+
+/// Can this color be created as a CSS variable?
+/// 
+/// Entries in variants that refer to other variants should not be created as
+/// CSS color variables. This includes "inherit", and any entries using "apply"
+/// to refer to another variant.
+/// 
+/// @param {string} $key
+/// @param {string | color | list} $value
+/// @return {boolean} *
+@function _is_creatable_color($key, $value) {
+	@return (
+		$key != inherit
+		and not _is_inset_variant($value)
+	);
 }

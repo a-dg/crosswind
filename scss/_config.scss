@@ -20,7 +20,7 @@ $settings: ();
 }
 
 
-/// Assign value to setting key
+/// Assign map to settings
 /// @param {map} $map
 @mixin set_deep($map) {
 	$settings: map.deep_merge($settings, $map) !global;

@@ -60,10 +60,9 @@
 	
 	@include color.define_color_variables();
 	@include color.define_variant_classes();
-	
+	@include color.define_inset_variants();
 	
 	@include typography.parabolic_font_sizes(cc.get(all_font_sizes));
 	// @include parabolic_font_sizes($all_line_heights, 'line-height');
 	// @debug closest_font_size($all_font_sizes, 32px);
 }
-
