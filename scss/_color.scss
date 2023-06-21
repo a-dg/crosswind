@@ -49,7 +49,7 @@ $_inset_variant_keyword: apply;
 		$color_name: '' + $color_name;
 	}
 	
-	$default_variant: list.nth(map.values(cc.get(variants)), 1);
+	$default_variant: _get_default_variant();
 	@if
 		not map.has_key(cc.get(colors), $color_name)
 		and not map.has_key($default_variant, $color_name)
@@ -68,8 +68,8 @@ $_inset_variant_keyword: apply;
 
 // Warn if color key is defined in variant that is not in the default
 @mixin check_variant_keys {
-	$default_key: list.nth(map.keys(cc.get(variants)), 1);
-	$default_variant: list.nth(map.values(cc.get(variants)), 1);
+	$default_key: _get_default_variant(true);
+	$default_variant: _get_default_variant();
 	@each $variant_name, $variant_map in cc.get(variants) {
 		@each $color_key, $color_value in $variant_map {
 			@if
@@ -128,7 +128,7 @@ $_inset_variant_keyword: apply;
 
 /// Define raw colors and default variant colors
 @mixin define_color_variables {
-	$default_variant: list.nth(map.values(cc.get(variants)), 1);
+	$default_variant: _get_default_variant();
 	:root {
 		@each $key, $value in cc.get(colors) {
 			#{color_css_var($key)}: #{$value};
@@ -158,8 +158,9 @@ $_inset_variant_keyword: apply;
 
 /// Build map of all variant colors, with recursive inheritance
 /// @param {map} $variant_map
+/// @param {boolean} $is_default
 /// @return {map} *
-@function _build_variant_map($variant_map) {
+@function _build_variant_map($variant_map, $is_default: false) {
 	$map: ();
 	@each $key, $value in $variant_map {
 		@if _is_creatable_color($key, $value) {
@@ -167,10 +168,16 @@ $_inset_variant_keyword: apply;
 		}
 	}
 	
-	$inherit_name: map.get($variant_map, inherit);
-	@if $inherit_name {
+	// Get properties from next parent variant up the inheritance chain, unless
+	// we've already arrived at the default variant
+	@if not $is_default {
+		$inherit_name: map.get($variant_map, inherit);
+		@if not $inherit_name {
+			$inherit_name: _get_default_variant(true);
+			$is_default: true;
+		}
 		$inherit_map: map.get(cc.get(variants), #{$inherit_name});
-		$map: map.merge(_build_variant_map($inherit_map), $map);
+		$map: map.merge(_build_variant_map($inherit_map, $is_default), $map);
 	}
 	
 	@return $map;
@@ -217,7 +224,7 @@ $_inset_variant_keyword: apply;
 ///   inverse: apply white, <- Refers to the variant named "white"
 /// ),
 @mixin define_inset_variants {
-	$default_variant: list.nth(map.values(cc.get(variants)), 1);
+	$default_variant: _get_default_variant();
 	@include _create_inset_variant_css_var($default_variant);
 	
 	@each $variant_name, $variant_map in cc.get(variants) {
@@ -225,6 +232,15 @@ $_inset_variant_keyword: apply;
 			@include _create_inset_variant_css_var($variant_map);
 		}
 	}
+}
+
+
+@function _get_default_variant($key_only: false) {
+	@if $key_only {
+		@return util.map_first_key(cc.get(variants));
+	}
+	
+	@return util.map_first_value(cc.get(variants));
 }
 
 
