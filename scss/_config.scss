@@ -20,6 +20,16 @@ $settings: ();
 }
 
 
+/// Assign value to setting key by function
+/// @param {string} $key
+/// @param {mixed} $value
+/// @return {boolean} *
+@function setf($key, $value) {
+	$settings: map.set($settings, $key, $value) !global;
+	@return true;
+}
+
+
 /// Assign map to settings
 /// @param {map} $map
 @mixin set_deep($map) {

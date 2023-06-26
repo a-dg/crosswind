@@ -279,6 +279,40 @@
 }	
 
 
+@function map_lowest($source, $value_only: false) {
+	@return _map_most($source, $value_only, $type: lowest);
+}
+
+
+@function map_highest($source, $value_only: false) {
+	@return _map_most($source, $value_only, $type: highest);
+}
+
+
+@function _map_most($source, $value_only, $type: lowest) {
+	$most_key: null;
+	$most_value: null;
+	@each $key, $value in $source {
+		@if
+			$most_value == null
+			or ($type == lowest and $value < $most_value)
+			or ($type == highest and $value > $most_value)
+		{
+			$most_key: $key;
+			$most_value: $value;
+		}
+	}
+	
+	@if $value_only {
+		@return $most_value;
+	}
+	
+	@return (
+		$most_key: $most_value,
+	);
+}
+
+
 /// Inject one sorted map into another, maintaining sort order
 /// @param {map} $source
 /// @param {map} $insert
@@ -654,6 +688,23 @@
 	}
 	
 	@return calc(math.floor($value * math.pow(10, $places)) / math.pow(10, $places));
+}
+
+
+/// Truncate first and last values in clamp() calculation
+/// @param {calculation} $value
+/// @return {calculation} *
+@function truncate_clamp($value) {
+	@if meta.type_of($value) != calculation {
+		@return $value;
+	}
+	
+	$value_list: meta.calc_args($value);
+	@return clamp(
+		trunx(list.nth($value_list, 1)),
+		list.nth($value_list, 2),
+		trunx(list.nth($value_list, 3))
+	);
 }
 
 

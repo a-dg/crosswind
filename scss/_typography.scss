@@ -11,7 +11,16 @@
 @use 'util';
 
 
-/// Fancy font size
+$_signature_font_size_extremes_key: _signature_font_size_extremes;
+
+$_css_property_shorthand: (
+	size: font-size,
+	leading: line-height,
+	tracking: letter-spacing,
+);
+
+
+/// Generate clamp calculation for specific breakpoint range
 /// 
 /// Usage for linear scaling:
 /// font-size: _fancy_font_size((
@@ -77,6 +86,7 @@
 
 
 /// Find closest font size to target
+/// TODO: work in progress
 /// @param {map} $set
 /// @param {number} $target_size
 /// @return {map} *
@@ -122,11 +132,462 @@
 }
 
 
+/// Get CSS property name from shorthand
+/// @param {string} $property_name
+/// @return {string} *
 @function _convert_property_name_to_css($property_name) {
-	@return map.get((
-		leading: line-height,
-		tracking: letter-spacing,
-	), $property_name);
+	@return map.get($_css_property_shorthand, $property_name);
+}
+
+
+/// Get min and max for every property for this signature
+/// 
+/// Example output: (
+///   tracking: (
+///     18px, 70px
+///   ),
+///   leading: (
+///     18px, 70px
+///   ),
+/// )
+/// 
+/// @param {string} $signature
+/// @param {map} $sizes
+/// @return {map} *
+@function _get_props_for_sig($signature, $sizes) {
+	$font_properties: map.get(cc.get(all_font_properties), $signature);
+	@if $font_properties == null {
+		$font_properties: ();
+		@warn 'Undefined font signature: #{$signature}';
+	}
+	@return _homogenize_prop_units($font_properties, $sizes);
+}
+
+
+/// Make all property units match font units
+/// @param {map} $font_properties
+/// @param {map} $sizes
+/// @return {map} *
+@function _homogenize_prop_units($font_properties, $sizes) {
+	
+	// TODO: this probably won't work with keywords
+	$first_font_size: util.map_first_value($sizes);
+	$last_font_size: util.map_last_value($sizes);
+	
+	@each $propery_name, $property_values in $font_properties {
+		@if math.is_unitless(list.nth($property_values, 1)) {
+			@if list.length($property_values) == 1 {
+				$property_values: list.append($property_values, list.nth($property_values, 1));
+			}
+			$px_props: (
+				list.nth($property_values, 1) * $first_font_size,
+				list.nth($property_values, 2) * $last_font_size,
+			);
+			$font_properties: map.set($font_properties, $propery_name, $px_props);
+		}
+		
+		@else {
+			$unit_prop: math.unit(list.nth($property_values, 1));
+			$unit_font: math.unit($first_font_size);
+			@if $unit_prop != $unit_font {
+				$font_unit_props: ();
+				@each $item in $property_values {
+					$converted: util.convert_units($item, $from: $unit_prop, $to: $unit_font);
+					// @debug '  #{$propery_name}: #{$item} -> #{$converted}';
+					$font_unit_props: list.append($font_unit_props, $converted);
+				}
+				$font_properties: map.set($font_properties, $propery_name, $font_unit_props);
+			}
+		}
+	}
+	
+	@return $font_properties;
+}
+
+
+/// Get lowest and highest font sizes for signature
+/// @param {string} $signature
+/// @param {map} $sizes
+/// @return {map} *
+@function _gather_extreme_font_sizes($signature, $sizes) {
+	
+	// TODO: this probably won't work with keywords
+	$smallest_font_size: util.map_lowest($sizes, true);
+	$largest_font_size: util.map_highest($sizes, true);
+	$extremes: (
+		low: $smallest_font_size,
+		high: $largest_font_size,
+	);
+	
+	$extremes_in_settings: cc.get($_signature_font_size_extremes_key);
+	@if
+		not $extremes_in_settings
+		or not map.get($extremes_in_settings, $signature)
+	{
+		@return (
+			$signature: $extremes,
+		);
+	}
+	
+	// Compare and merge lowest and highest sizes
+	$signature_extremes: map.get($extremes_in_settings, $signature);
+	$lowest: math.min(map.get($signature_extremes, low), map.get($extremes, low));
+	$highest: math.max(map.get($signature_extremes, high), map.get($extremes, high));
+	
+	@return (
+		$signature: (
+			low: $lowest,
+			high: $highest,
+		),
+	);
+}
+
+
+/// Get intermediate values for properties
+/// TODO: This appears to be unused
+/// @param {map} $sizes
+/// @param {map} $font_properties
+/// @return {map} *
+@function _intermediate_props($sizes, $font_properties) {
+	$factors: _factor_map($sizes);
+	
+	// Use factors to create intermediate values for font properties
+	$intermediate_properties: ();
+	
+	// Min is always 1, because it's the first value divided by itself
+	$min_factor: util.map_first_value($factors);
+	$max_factor: util.map_last_value($factors);
+	
+	@each $propery_name, $property_values in $font_properties {
+		$min_prop: list.nth($property_values, 1);
+		$max_prop: list.nth($property_values, 2);
+		@each $factor_key, $factor_value in $factors {
+			$interpolated_value: null;
+			
+			@if meta.type_of($factor_value) == list {
+				$keyword: list.nth($factor_value, 2);
+				@if $keyword == fixed {
+					$factor_value: list.nth($factor_value, 1);
+					$a: _factor_into_value($factor_value, $min_factor, $max_factor, $min_prop, $max_prop);
+					$interpolated_value: $a fixed;
+				} @else if $keyword == snap {
+					$val_a: list.nth($factor_value, 1);
+					$val_b: list.nth($factor_value, 3);
+					$a: _factor_into_value($val_a, $min_factor, $max_factor, $min_prop, $max_prop);
+					$b: _factor_into_value($val_b, $min_factor, $max_factor, $min_prop, $max_prop);
+					$interpolated_value: $a snap $b;
+				}
+			} @else {
+				$interpolated_value: _factor_into_value($factor_value, $min_factor, $max_factor, $min_prop, $max_prop);
+			}
+			
+			$css_prop: _convert_property_name_to_css($propery_name);
+			$intermediate_properties: map.set($intermediate_properties, $css_prop, $factor_key, $interpolated_value);
+		}
+	}
+	
+	@return $intermediate_properties;
+}
+
+
+/// Build fancy font properties
+/// TODO: this appears to be unused
+/// 
+/// Expected format of $nice_properties:
+/// (
+///   letter-spacing: (
+///     sm: 20px, md: 27.5px, av: 37.5px, ch: 51.6666px, lg: 70px
+///   ),
+///   line-height: (
+///     sm: 24px, md: 33px, av: 45px, ch: 62px, lg: 84px
+///   ),
+/// )
+/// 
+/// @param {map} $nice_properties
+/// @param {string} $breakpoint
+/// @param {string} $next_breakpoint
+/// @param {int} $size_index
+/// @return {map} *
+@function _build_fancy_props($nice_properties, $breakpoint, $next_breakpoint, $size_index) {
+	$next_properties: ();
+	@each $property_name, $property_values in $nice_properties {
+		$next_property: list.nth(map.values($property_values), $size_index + 1);
+		$next_properties: map.set($next_properties, $property_name, $next_property);
+	}
+	
+	$fancy_properties: ();
+	@each $property_name, $property_values in $nice_properties {
+		$this_property: map.get($nice_properties, $property_name, $breakpoint);
+		$next_property: map.get($next_properties, $property_name);
+		
+		@if (
+			meta.type_of($this_property) == list
+			and list.nth($this_property, 2) == snap
+		) {
+			$this_property: list.nth($this_property, 3);
+		}
+		
+		// If property includes any keywords, isolate first property value
+		@if meta.type_of($next_property) == list {
+			$next_property: list.nth($next_property, 1);
+		}
+		
+		$fancy_property: _fancy_font_size((
+			$breakpoint: $this_property,
+			$next_breakpoint: $next_property,
+		));
+		$fancy_properties: map.set($fancy_properties, $property_name, $fancy_property);
+	}
+	
+	@return $fancy_properties;
+}
+
+
+/// Generate property calculation for specific breakpoint range
+/// 
+/// Example input: (
+///   sm: 1.8,
+///   lg: 1.3,
+/// )
+/// 
+/// @param {map} $fuckin_props
+/// @return {number | calculation} *
+@function _boil_fancy_props($fuckin_props) {
+	$low_breakpoint: util.map_first_key($fuckin_props);
+	$high_breakpoint: util.map_last_key($fuckin_props);
+	$low_value: util.map_first_value($fuckin_props);
+	$high_value: util.map_last_value($fuckin_props);
+	
+	@if (
+		meta.type_of($low_value) == list
+		and list.nth($low_value, 2) == snap
+	) {
+		$low_value: list.nth($low_value, 3);
+	}
+	
+	// If property includes any keywords, isolate first property value
+	@if meta.type_of($high_value) == list {
+		$high_value: list.nth($high_value, 1);
+	}
+	
+	@return _fancy_font_size((
+		$low_breakpoint: $low_value,
+		$high_breakpoint: $high_value,
+	));
+}
+
+
+/// Boil font sizes
+/// 
+/// Example output: (
+///   signature_name: (
+///     h1: (
+///       sm: (
+///         size: clamp(30px, 12.1212vw - 27.697px, 46px),
+///         leading: clamp(36.9836px, 8.2662vw - 2.3639px, 47.8950px),
+///         tracking: clamp(13.868852459px, -1.7884vw + 24.7421px, 16.2295px),
+///       ),
+///       md: (
+///         size: clamp(46px, 14.7435vw - 43.6411px, 69px),
+///         leading: clamp(47.8950px, 10.0546vw - 13.2372px, 63.5803px),
+///         tracking: clamp(10.4754px, -2.1753vw + 27.0945px, 13.8688px),
+///       ),
+///       ...
+///     ),
+///     h2: (
+///       ...
+///     ),
+///   ),
+///   another_signature: (
+///     ...
+///   ),
+/// )
+/// 
+/// @param {map} $font_sizes
+/// @return {map} *
+@function _boil_font_sizes($font_sizes) {
+	$boiled: ();
+	$first_breakpoint_name: util.map_first_key($breakpoints);
+	
+	@each $selector, $sizes in $font_sizes {
+		$signature: default;
+		@if map.has_key($sizes, signature) {
+			$signature: map.get($sizes, signature);
+			$sizes: map.remove($sizes, signature);
+		}
+		
+		// Size is formatted as a single value
+		// Example: (h1: 24px,)
+		@if meta.type_of($sizes) == number {
+			// TODO: IMPORTANT: potentially use assigned breakpoint instead of $first_breakpoint_name because otherwise we don't know how far along this size is in the continuum of sizes, but also everything else will need to be updated to accommodate keywords (fixed, snap, etc) and every format of font sizes that is acceptable
+			$boiled: map.set($boiled, $signature, $selector, $first_breakpoint_name, size, $sizes);
+		}
+		
+		// Sizes are formatted in a list, using default settings for font scaling
+		// breakpoints ($font_scale_breakpoint_min, $font_scale_breakpoint_max),
+		// or as a map with explicity defined breakpoints
+		// 
+		// Examples: (
+		//   h1: 24px 36px,
+		//   h2: (
+		//     sm: 24px,
+		//     md: 32px [fixed],
+		//     lg: 42px [snap 24px],
+		//     xl: 36px,
+		//     signature: FONT_SANS_BOLD_UPPER,
+		//   ),
+		//   h4: (
+		//     size: 24px 32px,
+		//     signature: FONT_SANS_LIGHT,
+		//   ),
+		// ),
+		@else {
+			@if meta.type_of($sizes) == list {
+				$sizes: _convert_font_size_list_to_map($sizes);
+			}
+			
+			@if
+				map.has_key($sizes, size)
+				and meta.type_of(map.get($sizes, size)) == list
+			{
+				$sizes: _convert_font_size_list_to_map(map.get($sizes, size));
+			}
+			
+			$is_integer: util.is_zero(util.map_first_value($sizes) % 1);
+			$sizes: util.create_intermediate_sizes($sizes, $is_integer);
+			$size_count: list.length(map.keys($sizes));
+			
+			// Gather the smallest and largest font sizes for this signature, which
+			// will be used to scale other properties
+			$extreme_font_sizes: _gather_extreme_font_sizes($signature, $sizes);
+			$ok: _update_font_size_extremes($extreme_font_sizes);
+			
+			$size_index: 1;
+			@each $breakpoint, $size in $sizes {
+				@if
+					meta.type_of($size) == list
+					and list.nth($size, 2) == fixed
+				{
+					$boiled: map.set($boiled, $signature, $selector, $breakpoint, size, list.nth($size, 1));
+				}
+				
+				// Output a basic font size for a single defined breakpoint
+				@else if $size_count == 1 {
+					$boiled: map.set($boiled, $signature, $selector, $breakpoint, size, $size);
+				}
+				
+				// For multiple input sizes, we skip the last entry, because either:
+				// - its value is already accounted for in the clamp() that starts
+				//   with the second-to-last entry and defines a maximum size that is
+				//   equal to the size on the largest breakpoint
+				// - or the size of the last entry is fixed, in which case the it has
+				//   already been included by the simple check for fixed values above
+				@else if $size_index < $size_count {
+					$next_breakpoint: list.nth(map.keys($sizes), $size_index + 1);
+					$next_size: list.nth(map.values($sizes), $size_index + 1);
+					
+					// If size includes any keywords, isolate first size value
+					@if meta.type_of($next_size) == list {
+						$next_size: list.nth($next_size, 1);
+					}
+					
+					// If size includes snap keyword, use second size as minimum
+					@if (
+						meta.type_of($size) == list
+						and list.nth($size, 2) == snap
+					) {
+						$size: list.nth($size, 3);
+					}
+					
+					$fancy_as_fuck_font_size: _fancy_font_size((
+						$breakpoint: $size,
+						$next_breakpoint: $next_size,
+					));
+					
+					$boiled: map.set($boiled, $signature, $selector, $breakpoint, size, $fancy_as_fuck_font_size);
+				}
+				
+				$size_index: $size_index + 1;
+			}
+		}
+	}
+	
+	// Now that we have the extreme font sizes, we can properly place the other
+	// properties along that continuum
+	@each $signature, $selectors in $boiled {
+		$signature_extremes: map.get(cc.get($_signature_font_size_extremes_key), $signature);
+		$signature_low: map.get($signature_extremes, low);
+		$signature_high: map.get($signature_extremes, high);
+		$font_properties: _get_props_for_sig($signature, $signature_extremes);
+		
+		@each $selector, $specs in $selectors {
+			@each $breakpoint, $properties in $specs {
+				$this_index: list.index(map.keys($specs), $breakpoint);
+				$next_index: $this_index + 1;
+				$next_breakpoint: null;
+				
+				@if $next_index > list.length(map.keys($specs)) {
+					$breakpoint_names: map.keys($breakpoints);
+					$this_index_in_all: list.index($breakpoint_names, $breakpoint);
+					$next_breakpoint: list.nth($breakpoint_names, $this_index_in_all + 1);
+				} @else {
+					$next_breakpoint: list.nth(map.keys($specs), $this_index + 1);
+				}
+				
+				$font_size_value: map.get($properties, size);
+				
+				@if meta.type_of($font_size_value) == calculation {
+					$font_size_calc_list: meta.calc_args($font_size_value);
+					$font_size_calc_low: list.nth($font_size_calc_list, 1);
+					$font_size_calc_high: list.nth($font_size_calc_list, 3);
+					
+					$position_low: 1 - calc(
+						($signature_high - $font_size_calc_low) / ($signature_high - $signature_low)
+					);
+					$position_high: 1 - calc(
+						($signature_high - $font_size_calc_high) / ($signature_high - $signature_low)
+					);
+					
+					@each $property_name, $property_extremes in $font_properties {
+						$property_low: list.nth($property_extremes, 1);
+						$property_high: list.nth($property_extremes, 2);
+						
+						$this_property_low: (
+							(($property_high - $property_low) * $position_low) + $property_low
+						);
+						$this_property_high: (
+							(($property_high - $property_low) * $position_high) + $property_low
+						);
+						$very_fancy_props: _boil_fancy_props((
+							$breakpoint: $this_property_low,
+							$next_breakpoint: $this_property_high,
+						));
+						
+						$boiled: map.set($boiled, $signature, $selector, $breakpoint, $property_name, $very_fancy_props);
+					}
+				}
+			}
+		}
+	}
+	
+	@return $boiled;
+}
+
+
+/// Merge font size extremes into global settings
+/// @param {map} $sizes
+/// @return {boolean} *
+@function _update_font_size_extremes($sizes) {
+	@if not cc.get($_signature_font_size_extremes_key) {
+		$ok: cc.setf($_signature_font_size_extremes_key, ());
+	}
+	
+	$ok: cc.setf($_signature_font_size_extremes_key, map.deep_merge(
+		cc.get($_signature_font_size_extremes_key),
+		$sizes
+	));
+	
+	@return true;
 }
 
 
@@ -155,274 +616,70 @@
 /// )
 /// 
 /// @param {map} $font_sizes
-@mixin parabolic_font_sizes($font_sizes, $property: 'font-size') {
-	@each $selector, $sizes in $font_sizes {
-		
-		// Size is formatted as a single value
-		// Example: (h1: 24px,)
-		@if meta.type_of($sizes) == number {
-			#{$selector} {
-				#{$property}: $sizes;
-			}
-		}
-		
-		// Sizes are formatted in a list, using default settings for font scaling
-		// breakpoints ($font_scale_breakpoint_min, $font_scale_breakpoint_max),
-		// or as a map with explicity defined breakpoints
-		// 
-		// Examples: (
-		//   h1: 24px 36px,
-		//   h2: (
-		//     sm: 24px,
-		//     md: 32px [fixed],
-		//     lg: 42px [snap 24px],
-		//     xl: 36px,
-		//     signature: FONT_SANS_BOLD_UPPER,
-		//   ),
-		//   h4: (
-		//     size: 24px 32px,
-		//     signature: FONT_SANS_LIGHT,
-		//   ),
-		// ),
-		@else {
-			@if meta.type_of($sizes) == list {
-				$sizes: _convert_font_size_list_to_map($sizes);
-			}
-			
-			$signature: default;
-			@if map.has_key($sizes, signature) {
-				$signature: map.get($sizes, signature);
-				$sizes: map.remove($sizes, signature);
-			}
-			
-			@if
-				map.has_key($sizes, size)
-				and meta.type_of(map.get($sizes, size)) == list
-			{
-				$sizes: _convert_font_size_list_to_map(map.get($sizes, size));
-			}
-			
-			$is_integer: util.is_zero(util.map_first_value($sizes) % 1);
-			$sizes: util.create_intermediate_sizes($sizes, $is_integer);
-			$size_count: list.length(map.keys($sizes));
-			
-			// Create map of multiples of each value in relation to first value
-			$factors: _factor_map($sizes);
-			
-			$font_properties: map.get(cc.get(all_font_properties), $signature);
-			@if $font_properties == null {
-				$font_properties: ();
-				@warn 'Undefined font signature: #{$signature}';
-			}
-			
-			// TODO: this probably won't work with keywords
-			$first_font_size: util.map_first_value($sizes);
-			$last_font_size: util.map_last_value($sizes);
-			
-			// Make all property units match font units
-			@each $propery_name, $property_values in $font_properties {
-				@if math.is_unitless(list.nth($property_values, 1)) {
-					@if list.length($property_values) == 1 {
-						$property_values: list.append($property_values, list.nth($property_values, 1));
-					}
-					$px_props: (
-						list.nth($property_values, 1) * $first_font_size,
-						list.nth($property_values, 2) * $last_font_size,
-					);
-					$font_properties: map.set($font_properties, $propery_name, $px_props);
-				}
-				
-				@else {
-					$unit_prop: math.unit(list.nth($property_values, 1));
-					$unit_font: math.unit($first_font_size);
-					@if $unit_prop != $unit_font {
-						$font_unit_props: ();
-						@each $item in $property_values {
-							$converted: util.convert_units($item, $from: $unit_prop, $to: $unit_font);
-							$font_unit_props: list.append($font_unit_props, $converted);
-						}
-						$font_properties: map.set($font_properties, $propery_name, $font_unit_props);
-					}
-				}
-			}
-			
-			// Use factors to create intermediate values for font properties
-			$nice_properties: ();
-			
-			// Min is always 1, because it's the first value divided by itself
-			$min_factor: util.map_first_value($factors);
-			$max_factor: util.map_last_value($factors);
-			
-			@each $propery_name, $property_values in $font_properties {
-				$min_prop: list.nth($property_values, 1);
-				$max_prop: list.nth($property_values, 2);
-				@each $factor_key, $factor_value in $factors {
-					$interpolated_value: null;
-					
-					@if meta.type_of($factor_value) == list {
-						$keyword: list.nth($factor_value, 2);
-						@if $keyword == fixed {
-							$factor_value: list.nth($factor_value, 1);
-							$a: _factor_into_value($factor_value, $min_factor, $max_factor, $min_prop, $max_prop);
-							$interpolated_value: $a fixed;
-						} @else if $keyword == snap {
-							$val_a: list.nth($factor_value, 1);
-							$val_b: list.nth($factor_value, 3);
-							$a: _factor_into_value($val_a, $min_factor, $max_factor, $min_prop, $max_prop);
-							$b: _factor_into_value($val_b, $min_factor, $max_factor, $min_prop, $max_prop);
-							$interpolated_value: $a snap $b;
-						}
-					} @else {
-						$interpolated_value: _factor_into_value($factor_value, $min_factor, $max_factor, $min_prop, $max_prop);
-					}
-					
-					$css_prop: _convert_property_name_to_css($propery_name);
-					$nice_properties: map.set($nice_properties, $css_prop, $factor_key, $interpolated_value);
-				}
-			}
-			
-			$size_index: 1;
-			@each $breakpoint, $size in $sizes {
-				@if
-					meta.type_of($size) == list
-					and list.nth($size, 2) == fixed
-				{
-					@include b($breakpoint) {
-						#{$selector} {
-							#{$property}: list.nth($size, 1);
-							@each $k, $v in $nice_properties {
-								#{$k}: map.get($v, $breakpoint);
-							}
-						}
-					}
-				}
-				
-				// Output a basic font size for a single defined breakpoint
-				@else if $size_count == 1 {
-					@include b($breakpoint) {
-						#{$selector} {
-							#{$property}: $size;
-							@each $k, $v in $nice_properties {
-								#{$k}: map.get($v, $breakpoint);
-							}
-						}
-					}
-				}
-				
-				// For multiple input sizes, we skip the last entry, because either:
-				// - its value is already accounted for in the clamp() that starts
-				//   with the second-to-last entry and defines a maximum size that is
-				//   equal to the size on the largest breakpoint
-				// - or the size of the last entry is fixed, in which case the it has
-				//   already been included by the simple check for fixed values above
-				@else if $size_index < $size_count {
-					$next_breakpoint: list.nth(map.keys($sizes), $size_index + 1);
-					$next_size: list.nth(map.values($sizes), $size_index + 1);
-					
-					$next_props: ();
-					@each $kk, $vv in $nice_properties {
-						$next_prop: list.nth(map.values($vv), $size_index + 1);
-						$next_props: map.set($next_props, $kk, $next_prop);
-					}
-					
-					// If size includes any keywords, isolate first size value
-					@if meta.type_of($next_size) == list {
-						$next_size: list.nth($next_size, 1);
-					}
-					
-					// If size includes snap keyword, use second size as minimum
-					@if (
-						meta.type_of($size) == list
-						and list.nth($size, 2) == snap
-					) {
-						$size: list.nth($size, 3);
-					}
-					
-					$fancy_as_fuck_font_size: _fancy_font_size((
-						$breakpoint: $size,
-						$next_breakpoint: $next_size,
-					));
-					
-					$fancy_properties: ();
-					@each $p, $pv in $nice_properties {
-						$this_property: map.get($nice_properties, $p, $breakpoint);
-						$next_property: map.get($next_props, $p);
-						
-						@if (
-							meta.type_of($this_property) == list
-							and list.nth($this_property, 2) == snap
-						) {
-							$this_property: list.nth($this_property, 3);
-						}
-						
-						// If property includes any keywords, isolate first property value
-						@if meta.type_of($next_property) == list {
-							$next_property: list.nth($next_property, 1);
-						}
+@mixin parabolic_font_sizes($font_sizes) {
+	$boiled_sizes: _boil_font_sizes($font_sizes);
+	$first_breakpoint_name: util.map_first_key($breakpoints);
 	
-						$fancy_property: _fancy_font_size((
-							$breakpoint: $this_property,
-							$next_breakpoint: $next_property,
-						));
-						$fancy_properties: map.set($fancy_properties, $p, $fancy_property);
-					}
-					
-					// Use between operator to isolate font sizes to each breakpoint
-					// range, rather than overriding them at every breakpoint
-					$use_between_operator: true;
-					
-					// Use regular >= operator for second-to-last breakpoint, because
-					// there is no media query after it that sets a fixed size
-					$is_second_to_last_breakpoint: $size_index == $size_count - 1;
-					
-					// For the first size, since we're using clamp to set the minimum
-					// size, which may occur at a breakpoint that's not zero, we should
-					// not included a media query
-					@if $size_index == 1 {
-						#{$selector} {
-							#{$property}: $fancy_as_fuck_font_size;
-							@each $fancy_key, $fancy_value in $fancy_properties {
-								#{$fancy_key}: $fancy_value;
-							}
+	@each $signature, $selectors in $boiled_sizes {
+		@each $selector, $specs in $selectors {
+			$prop_count: list.length(map.keys($specs));
+			$prop_index: 1;
+			
+			@each $breakpoint, $properties in $specs {
+				$media_query: null;
+				
+				// Use between operator to isolate font sizes to each breakpoint
+				// range, rather than overriding them at every breakpoint
+				$use_between_operator: true;
+				
+				// Use regular >= operator for second-to-last breakpoint, because
+				// there is no media query after it that sets a fixed size
+				$is_second_to_last_breakpoint: $prop_index == $prop_count - 1;
+				
+				// For the first size, since we're using clamp to set the minimum
+				// size, which may occur at a breakpoint that's not zero, we should
+				// not included a media query ($first_breakpoint_name effectively
+				// creates no media query)
+				@if $prop_index == 1 {
+					$media_query: $first_breakpoint_name;
+				} @else {
+					@if
+						$use_between_operator
+						and not $is_second_to_last_breakpoint
+					{
+						$next_smallest_breakpoint: grid.find_next_smallest_breakpoint(
+							map.keys($specs), $breakpoint
+						);
+						$media_query: '>< #{$breakpoint} #{$next_smallest_breakpoint}';
+						@if $breakpoint == $next_smallest_breakpoint {
+							$media_query: '= #{$breakpoint}';
 						}
 					} @else {
-						@if
-							$use_between_operator
-							and not $is_second_to_last_breakpoint
-						{
-							$next_smallest_breakpoint: grid.find_next_smallest_breakpoint(
-								map.keys($sizes), $breakpoint
-							);
-							@include b('>< #{$breakpoint} #{$next_smallest_breakpoint}') {
-								#{$selector} {
-									#{$property}: $fancy_as_fuck_font_size;
-									@each $fancy_key, $fancy_value in $fancy_properties {
-										#{$fancy_key}: $fancy_value;
-									}
-		
-								}
-							}
-						} @else {
-							@include b($breakpoint) {
-								#{$selector} {
-									#{$property}: $fancy_as_fuck_font_size;
-									@each $fancy_key, $fancy_value in $fancy_properties {
-										#{$fancy_key}: $fancy_value;
-									}
-		
-								}
-							}
+						$media_query: $breakpoint;
+					}
+				}
+				
+				@include b($media_query) {
+					#{$selector} {
+						@each $key, $value in $properties {
+							$css_prop: _convert_property_name_to_css($key);
+							$value: util.truncate_clamp($value);
+							#{$css_prop}: $value;
 						}
 					}
 				}
 				
-				$size_index: $size_index + 1;
+				$prop_index: $prop_index + 1;
 			}
 		}
 	}
 }
 
 
+/// Create map of multiples of each value in relation to first value
+/// TODO: this might be unused, which would be a shame
+/// @param {map} $sizes
+/// @return {map} *
 @function _factor_map($sizes) {
 	$factors: ();
 	$first_size: util.map_first_value($sizes);
@@ -447,12 +704,20 @@
 }
 
 
+/// Perform a very important calculation
+/// TODO: which would mean that this is also unused, what a waste
+/// @param {number} $factor_value
+/// @param {number} $min_factor
+/// @param {number} $max_factor
+/// @param {number} $min_prop
+/// @param {number} $max_prop
+/// @return {number} *
 @function _factor_into_value($factor_value, $min_factor, $max_factor, $min_prop, $max_prop) {
 	@if ($max_factor - $min_factor) == 0 {
 		@return $min_prop;
 	}
-	$how_far_along: (1 - calc(
+	$position: (1 - calc(
 		($max_factor - $factor_value) / ($max_factor - $min_factor)
 	));
-	@return (($max_prop - $min_prop) * $how_far_along) + $min_prop;
+	@return (($max_prop - $min_prop) * $position) + $min_prop;
 }
