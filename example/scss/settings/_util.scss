@@ -1,0 +1,13 @@
+@use 'sass:map';
+
+
+/// Merge multiple maps
+/// @param {map} $maps
+/// @return {map} *
+@function map_collect($maps...) {
+  $collection: ();
+  @each $map in $maps {
+    $collection: map.merge($collection, $map);
+  }
+  @return $collection;
+}
