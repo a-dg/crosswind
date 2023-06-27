@@ -453,8 +453,8 @@ $_css_property_shorthand: (
 				$sizes: _convert_font_size_list_to_map(map.get($sizes, size));
 			}
 			
-			$is_integer: util.is_zero(util.map_first_value($sizes) % 1);
-			$sizes: util.create_intermediate_sizes($sizes, $is_integer);
+			// $is_integer: util.is_zero(util.map_first_value($sizes) % 1);
+			$sizes: util.create_intermediate_sizes($sizes, false);
 			$size_count: list.length(map.keys($sizes));
 			
 			// Gather the smallest and largest font sizes for this signature, which
