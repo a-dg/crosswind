@@ -642,49 +642,45 @@ $_css_property_shorthand: (
 			$prop_index: 1;
 			
 			@each $breakpoint, $properties in $specs {
+				$media_query: null;
 				
-				// Skip the last breakpoint, for reasons outlined in many other places
-				@if $prop_index < $prop_count {
-					$media_query: null;
-					
-					// Use between operator to isolate font sizes to each breakpoint
-					// range, rather than overriding them at every breakpoint
-					$use_between_operator: true;
-					
-					// Use regular >= operator for second-to-last breakpoint, because
-					// there is no media query after it that sets a fixed size
-					$is_second_to_last_breakpoint: $prop_index == $prop_count - 1;
-					
-					// For the first size, since we're using clamp to set the minimum
-					// size, which may occur at a breakpoint that's not zero, we should
-					// not included a media query ($first_breakpoint_name effectively
-					// creates no media query)
-					@if $prop_index == 1 {
-						$media_query: $first_breakpoint_name;
-					} @else {
-						@if
-							$use_between_operator
-							and not $is_second_to_last_breakpoint
-						{
-							$next_smallest_breakpoint: grid.find_next_smallest_breakpoint(
-								map.keys($specs), $breakpoint
-							);
-							$media_query: '>< #{$breakpoint} #{$next_smallest_breakpoint}';
-							@if $breakpoint == $next_smallest_breakpoint {
-								$media_query: '= #{$breakpoint}';
-							}
-						} @else {
-							$media_query: $breakpoint;
+				// Use between operator to isolate font sizes to each breakpoint
+				// range, rather than overriding them at every breakpoint
+				$use_between_operator: true;
+				
+				// Use regular >= operator for second-to-last breakpoint, because
+				// there is no media query after it that sets a fixed size
+				$is_second_to_last_breakpoint: $prop_index == $prop_count - 1;
+				
+				// For the first size, since we're using clamp to set the minimum
+				// size, which may occur at a breakpoint that's not zero, we should
+				// not included a media query ($first_breakpoint_name effectively
+				// creates no media query)
+				@if $prop_index == 1 {
+					$media_query: $first_breakpoint_name;
+				} @else {
+					@if
+						$use_between_operator
+						and not $is_second_to_last_breakpoint
+					{
+						$next_smallest_breakpoint: grid.find_next_smallest_breakpoint(
+							map.keys($specs), $breakpoint
+						);
+						$media_query: '>< #{$breakpoint} #{$next_smallest_breakpoint}';
+						@if $breakpoint == $next_smallest_breakpoint {
+							$media_query: '= #{$breakpoint}';
 						}
+					} @else {
+						$media_query: $breakpoint;
 					}
-					
-					@include b($media_query) {
-						#{$selector} {
-							@each $key, $value in $properties {
-								$css_prop: _convert_property_name_to_css($key);
-								$value: util.truncate_clamp($value);
-								#{$css_prop}: $value;
-							}
+				}
+				
+				@include b($media_query) {
+					#{$selector} {
+						@each $key, $value in $properties {
+							$css_prop: _convert_property_name_to_css($key);
+							$value: util.truncate_clamp($value);
+							#{$css_prop}: $value;
 						}
 					}
 				}
