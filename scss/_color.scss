@@ -24,7 +24,15 @@ $_inset_variant_keyword: apply;
 /// @param {string} $name
 /// @return {string} *
 @function color_css_var($name) {
-	@return --#{$color_variable_prefix}-#{util.replace(#{$name}, '_', '-')};
+	@return --#{$color_variable_prefix}-#{_color_css($name)};
+}
+
+
+/// Format color name for use in CSS
+/// @param {string} $name
+/// @return {string} *
+@function _color_css($name) {
+	@return util.replace(#{$name}, '_', '-');
 }
 
 
@@ -40,11 +48,13 @@ $_inset_variant_keyword: apply;
 }
 
 
-/// Get color by name, optionally from a specific variant
+/// Get CSS color by name, optionally from a specific variant, either as CSS
+/// variable, or as raw color value
 /// @param {string | color} $color_name
 /// @param {string | color} $variant_name
-/// @return {string} CSS color variable
-@function color($color_name, $variant_name: null) {
+/// @param {boolean} $as_raw
+/// @return {string | color} CSS color variable
+@function color($color_name, $variant_name: null, $as_raw: false) {
 	@if meta.type_of($color_name) == color {
 		$color_name: '' + $color_name;
 	}
@@ -62,7 +72,20 @@ $_inset_variant_keyword: apply;
 		$color_name: #{cc.get(variants, #{$variant_name}, #{$color_name})};
 	}
 	
-	@return var(color_css_var($color_name));
+	@return if(
+		$as_raw,
+		cc.get(colors, #{$color_name}),
+		var(color_css_var($color_name))
+	);
+}
+
+
+/// Get raw color value by name, optionally from a specific variant
+/// @param {string | color} $color_name
+/// @param {string | color} $variant_name
+/// @return {color} *
+@function color_raw($color_name, $variant_name: null) {
+	@return color($color_name, $variant_name, true);
 }
 
 
@@ -187,7 +210,7 @@ $_inset_variant_keyword: apply;
 /// Assign specific variant
 /// @param {string} $name
 @mixin variant($name) {
-	$variant_map: map.get(cc.get(variants), #{$name});
+	$variant_map: map.get(cc.get(variants), #{'' + $name});
 	@each $key, $value in $variant_map {
 		@include create_color_css_var($key, $value);
 	}
