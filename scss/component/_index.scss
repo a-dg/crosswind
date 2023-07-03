@@ -364,9 +364,8 @@
 .f {
 	display: flex;
 	justify-content: space-between;
-	gap: grid.gutter(x, $caller: '.f');
-	padding-top: grid.gutter(y, $caller: '.f');
-	padding-bottom: grid.gutter(y, $caller: '.f');
+	gap: 0 grid.gutter(x, $caller: '.f');
+	padding-block: grid.gutter(y, $caller: '.f');
 }
 .f-item {
 	flex: 0 1 160px;
