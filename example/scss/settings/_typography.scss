@@ -10,10 +10,10 @@ $settings: (
 	font_scale_breakpoint_min: sm,
 	font_scale_breakpoint_max: lg,
 	
-	base_font_size: 16px,
+	font_size_base: 16px,
 	
 	// TODO: allow defining them here without writing out their rules automatically, so they can be applied arbitrarily to elements (similar to @include all_font_sizes(h1))
-	all_font_sizes: (
+	font_sizes: (
 		h1: (
 			sm: 20px,
 			// ch: 36px fixed,
@@ -54,7 +54,7 @@ $settings: (
 		// ),
 	),
 	
-	all_font_properties: (
+	font_properties: (
 		default: (
 			leading: 5.5 1.3,
 		),

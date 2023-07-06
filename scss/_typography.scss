@@ -155,7 +155,7 @@ $_css_property_shorthand: (
 /// @param {map} $sizes
 /// @return {map} *
 @function _get_props_for_sig($signature, $sizes) {
-	$font_properties: map.get(cc.get(all_font_properties), $signature);
+	$font_properties: map.get(cc.get(font_properties), $signature);
 	@if $font_properties == null {
 		$font_properties: ();
 		@warn 'Undefined font signature: #{$signature}';
@@ -736,4 +736,21 @@ $_css_property_shorthand: (
 		($max_factor - $factor_value) / ($max_factor - $min_factor)
 	));
 	@return (($max_prop - $min_prop) * $position) + $min_prop;
+}
+
+
+/// Get font stack
+/// @param {string} $family
+/// @param {string} $stack
+/// @return {list} *
+@function font($family, $stack: null) {
+	$families: cc.get(font_families);
+	@if not $stack {
+		$stack: util.map_first_key($families);
+	}
+	@return list.join(
+		(map.get($families, $family)),
+		map.get($families, stack),
+		$separator: comma
+	);
 }
