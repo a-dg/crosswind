@@ -167,7 +167,7 @@ $_inset_variant_keyword: apply;
 @mixin define_variant_classes {
 	$updated_variants: ();
 	@each $variant_name, $variant_map in cc.get(variants) {
-		.v-#{'' + $variant_name} {
+		.#{cc.get(variant_class_prefix)}-#{'' + $variant_name} {
 			$result: _build_variant_map($variant_map);
 			$updated_variants: map.set($updated_variants, variants, $variant_name, $result);
 			@each $key, $value in $result {
@@ -251,7 +251,7 @@ $_inset_variant_keyword: apply;
 	@include _create_inset_variant_css_var($default_variant);
 	
 	@each $variant_name, $variant_map in cc.get(variants) {
-		.v-#{'' + $variant_name} {
+		.#{cc.get(variant_class_prefix)}-#{'' + $variant_name} {
 			@include _create_inset_variant_css_var($variant_map);
 		}
 	}
@@ -273,7 +273,7 @@ $_inset_variant_keyword: apply;
 			$variant_name: list.nth($value, 2);
 			$inset_map: map.get(cc.get(variants), #{$variant_name});
 			
-			.v-#{$key} {
+			.#{cc.get(variant_class_prefix)}-#{$key} {
 				@each $inset_key, $inset_value in $inset_map {
 					@include create_color_css_var($inset_key, $inset_value);
 				}
