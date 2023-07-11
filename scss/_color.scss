@@ -5,6 +5,7 @@
 @use 'sass:color';
 
 @use 'config' as cc;
+@use 'variant';
 @use 'util';
 
 
@@ -20,7 +21,24 @@ $_inset_variant_keyword: apply;
 
 
 
+@mixin init_color {
+	@include cc.set(colors, _convert_raw_color_keys(cc.get(colors)));
+	@include cc.set(variants, variant.convert_variant_keys(cc.get(variants)));
+	
+	@include _check_variant_keys();
+	
+	$transparent_colors: _create_transparent_variant_colors();
+	@include cc.set(colors, map.deep_merge(cc.get(colors), map.get($transparent_colors, colors)));
+	@include cc.set(variants, map.deep_merge(cc.get(variants), map.get($transparent_colors, variants)));
+	
+	@include _define_color_variables();
+	@include _define_variant_classes();
+	@include _define_inset_variants();
+}
+
+
 /// Format color name as CSS variable
+/// TODO: could be made private
 /// @param {string} $name
 /// @return {string} *
 @function color_css_var($name) {
@@ -39,7 +57,7 @@ $_inset_variant_keyword: apply;
 /// Convert raw color keys to strings
 /// @param {map} $colors
 /// @return {map} *
-@function convert_raw_color_keys($colors) {
+@function _convert_raw_color_keys($colors) {
 	$normalized_colors: ();
 	@each $key, $value in $colors {
 		$normalized_colors: map.set($normalized_colors, '' + $key, $value);
@@ -90,7 +108,7 @@ $_inset_variant_keyword: apply;
 
 
 // Warn if color key is defined in variant that is not in the default
-@mixin check_variant_keys {
+@mixin _check_variant_keys {
 	$default_key: _get_default_variant(true);
 	$default_variant: _get_default_variant();
 	@each $variant_name, $variant_map in cc.get(variants) {
@@ -107,7 +125,7 @@ $_inset_variant_keyword: apply;
 
 
 // Create new colors for variant values with opacity
-@function create_transparent_variant_colors() {
+@function _create_transparent_variant_colors() {
 	$new_colors: ();
 	$new_variants: ();
 	
@@ -150,32 +168,32 @@ $_inset_variant_keyword: apply;
 
 
 /// Define raw colors and default variant colors
-@mixin define_color_variables {
+@mixin _define_color_variables {
 	$default_variant: _get_default_variant();
 	:root {
 		@each $key, $value in cc.get(colors) {
 			#{color_css_var($key)}: #{$value};
 		}
 		@each $key, $value in $default_variant {
-			@include create_color_css_var($key, $value);
+			@include _create_color_css_var($key, $value);
 		}
 	}
 }
 
 
 /// Define all variant classes
-@mixin define_variant_classes {
+@mixin _define_variant_classes {
 	$updated_variants: ();
 	@each $variant_name, $variant_map in cc.get(variants) {
 		.#{cc.get(variant_class_prefix)}-#{'' + $variant_name} {
 			$result: _build_variant_map($variant_map);
 			$updated_variants: map.set($updated_variants, variants, $variant_name, $result);
 			@each $key, $value in $result {
-				@include create_color_css_var($key, $value);
+				@include _create_color_css_var($key, $value);
 			}
 		}
 	}
-	@include cc.set_deep($updated_variants);
+	@include cc.set($updated_variants);
 }
 
 
@@ -212,7 +230,7 @@ $_inset_variant_keyword: apply;
 @mixin variant($name) {
 	$variant_map: map.get(cc.get(variants), #{'' + $name});
 	@each $key, $value in $variant_map {
-		@include create_color_css_var($key, $value);
+		@include _create_color_css_var($key, $value);
 	}
 }
 
@@ -225,6 +243,18 @@ $_inset_variant_keyword: apply;
 		meta.type_of($value) == list
 		and list.index($value, $_inset_variant_keyword)
 	);
+}
+
+
+/// Get default variant name or value
+/// @param {boolean} $key_only
+/// @return {string | map} *
+@function _get_default_variant($key_only: false) {
+	@if $key_only {
+		@return util.map_first_key(cc.get(variants));
+	}
+	
+	@return util.map_first_value(cc.get(variants));
 }
 
 
@@ -246,7 +276,7 @@ $_inset_variant_keyword: apply;
 ///   text: white,
 ///   inverse: apply white, <- Refers to the variant named "white"
 /// ),
-@mixin define_inset_variants {
+@mixin _define_inset_variants {
 	$default_variant: _get_default_variant();
 	@include _create_inset_variant_css_var($default_variant);
 	
@@ -258,15 +288,6 @@ $_inset_variant_keyword: apply;
 }
 
 
-@function _get_default_variant($key_only: false) {
-	@if $key_only {
-		@return util.map_first_key(cc.get(variants));
-	}
-	
-	@return util.map_first_value(cc.get(variants));
-}
-
-
 @mixin _create_inset_variant_css_var($variant_map) {
 	@each $key, $value in $variant_map {
 		@if _is_inset_variant($value) {
@@ -275,7 +296,7 @@ $_inset_variant_keyword: apply;
 			
 			.#{cc.get(variant_class_prefix)}-#{$key} {
 				@each $inset_key, $inset_value in $inset_map {
-					@include create_color_css_var($inset_key, $inset_value);
+					@include _create_color_css_var($inset_key, $inset_value);
 				}
 			}
 		}
@@ -283,7 +304,7 @@ $_inset_variant_keyword: apply;
 }
 
 
-@mixin create_color_css_var($key, $value) {
+@mixin _create_color_css_var($key, $value) {
 	@if _is_creatable_color($key, $value) {
 		#{color_css_var($key)}: #{color($value)};
 	}

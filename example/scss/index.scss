@@ -4,6 +4,6 @@
 @use 'settings';
 
 
-@include crosswind.setup(settings.$all_settings);
+@include crosswind.init(settings.$all_settings);
 
 @include meta.load_css('app');

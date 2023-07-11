@@ -20,6 +20,11 @@ $_css_property_shorthand: (
 );
 
 
+@mixin init_typography {
+	@include parabolic_font_sizes(cc.get(font_sizes));
+}
+
+
 /// Generate clamp calculation for specific breakpoint range
 /// 
 /// Usage for linear scaling:
@@ -681,6 +686,8 @@ $_css_property_shorthand: (
 							$css_prop: _convert_property_name_to_css($key);
 							$value: util.truncate_clamp($value);
 							#{$css_prop}: $value;
+							// TODO: does not work with 0 or single value
+							// TODO: fixed font size doesn't work with tracking
 						}
 					}
 				}

@@ -1,4 +1,5 @@
 @use 'sass:map';
+@use 'sass:meta';
 
 
 $settings: ();
@@ -12,11 +13,15 @@ $settings: ();
 }
 
 
-/// Assign value to setting key
-/// @param {string} $key
+/// Assign value to setting key, or merge map
+/// @param {string | map} $key
 /// @param {mixed} $value
-@mixin set($key, $value) {
-	$settings: map.set($settings, $key, $value) !global;
+@mixin set($key, $value: null) {
+	@if meta.type_of($key) == map {
+		$settings: map.deep_merge($settings, $key) !global;
+	} @else {
+		$settings: map.set($settings, $key, $value) !global;
+	}
 }
 
 
@@ -27,11 +32,4 @@ $settings: ();
 @function setf($key, $value) {
 	$settings: map.set($settings, $key, $value) !global;
 	@return true;
-}
-
-
-/// Assign map to settings
-/// @param {map} $map
-@mixin set_deep($map) {
-	$settings: map.deep_merge($settings, $map) !global;
 }

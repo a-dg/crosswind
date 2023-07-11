@@ -1,0 +1,45 @@
+@forward 'color';
+@forward 'variant';
+@forward 'grid';
+@forward 'typography';
+
+@use 'sass:map';
+@use 'sass:meta';
+
+@use '../lib/breakbeat/scss' as breakbeat;
+@use 'config' as cc;
+@use 'reset';
+@use 'color';
+@use 'variant';
+@use 'grid';
+@use 'typography';
+
+
+@mixin init($settings) {
+	@include cc.set($settings);
+	
+	$_breakpoints: grid.create_breakpoints(
+		$names: cc.get(breakpoint_names),
+		$start: cc.get(breakpoint_width_min),
+		$end: cc.get(breakpoint_width_max),
+		$curve: cc.get(breakpoint_scale_curve),
+		$additional: cc.get(breakpoint_additions),
+		$round_to: cc.get(breakpoint_rounding)
+	);
+	
+	// TODO: make all params optional
+	@include breakbeat.configure((
+		breakpoints: $_breakpoints,
+		output_em_queries: cc.get(output_em_queries),
+		output_query_comments: cc.get(output_query_comments),
+		// global_font_size: cc.get(global_font_size),
+		// height_breakpoints_key: cc.get(height_breakpoints_key),
+	));
+	
+	
+	@include grid.init_grid;
+	@include color.init_color;
+	@include reset.reset;
+	@include typography.init_typography;
+	// @debug closest_font_size($all_font_sizes, 32px);
+}

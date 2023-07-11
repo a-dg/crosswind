@@ -41,6 +41,13 @@ $_gutter: ();
 
 
 
+@mixin init_grid {
+	@include _gutter_settings();
+	@include _set_max();
+	@include _set_gutter_flexible();
+	@include _set_gutter_by_type();
+}
+
 
 // TODO: keep clamp values separated as long as possible, so they can be used
 // individually for calculations (or figure out how to separate them)
@@ -450,13 +457,13 @@ $_gutter: ();
 }
 
 
-@mixin set_max {
+@mixin _set_max {
 	$content_max_width: map.get($breakpoints, cc.get(content_max_width_breakpoint)) !global;
 	$content_max_width_extended: map.get($breakpoints, cc.get(content_max_width_extended_breakpoint)) !global;
 }
 
 
-@mixin set_gutter_by_type {
+@mixin _set_gutter_by_type {
 	$_gutter: map.get((
 		fixed: $gutter_fixed,
 		stepped: $gutter_stepped,
@@ -465,7 +472,7 @@ $_gutter: ();
 }
 
 
-@mixin set_gutter_flexible {
+@mixin _set_gutter_flexible {
 	$flexible_gutter_values: cc.get(gutter_flexible);
 	
 	@each $key, $value in $flexible_gutter_values {
@@ -885,7 +892,7 @@ $_gutter: ();
 }
 
 
-@mixin gutter_settings {
+@mixin _gutter_settings {
 	
 	// @debug 'cc.get(gutter_base_x) (#{meta.type_of(cc.get(gutter_base_x))}):';
 	// @debug cc.get(gutter_base_x);
