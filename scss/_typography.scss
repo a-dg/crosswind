@@ -69,7 +69,7 @@ $_css_property_shorthand: (
 		$max: $min_swap;
 	}
 	
-	@return clamp($min, $size_preferred, $max);
+	@return clamp(math.round($min), $size_preferred, math.round($max));
 }
 
 
@@ -413,10 +413,14 @@ $_css_property_shorthand: (
 @function _boil_font_sizes($font_sizes) {
 	$boiled: ();
 	$first_breakpoint_name: util.map_first_key($breakpoints);
+	$default_signature_name: util.map_first_key(cc.get(font_properties));
 	
 	@each $selector, $sizes in $font_sizes {
-		$signature: default;
-		@if map.has_key($sizes, signature) {
+		$signature: $default_signature_name;
+		@if
+			meta.type_of($sizes) == map
+			and map.has_key($sizes, signature)
+		{
 			$signature: map.get($sizes, signature);
 			$sizes: map.remove($sizes, signature);
 		}
@@ -573,6 +577,8 @@ $_css_property_shorthand: (
 				@each $property_name, $property_extremes in $font_properties {
 					$property_low: list.nth($property_extremes, 1);
 					$property_high: list.nth($property_extremes, 2);
+					
+					// TODO: this does not work when font size goes down as viewport gets wider
 					
 					$this_property_low: (
 						(($property_high - $property_low) * $position_low) + $property_low

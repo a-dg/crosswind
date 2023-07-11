@@ -293,6 +293,21 @@
 	$most_key: null;
 	$most_value: null;
 	@each $key, $value in $source {
+		@if meta.type_of($value) == list {
+			$list_values: ();
+			@each $item in $value {
+				@if meta.type_of($item) == number {
+					$list_values: list.append($list_values, $item);
+				}
+			}
+			@if $type == lowest {
+				$value: math.min($list_values...);
+			} 
+			@if $type == highest {
+				$value: math.max($list_values...);
+			} 
+		}
+		
 		@if
 			$most_value == null
 			or ($type == lowest and $value < $most_value)
