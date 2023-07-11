@@ -186,7 +186,7 @@ $_inset_variant_keyword: apply;
 	$updated_variants: ();
 	@each $variant_name, $variant_map in cc.get(variants) {
 		.#{cc.get(variant_class_prefix)}-#{'' + $variant_name} {
-			$result: _build_variant_map($variant_map);
+			$result: _build_variant_map($variant_name, $variant_map);
 			$updated_variants: map.set($updated_variants, variants, $variant_name, $result);
 			@each $key, $value in $result {
 				@include _create_color_css_var($key, $value);
@@ -201,27 +201,35 @@ $_inset_variant_keyword: apply;
 /// @param {map} $variant_map
 /// @param {boolean} $is_default
 /// @return {map} *
-@function _build_variant_map($variant_map, $is_default: false) {
+@function _build_variant_map($variant_name, $variant_map) {
 	$map: ();
 	@each $key, $value in $variant_map {
-		@if _is_creatable_color($key, $value) {
+		@if $key != inherit {
 			$map: map.set($map, $key, $value);
 		}
 	}
 	
 	// Get properties from next parent variant up the inheritance chain, unless
 	// we've already arrived at the default variant
-	@if not $is_default {
+	$default_variant: _get_default_variant(true);
+	@if $variant_name != $default_variant {
 		$inherit_name: map.get($variant_map, inherit);
 		@if not $inherit_name {
-			$inherit_name: _get_default_variant(true);
-			$is_default: true;
+			$inherit_name: $default_variant;
 		}
 		$inherit_map: map.get(cc.get(variants), #{$inherit_name});
-		$map: map.merge(_build_variant_map($inherit_map, $is_default), $map);
+		$map: map.merge(_build_variant_map($inherit_name, $inherit_map), $map);
 	}
 	
 	@return $map;
+	
+	
+	// TODO: allow applying semantic colors from within the same variant, or
+	// parent variant, like "link_default: apply button_primary_default_bg"
+	
+	// TODO: allow applying subvariant for a variant key, like "link_default:
+	// apply dark", where "dark" is the name of a different variant that this
+	// variant does NOT inherit from
 }
 
 
@@ -278,6 +286,9 @@ $_inset_variant_keyword: apply;
 /// ),
 @mixin _define_inset_variants {
 	$default_variant: _get_default_variant();
+	
+	// Create default variant variables outside of parent class
+	// (for example: ".v-inverse" instead of ".v-default .v-inverse")
 	@include _create_inset_variant_css_var($default_variant);
 	
 	@each $variant_name, $variant_map in cc.get(variants) {
@@ -291,8 +302,8 @@ $_inset_variant_keyword: apply;
 @mixin _create_inset_variant_css_var($variant_map) {
 	@each $key, $value in $variant_map {
 		@if _is_inset_variant($value) {
-			$variant_name: list.nth($value, 2);
-			$inset_map: map.get(cc.get(variants), #{$variant_name});
+			$inset_name: list.nth($value, 2);
+			$inset_map: map.get(cc.get(variants), #{$inset_name});
 			
 			.#{cc.get(variant_class_prefix)}-#{$key} {
 				@each $inset_key, $inset_value in $inset_map {
