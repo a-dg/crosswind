@@ -546,7 +546,7 @@ $_gutter: ();
 }
 
 
-/// Define responsive layout
+/// Define responsive grid layout
 /// 
 /// For any one item, the parameters can be any combination of:
 /// 6,     // 6 columns wide
@@ -565,14 +565,14 @@ $_gutter: ();
 /// 3. order
 /// 
 /// Specify parameters for one item using space-delimited lists:
-/// @include layout((
+/// @include all((
 ///   sm: 6,
 ///   md: 10 1 r 2,
 ///   lg: 8 3,
 /// ));
 /// 
 /// Specify parameters for multiple items, separated by commas:
-/// @include layout((
+/// @include each((
 ///   sm: (6, 6, 6),
 ///   md: (7 2, 5 r 2, 6 o -2),
 ///   lg: (8, 4),
@@ -585,20 +585,20 @@ $_gutter: ();
 /// 
 /// Repeat enabled: odd-numbered items will be 8 columns wide, and
 /// even-numbered items will be 4 columns wide:
-/// @include layout((
+/// @include all((
 ///   lg: (8, 4),
-/// ), $repeat: true);
+/// ));
 /// 
-/// Repeat disabled: any items past the second one will not inherit their
-/// settings from smaller breakpoints, or not have any settings:
-/// @include layout((
+/// Repeat disabled: any items past the second one will inherit their settings
+/// from smaller breakpoints, or not have any settings:
+/// @include each((
 ///   lg: (8, 4),
-/// ), $repeat: false);
+/// ));
 /// 
 /// @param {map} $set
 /// @param {boolean} $repeat
 /// @param {boolean} $self
-@mixin layout($set, $repeat: true, $self: false) {
+@mixin _grid_layout($set, $repeat, $self) {
 	$delimiter_row: r;
 	$delimiter_order: o;
 	
@@ -685,6 +685,26 @@ $_gutter: ();
 		}
 	}
 }
+
+
+/// Define responsive grid layout for all elements, with repeating
+/// @param {map} $set
+@mixin all($set) {
+	@include _grid_layout($set, $repeat: true, $self: false);
+}
+
+
+/// Define responsive grid layout for each element explicitly
+/// @param {map} $set
+@mixin each($set) {
+	@include _grid_layout($set, $repeat: false, $self: false);
+}
+
+
+/// Define responsive grid layout for a single element
+/// @param {map} $set
+@mixin one($set) {
+	@include _grid_layout($set, $repeat: false, $self: true);
 }
 
 

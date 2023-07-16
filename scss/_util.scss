@@ -276,7 +276,7 @@
 
 @function map_last_value($source) {
 	@return list.nth(map.values($source), list.length(map.values($source)));
-}	
+}
 
 
 @function map_lowest($source, $value_only: false) {
@@ -302,10 +302,10 @@
 			}
 			@if $type == lowest {
 				$value: math.min($list_values...);
-			} 
+			}
 			@if $type == highest {
 				$value: math.max($list_values...);
-			} 
+			}
 		}
 		
 		@if

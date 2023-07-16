@@ -179,6 +179,9 @@ $_css_property_shorthand: (
 	$first_font_size: util.map_first_value($sizes);
 	$last_font_size: util.map_last_value($sizes);
 	
+	// TODO: tracking is not calculated correctly, em units appear to use the
+	// base font size for calculation, rather than the current font size
+	
 	@each $propery_name, $property_values in $font_properties {
 		@if math.is_unitless(list.nth($property_values, 1)) {
 			@if list.length($property_values) == 1 {

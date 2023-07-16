@@ -504,29 +504,29 @@
 			
 			@if $is_first_breakpoint {
 				.tw-col-span-#{$i}.tw-col-span-#{$i} {
-					@include grid.layout((
+					@include grid.one((
 						#{$breakpoint}: $i,
-					), $self: true);
+					));
 				}
 				
 				// TODO: support defining only start in layout
 				.tw-col-start-#{$i}.tw-col-start-#{$i} {
-					@include grid.layout((
+					@include grid.one((
 						#{$breakpoint}: _ $i,
-					), $self: true);
+					));
 				}
 			}
 			
 			.#{$breakpoint}\:tw-col-span-#{$i}.#{$breakpoint}\:tw-col-span-#{$i} {
-				@include grid.layout((
+				@include grid.one((
 					#{$breakpoint}: $i,
-				), $self: true);
+				));
 			}
 			
 			.#{$breakpoint}\:tw-col-start-#{$i}.#{$breakpoint}\:tw-col-start-#{$i} {
-				@include grid.layout((
+				@include grid.one((
 					#{$breakpoint}: _ $i,
-				), $self: true);
+				));
 			}
 		}
 	}
