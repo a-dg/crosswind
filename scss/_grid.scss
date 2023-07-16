@@ -578,10 +578,10 @@ $_gutter: ();
 ///   lg: (8, 4),
 /// ));
 /// 
-/// Enabling repeat causes parameters to affect all items, using
-/// multipliers for CSS selectors:
+/// Enabling repeat causes parameters to affect all items, using multipliers
+/// for CSS selectors:
 /// - Repeat off: :nth-child(2)
-/// - Repeat on:  :nth-child(2n)
+/// - Repeat on:  :nth-child(Xn+2) (where X is the number of elements in a row)
 /// 
 /// Repeat enabled: odd-numbered items will be 8 columns wide, and
 /// even-numbered items will be 4 columns wide:
@@ -649,26 +649,29 @@ $_gutter: ();
 				// )
 				
 				@if $self {
-					// TODO: is there a better way to do this?
+					// TODO: is there a better way to do this? ... Do what exactly?
 					@include _grid_plot($column, $row, $order);
+				} @else if $repeat and list.length($elements) == 1 {
+					// > * {
+					// TODO: we can only use ^ this if using the between operator,
+					// because it's not specific enough to override :nth-child() from a
+					// lower breakpoint
+					> :nth-child(n) {
+						@include _grid_plot($column, $row, $order);
+					}
+				} @else if $repeat {
+					> :nth-child(#{list.length($elements)}n + #{$index}) {
+						@include _grid_plot($column, $row, $order);
+					}
 				} @else {
-					@if $index == 1 and $repeat {
-						// TODO: could possibly see how many items there are in the
-						// definition and use that to create a selector for the first item
-						// that's more like :nth-child(2n+1), so that it doesn't apply to
-						// all items in the grid, most of which are then overridden
-						> * {
-							@include _grid_plot($column, $row, $order);
-						}
-					} @else {
-						> :nth-child(#{$index}#{if($repeat, n, '')}) {
-							@include _grid_plot($column, $row, $order);
-						}
+					> :nth-child(#{$index}) {
+						@include _grid_plot($column, $row, $order);
 					}
 				}
 			}
 		}
 	}
+}
 }
 
 
@@ -693,7 +696,7 @@ $_gutter: ();
 /// @param {string} $type (row or column)
 /// @param {int | list} $params
 @mixin _grid_plot_axis($type, $params) {
-	@if 
+	@if
 		meta.type_of($params) == list
 		and list.length($params) == 1
 	{
