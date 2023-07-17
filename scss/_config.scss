@@ -26,10 +26,14 @@ $settings: ();
 
 
 /// Assign value to setting key by function
-/// @param {string} $key
+/// @param {string | map} $key
 /// @param {mixed} $value
 /// @return {boolean} *
-@function setf($key, $value) {
-	$settings: map.set($settings, $key, $value) !global;
+@function setf($key, $value: null) {
+	@if meta.type_of($key) == map {
+		$settings: map.deep_merge($settings, $key) !global;
+	} @else {
+		$settings: map.set($settings, $key, $value) !global;
+	}
 	@return true;
 }

@@ -24,7 +24,7 @@ $settings: (
 			// ch: 36px fixed,
 			lg: 40px, // TODO: this doesn't work after fixed keyword
 			// xl: 70px,
-			signature: font_sans_bold_upper,
+			signature: sans_bold_upper,
 		),
 		'h1.gap-after-fixed': (
 			sm: 24px,
@@ -36,7 +36,7 @@ $settings: (
 			sm: 24px,
 			ch: 44px snap 24px,
 			yl: 36px,
-			signature: font_sans_bold_upper,
+			signature: sans_bold_upper,
 		),
 		// 'h1.fixed-last': (
 		// 	sm: 24px,
@@ -51,7 +51,7 @@ $settings: (
 		// h3: 32px 44px,
 		// 'h3.bork': (
 		// 	size: 32px 44px,
-		// 	signature: font_sans_bold
+		// 	signature: sans_bold
 		// ),
 		// h4: 12px,
 		// h5: (
@@ -61,19 +61,34 @@ $settings: (
 	
 	font_properties: (
 		default: (
+			// family: default,
 			leading: 5.5 1.3,
 		),
-		font_sans_bold: (
+		sans_bold: (
+			// family: default,
+			weight: 700,
 			leading: 1.5 1.3,
 		),
-		font_sans_bold_upper: (
+		sans_bold_upper: (
+			// family: header,
+			weight: 700,
 			leading: 1.6 1.2,
 			tracking: 0.2em 0.05em,
+			case: uppercase,
 		),
-		font_sans_light_upper: (
+		sans_light_upper: (
+			// family: default,
+			weight: 300,
 			leading: 1.8 1.6,
 			tracking: 0.15em 0.05em,
+			case: uppercase,
 		),
+	),
+	
+	font_families: (
+		stack: (-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Noto Sans', 'Helvetica Neue', sans-serif),
+		header: 'Headline',
+		default: 'Fatima',
 	),
 	
 	/*

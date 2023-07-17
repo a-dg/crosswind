@@ -17,11 +17,45 @@ $_css_property_shorthand: (
 	size: font-size,
 	leading: line-height,
 	tracking: letter-spacing,
+	case: text-transform,
+	family: font-family,
 );
 
 
 @mixin init_typography {
-	@include parabolic_font_sizes(cc.get(font_sizes));
+	@include _parabolic_font_sizes(cc.get(font_sizes));
+}
+
+
+/// Get font size and properties (when font_properties_mixin is true)
+/// @param {string} $key
+@mixin font($key) {
+	@extend %#{$key};
+}
+
+
+/// Get font family stack
+/// @param {string} $family
+/// @param {list} $stack
+@mixin family($family, $stack: null) {
+	font-family: family($family, $stack);
+}
+
+
+/// Get font family stack
+/// @param {string} $family
+/// @param {list} $stack
+/// @return {list} *
+@function family($family, $stack: null) {
+	$families: cc.get(font_families);
+	@if not $stack {
+		$stack: util.map_first_key($families);
+	}
+	@return list.join(
+		(map.get($families, $family)),
+		map.get($families, $stack),
+		$separator: comma
+	);
 }
 
 
@@ -33,7 +67,7 @@ $_css_property_shorthand: (
 ///   xl: 72px,
 /// ));
 /// 
-/// For non-linear scaling, use parabolic_font_sizes()
+/// For non-linear scaling, use _parabolic_font_sizes()
 /// 
 /// @param {map} param
 /// @return {number | calculation} Fixed size or clamp()
@@ -161,7 +195,7 @@ $_css_property_shorthand: (
 /// )
 /// 
 /// @param {string} $signature
-/// @param {map} $sizes
+/// @param {map} $sizes: Min and max font sizes for signature
 /// @return {map} *
 @function _get_props_for_sig($signature, $sizes) {
 	$font_properties: map.get(cc.get(font_properties), $signature);
@@ -187,7 +221,13 @@ $_css_property_shorthand: (
 	// base font size for calculation, rather than the current font size
 	
 	@each $propery_name, $property_values in $font_properties {
-		@if math.is_unitless(list.nth($property_values, 1)) {
+		@if meta.type_of($property_values) != list {
+			// Pass single value through untouched
+			// This could be a fixed value for leading (like 1.2), or tracking
+			// (like 0.05em), or a string for font family or case conversion
+		}
+		
+		@else if math.is_unitless(list.nth($property_values, 1)) {
 			@if list.length($property_values) == 1 {
 				$property_values: list.append($property_values, list.nth($property_values, 1));
 			}
@@ -205,7 +245,6 @@ $_css_property_shorthand: (
 				$font_unit_props: ();
 				@each $item in $property_values {
 					$converted: util.convert_units($item, $from: $unit_prop, $to: $unit_font);
-					// @debug '  #{$propery_name}: #{$item} -> #{$converted}';
 					$font_unit_props: list.append($font_unit_props, $converted);
 				}
 				$font_properties: map.set($font_properties, $propery_name, $font_unit_props);
@@ -335,8 +374,33 @@ $_css_property_shorthand: (
 		// Size is formatted as a single value
 		// Example: (h1: 24px,)
 		@if meta.type_of($sizes) == number {
-			// TODO: IMPORTANT: potentially use assigned breakpoint instead of $first_breakpoint_name because otherwise we don't know how far along this size is in the continuum of sizes, but also everything else will need to be updated to accommodate keywords (fixed, snap, etc) and every format of font sizes that is acceptable
+			// TODO: IMPORTANT: potentially use assigned breakpoint instead of
+			// $first_breakpoint_name because otherwise we don't know how far along
+			// this size is in the continuum of sizes, but also everything else will
+			// need to be updated to accommodate keywords (fixed, snap, etc) and
+			// every format of font sizes that is acceptable
 			$boiled: map.set($boiled, $signature, $selector, $first_breakpoint_name, size, $sizes);
+			$ok: _update_font_size_extremes($signature, $sizes);
+		}
+		
+		// Size is formatted as a single value in a map
+		// Example: (
+		//   h2: (
+		//     size: 18px,
+		//   ),
+		// )
+		@else if
+			meta.type_of($sizes) == map
+			and map.has_key($sizes, size)
+			and meta.type_of(map.get($sizes, size)) == number
+		{
+			// TODO: IMPORTANT: potentially use assigned breakpoint instead of
+			// $first_breakpoint_name because otherwise we don't know how far along
+			// this size is in the continuum of sizes, but also everything else will
+			// need to be updated to accommodate keywords (fixed, snap, etc) and
+			// every format of font sizes that is acceptable
+			$boiled: map.set($boiled, $signature, $selector, $first_breakpoint_name, size, map.get($sizes, size));
+			$ok: _update_font_size_extremes($signature, $sizes);
 		}
 		
 		// Sizes are formatted in a list, using default settings for font scaling
@@ -350,13 +414,13 @@ $_css_property_shorthand: (
 		//     md: 32px [fixed],
 		//     lg: 42px [snap 24px],
 		//     xl: 36px,
-		//     signature: FONT_SANS_BOLD_UPPER,
+		//     signature: sans_bold_upper,
 		//   ),
 		//   h4: (
 		//     size: 24px 32px,
-		//     signature: FONT_SANS_LIGHT,
+		//     signature: sans_light,
 		//   ),
-		//   ),
+		// )
 		@else {
 			@if meta.type_of($sizes) == list {
 				$sizes: _convert_font_size_list_to_map($sizes);
@@ -375,8 +439,7 @@ $_css_property_shorthand: (
 			
 			// Gather the smallest and largest font sizes for this signature, which
 			// will be used to scale other properties
-			$extreme_font_sizes: _gather_extreme_font_sizes($signature, $sizes);
-			$ok: _update_font_size_extremes($extreme_font_sizes);
+			$ok: _update_font_size_extremes($signature, $sizes);
 			
 			$size_index: 1;
 			@each $breakpoint, $size in $sizes {
@@ -445,6 +508,11 @@ $_css_property_shorthand: (
 		$font_properties: _get_props_for_sig($signature, $signature_extremes);
 		
 		@each $selector, $specs in $selectors {
+			
+			// Keep track of non-responsive properties so they can be added to the
+			// first breakpoint only
+			$static_properties: ();
+			
 			@each $breakpoint, $properties in $specs {
 				$this_index: list.index(map.keys($specs), $breakpoint);
 				$next_index: $this_index + 1;
@@ -481,9 +549,25 @@ $_css_property_shorthand: (
 					($signature_high - $font_size_high) / ($signature_high - $signature_low)
 				);
 				
-				@each $property_name, $property_extremes in $font_properties {
-					$property_low: list.nth($property_extremes, 1);
-					$property_high: list.nth($property_extremes, 2);
+				@each $property_name, $property_values in $font_properties {
+					
+					// Pass single value through (relatively) untouched
+					// This could be a fixed value for leading (like 1.2), or tracking
+					// (like 0.05em), or a string for font family or case conversion
+					@if meta.type_of($property_values) != list {
+						@if list.index($static_properties, $property_name) == null {
+							@if $property_name == family {
+								$property_values: family($property_values);
+							}
+							
+							$boiled: map.set($boiled, $signature, $selector, $breakpoint, $property_name, $property_values);
+							$static_properties: list.append($static_properties, $property_name);
+						}
+					}
+					
+					@else {
+						$property_low: list.nth($property_values, 1);
+						$property_high: list.nth($property_values, 2);
 						
 						// TODO: this does not work when font size goes down as viewport gets wider
 						
@@ -503,24 +587,25 @@ $_css_property_shorthand: (
 				}
 			}
 		}
+	}
 	
 	@return $boiled;
 }
 
 
 /// Merge font size extremes into global settings
+/// @param {string} $signature
 /// @param {map} $sizes
 /// @return {boolean} *
-@function _update_font_size_extremes($sizes) {
+@function _update_font_size_extremes($signature, $sizes) {
+	$extreme_font_sizes: _gather_extreme_font_sizes($signature, $sizes);
 	@if not cc.get($_signature_font_size_extremes_key) {
 		$ok: cc.setf($_signature_font_size_extremes_key, ());
 	}
 	
-	$ok: cc.setf($_signature_font_size_extremes_key, map.deep_merge(
-		cc.get($_signature_font_size_extremes_key),
-		$sizes
+	$ok: cc.setf((
+		$_signature_font_size_extremes_key: $extreme_font_sizes,
 	));
-	
 	@return true;
 }
 
@@ -541,16 +626,16 @@ $_css_property_shorthand: (
 ///     sm: 24px,
 ///     lg: 32px fixed,
 ///     xl: 36px,
-///     signature: FONT_SANS_BOLD_UPPER,
+///     signature: sans_bold_upper,
 ///   ),
 ///   h4: (
 ///     size: 24px 32px,
-///     signature: FONT_SANS_LIGHT,
+///     signature: sans_light,
 ///   ),
 /// )
 /// 
 /// @param {map} $font_sizes
-@mixin parabolic_font_sizes($font_sizes) {
+@mixin _parabolic_font_sizes($font_sizes) {
 	$boiled_sizes: _boil_font_sizes($font_sizes);
 	$first_breakpoint_name: util.map_first_key($breakpoints);
 	
@@ -609,21 +694,4 @@ $_css_property_shorthand: (
 			}
 		}
 	}
-}
-
-
-/// Get font stack
-/// @param {string} $family
-/// @param {string} $stack
-/// @return {list} *
-@function font($family, $stack: null) {
-	$families: cc.get(font_families);
-	@if not $stack {
-		$stack: util.map_first_key($families);
-	}
-	@return list.join(
-		(map.get($families, $family)),
-		map.get($families, stack),
-		$separator: comma
-	);
 }

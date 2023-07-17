@@ -512,6 +512,7 @@
 }
 
 
+/// Add elements from two lists
 /// @param {list} $a
 /// @param {list} $b
 /// @return {list} *
@@ -890,7 +891,7 @@
 /// 
 /// Output is a map defining explicit sizes for every breakpoint between
 /// start and end breakpoints. Used in conjunction with mixins for creating
-/// parabolic responsive values, like parabolic_font_sizes().
+/// parabolic responsive values, like _parabolic_font_sizes().
 /// 
 /// Note: this process has the potential to create some redundant key/value
 /// pairs. However, since map entries are assigned by specifying the key and
