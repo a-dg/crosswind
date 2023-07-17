@@ -577,11 +577,11 @@ $_css_property_shorthand: (
 						$use_between_operator
 						and not $is_second_to_last_breakpoint
 					{
-						$next_smallest_breakpoint: grid.find_next_smallest_breakpoint(
+						$ceiling_breakpoint: grid.ceiling_breakpoint(
 							map.keys($specs), $breakpoint
 						);
-						$media_query: '>< #{$breakpoint} #{$next_smallest_breakpoint}';
-						@if $breakpoint == $next_smallest_breakpoint {
+						$media_query: '>< #{$breakpoint} #{$ceiling_breakpoint}';
+						@if $breakpoint == $ceiling_breakpoint {
 							$media_query: '= #{$breakpoint}';
 						}
 					} @else {

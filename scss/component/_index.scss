@@ -222,9 +222,9 @@
 			);
 			$grid_setup_keys: map.keys($grid_setup_4);
 			@each $breakpoint in $grid_setup_keys {
-				$next_smallest_breakpoint: grid.find_next_smallest_breakpoint($grid_setup_keys, $breakpoint);
+				$ceiling_breakpoint: grid.ceiling_breakpoint($grid_setup_keys, $breakpoint);
 				> * {
-					@include b('>< #{$breakpoint} #{$next_smallest_breakpoint}') {
+					@include b('>< #{$breakpoint} #{$ceiling_breakpoint}') {
 						&:nth-child(#{map.get($grid_setup_4, $breakpoint)}n) {
 							margin-right: 0;
 						}

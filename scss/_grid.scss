@@ -284,12 +284,12 @@ $_gutter: ();
 }
 
 
-/// Add elements from two lists
-/// Find next smallest breakpoint for range
+/// Get largest possible breakpoint for range that is smaller than the next
+/// explicitly defined breakpoint
 /// 
 /// Start with a breakpoint in a subset of breakpoints, find the next
-/// breakpoint in the subset, then find next smallest breakpoint in all
-/// breakpoints. This is useful for creating a media query where you don't
+/// breakpoint in the subset, then find the breakpoint that's one smaller in
+/// all breakpoints. This is useful for creating a media query where you don't
 /// want to define unique (and perhaps redundant) parameters for every
 /// single breakpoint.
 /// 
@@ -305,12 +305,12 @@ $_gutter: ();
 /// Example:
 /// - All breakpoints: sm, md, lg, xl, xxl
 /// - Subset: sm, xl, xxl
-/// - Next smallest breakpoint for "sm" in subset: lg (one down from xl)
+/// - Ceiling breakpoint for "sm" in subset: lg (one down from xl)
 /// 
 /// @param {list} $breakpoint_subset_keys
 /// @param {string} $breakpoint
 /// @return {string} *
-@function find_next_smallest_breakpoint($breakpoint_subset_keys, $breakpoint) {
+@function ceiling_breakpoint($breakpoint_subset_keys, $breakpoint) {
 	$all_breakpoint_keys: map.keys($breakpoints);
 	
 	$current_subset_index: list.index($breakpoint_subset_keys, $breakpoint);
@@ -321,18 +321,18 @@ $_gutter: ();
 	}
 	
 	$next_all_index: list.index($all_breakpoint_keys, $next_subset_breakpoint);
-	$next_smallest_index: math.max(1, $next_all_index - 1);
-	$next_smallest_breakpoint: list.nth($all_breakpoint_keys, $next_smallest_index);
-	@return $next_smallest_breakpoint;
+	$ceiling_index: math.max(1, $next_all_index - 1);
+	$ceiling_breakpoint: list.nth($all_breakpoint_keys, $ceiling_index);
+	@return $ceiling_breakpoint;
 }
 
 
-/// Find largest smaller breakpoint in subset
+/// Get downstairs neighbor breakpoint in subset
 /// 
-/// Sort of the opposite of find_next_smallest_breakpoint(): given any
-/// breakpoint, find the largest explicitly defined breakpoint that is not
-/// larger than the given breakpoint. This can return the given breakpoint
-/// itself, since it is explicitly defined, and is not larger than itself.
+/// Sort of the opposite of ceiling_breakpoint(): given any breakpoint, find
+/// the largest explicitly defined breakpoint that is not larger than the given
+/// breakpoint. This can return the given breakpoint itself, since it is
+/// explicitly defined, and is not larger than itself.
 /// 
 /// Example:
 /// - All breakpoints: sm, md, lg, xl, xxl
@@ -343,7 +343,7 @@ $_gutter: ();
 /// @param {list} $breakpoint_subset_keys
 /// @param {string} $breakpoint
 /// @return {string} *
-@function find_largest_smaller_breakpoint($breakpoint_subset_keys, $breakpoint) {
+@function downstairs_neighbor_breakpoint($breakpoint_subset_keys, $breakpoint) {
 	$all_breakpoint_keys: map.keys($breakpoints);
 	
 	@if list.index($breakpoint_subset_keys, $breakpoint) != null {
@@ -499,10 +499,10 @@ $_gutter: ();
 		
 		$use_between_operator: true;
 		@if $use_between_operator {
-			$next_smallest_breakpoint: find_next_smallest_breakpoint(
+			$ceiling_breakpoint: ceiling_breakpoint(
 				map.keys($set), $breakpoint
 			);
-			$media_query: '>< #{$breakpoint} #{$next_smallest_breakpoint}';
+			$media_query: '>< #{$breakpoint} #{$ceiling_breakpoint}';
 		}
 		
 		@include b($media_query) {
@@ -517,10 +517,10 @@ $_gutter: ();
 /// @param {map} $set
 @mixin wire_setup($set) {
 	@each $breakpoint, $column_count in $set {
-		$next_smallest_breakpoint: find_next_smallest_breakpoint(
+		$ceiling_breakpoint: ceiling_breakpoint(
 			map.keys($set), $breakpoint
 		);
-		@include b('>< #{$breakpoint} #{$next_smallest_breakpoint}') {
+		@include b('>< #{$breakpoint} #{$ceiling_breakpoint}') {
 			> :nth-child(#{$column_count}n+1) {
 				--wire-end-right: 100%;
 				--wire-end-border-left: 0;
@@ -632,12 +632,12 @@ $_gutter: ();
 		// TODO: this may be unnecessary for many grid styles, it may be most
 		// useful when the number of items in a row is changing and the items on
 		// ends of each row have specific styles, such as the wire grid
-		$next_smallest_breakpoint: find_next_smallest_breakpoint(
+		$ceiling_breakpoint: ceiling_breakpoint(
 			map.keys($set), $breakpoint
 		);
 		
 		@include b($breakpoint) {
-		// @include b('>< #{$breakpoint} #{$next_smallest_breakpoint}') {
+		// @include b('>< #{$breakpoint} #{$ceiling_breakpoint}') {
 			@for $index from 1 through list.length($elements) {
 				$list: list.nth($elements, $index);
 				
@@ -898,11 +898,11 @@ $_gutter: ();
 				
 				// For every breakpoint that has either a direction or offset specified,
 				// we need to update the margins on each side. If a direction or offset
-				// is not specified for that breakpoint, use the largest smaller
+				// is not specified for that breakpoint, use the downstairs neighbor
 				// breakpoint that is explicitly defined for that breakpoint.
-				$smaller_direction: find_largest_smaller_breakpoint(map.keys($direction), $breakpoint);
+				$smaller_direction: downstairs_neighbor_breakpoint(map.keys($direction), $breakpoint);
 				$offset_direction: map.get($direction, $smaller_direction);
-				$smaller_offset: find_largest_smaller_breakpoint(map.keys($float_offset_columns), $breakpoint);
+				$smaller_offset: downstairs_neighbor_breakpoint(map.keys($float_offset_columns), $breakpoint);
 				$offset_columns: map.get($float_offset_columns, $smaller_offset);
 				
 				@if util.is_zero($offset_columns) {
