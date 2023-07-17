@@ -69,7 +69,11 @@ $_css_property_shorthand: (
 		$max: $min_swap;
 	}
 	
-	@return clamp(math.round($min), $size_preferred, math.round($max));
+	@if cc.get(font_size_round) {
+		@return clamp(math.round($min), $size_preferred, math.round($max));
+	}
+	
+	@return clamp($min, $size_preferred, $max);
 }
 
 
@@ -352,7 +356,7 @@ $_css_property_shorthand: (
 		//     size: 24px 32px,
 		//     signature: FONT_SANS_LIGHT,
 		//   ),
-		// ),
+		//   ),
 		@else {
 			@if meta.type_of($sizes) == list {
 				$sizes: _convert_font_size_list_to_map($sizes);
@@ -480,25 +484,25 @@ $_css_property_shorthand: (
 				@each $property_name, $property_extremes in $font_properties {
 					$property_low: list.nth($property_extremes, 1);
 					$property_high: list.nth($property_extremes, 2);
-					
-					// TODO: this does not work when font size goes down as viewport gets wider
-					
-					$this_property_low: (
-						(($property_high - $property_low) * $position_low) + $property_low
-					);
-					$this_property_high: (
-						(($property_high - $property_low) * $position_high) + $property_low
-					);
-					$very_fancy_props: _boil_fancy_props((
-						$breakpoint: $this_property_low,
-						$next_breakpoint: $this_property_high,
-					));
-					
-					$boiled: map.set($boiled, $signature, $selector, $breakpoint, $property_name, $very_fancy_props);
+						
+						// TODO: this does not work when font size goes down as viewport gets wider
+						
+						$this_property_low: (
+							(($property_high - $property_low) * $position_low) + $property_low
+						);
+						$this_property_high: (
+							(($property_high - $property_low) * $position_high) + $property_low
+						);
+						$very_fancy_props: _boil_fancy_props((
+							$breakpoint: $this_property_low,
+							$next_breakpoint: $this_property_high,
+						));
+						
+						$boiled: map.set($boiled, $signature, $selector, $breakpoint, $property_name, $very_fancy_props);
+					}
 				}
 			}
 		}
-	}
 	
 	@return $boiled;
 }

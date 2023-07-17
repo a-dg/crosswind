@@ -12,6 +12,11 @@ $settings: (
 	
 	font_size_base: 16px,
 	
+	// Round font sizes at every breakpoint (simpler to work with and inspect,
+	// but can cause issues if small changes between breakpoints would be
+	// rounded to the same value, creating uneven scaling)
+	font_size_round: false,
+	
 	// TODO: allow defining them here without writing out their rules automatically, so they can be applied arbitrarily to elements (similar to @include all_font_sizes(h1))
 	font_sizes: (
 		h1: (
