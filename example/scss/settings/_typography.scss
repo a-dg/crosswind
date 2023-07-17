@@ -17,7 +17,33 @@ $settings: (
 	// rounded to the same value, creating uneven scaling)
 	font_size_round: false,
 	
-	// TODO: allow defining them here without writing out their rules automatically, so they can be applied arbitrarily to elements (similar to @include all_font_sizes(h1))
+	// Use mixin to define font properties, or output font properties
+	// automatically as a chain of CSS selectors
+	// 
+	// Example using mixin:
+	//   font_sizes: (
+	//     body: 18px 24px,
+	//     h1: 70px 132px,
+	//     h1_large: 70px 164px,
+	//   )
+	//   Usage: @include font(h1_large);
+	//   Advantages:
+	//   - Assign font sizes and properties to any element
+	//   - Settings remain very tidy
+	// 
+	// Example using CSS selectors:
+	//   font_sizes: (
+	//     'body': 18px 24px,
+	//     'h1, .featured-article h2': 70px 132px,
+	//     '.header.large h1': 70px 164px,
+	//   )
+	//   Usage: (none, font sizes and properties are defined automatically)
+	//   Advantages:
+	//   - Font sizes and properties are defined automatically
+	//   - Easily see a comprehensive list of all selectors using a given set of
+	//     font sizes and properties
+	font_properties_mixin: false,
+	
 	font_sizes: (
 		h1: (
 			sm: 20px,

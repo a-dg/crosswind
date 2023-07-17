@@ -678,6 +678,11 @@ $_css_property_shorthand: (
 					}
 				}
 				
+				// Create placeholder selectors for use with font() mixin
+				@if cc.get(font_properties_mixin) {
+					$selector: #{'%' + $selector};
+				}
+				
 				@include b($media_query) {
 					#{$selector} {
 						@each $key, $value in $properties {
