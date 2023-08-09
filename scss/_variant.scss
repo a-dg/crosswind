@@ -12,11 +12,6 @@
 /// class names. Example: the "extra_dark" variant becomes usable through the
 /// CSS class ".v-extra-dark", as well as ".v-extra_dark".
 /// 
-/// TODO: Is this necessary? Is this the right approach? This same logic
-/// *does not* apply to color keys within variants. "button_bg" will always be
-/// accessible through "color(button_bg)". ... Yes but .button_bg will never be
-/// used as a class, so it's fine.
-/// 
 /// @param {map} $variants
 /// @return {map} *
 @function convert_variant_keys($variants) {
