@@ -1,48 +1,22 @@
 $settings: (
 	
 	// 1 = Linear scaling
-	// < 1 = Logarithmic scaling, ramping up
-	// > 1 = Logarithmic scaling, ramping down
+	// > 1 = Logarithmic scaling, ramping up
+	// < 1 = Logarithmic scaling, ramping down
 	font_scale_curve: 2,
 	
 	// Breakpoints at which fonts start and stop scaling
-	// (can be overriden on a per-selector or per-element basis)
 	font_scale_breakpoint_min: sm,
 	font_scale_breakpoint_max: lg,
 	
 	font_size_base: 16px,
 	
-	// Round font sizes at every breakpoint (simpler to work with and inspect,
-	// but can cause issues if small changes between breakpoints would be
-	// rounded to the same value, creating uneven scaling)
+	// Round font sizes at every breakpoint
 	font_size_round: false,
 	
-	// Use mixin to define font properties, or output font properties
-	// automatically as a chain of CSS selectors
-	// 
-	// Example using mixin:
-	//   font_sizes: (
-	//     body: 18px 24px,
-	//     h1: 70px 132px,
-	//     h1_large: 70px 164px,
-	//   )
-	//   Usage: @include font(h1_large);
-	//   Advantages:
-	//   - Assign font sizes and properties to any element
-	//   - Settings remain very tidy
-	// 
-	// Example using CSS selectors:
-	//   font_sizes: (
-	//     'body': 18px 24px,
-	//     'h1, .featured-article h2': 70px 132px,
-	//     '.header.large h1': 70px 164px,
-	//   )
-	//   Usage: (none, font sizes and properties are defined automatically)
-	//   Advantages:
-	//   - Font sizes and properties are defined automatically
-	//   - Easily see a comprehensive list of all selectors using a given set of
-	//     font sizes and properties
-	font_properties_mixin: false,
+	// Output font properties automatically as a chain of CSS selectors, instead
+	// of using mixin to output properties manually and selectively
+	font_properties_auto_output: true,
 	
 	font_sizes: (
 		h1: (
@@ -116,40 +90,5 @@ $settings: (
 		header: 'Headline',
 		default: 'Fatima',
 	),
-	
-	/*
-	
-	// TODO: responsive line heights, letter spacing, etc (eventually variable font weight as well)
-	
-	Properties are determined by:
-	- Font size
-	- Font family
-	- Font weight
-	- Case transform
-	
-	Possible approach:
-	- For each font signature (a combination of family, weight, transform)
-	- Specify min- and max-breakpoint properties
-	- Min-breakpoint line height and letter spacing are wider for small text
-	- Max-breakpoint line height and letter spacing are narrower for large text
-	
-	Example:
-	all_properties: (
-		FONT_SANS_BOLD: (
-			leading: 1.5 1.3,
-		),
-		FONT_SANS_BOLD_UPPER: (
-			leading: 1.7 1.5,
-			tracking: 0.2em 0.1em,
-		),
-		FONT_SANS_LIGHT_UPPER: (
-			leading: 1.8 1.6,
-			tracking: 0.15em 0.05em,
-		),
-	),
-	
-	This will only work if it assigns properties that are appropriate for the current size, as sizes can scale non-linearly, and can be fixed, and can snap to other values. The min/max shouldn't indiscriminately scale the property irrespective of font size. The min/max shouldn't be specific to a tag, which can have its own min/max breakpoint scale settings, but should be generally applicable to any tag that uses that signature.
-	
-	*/
 	
 );

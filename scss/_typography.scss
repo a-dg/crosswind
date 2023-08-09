@@ -14,11 +14,14 @@
 $_signature_font_size_extremes_key: _signature_font_size_extremes;
 
 $_css_property_shorthand: (
+	family: font-family,
+	weight: font-weight,
+	style: font-style,
+	case: text-transform,
 	size: font-size,
 	leading: line-height,
 	tracking: letter-spacing,
-	case: text-transform,
-	family: font-family,
+	word: word-spacing,
 );
 
 
@@ -27,10 +30,13 @@ $_css_property_shorthand: (
 }
 
 
-/// Get font size and properties (when font_properties_mixin is true)
+/// Get font size and properties
 /// @param {string} $key
 @mixin font($key) {
-	@extend %#{$key};
+	$sizes: map.get(cc.get(font_sizes), $key);
+	@include _parabolic_font_sizes((
+		$key: $sizes,
+	), true);
 }
 
 
@@ -179,7 +185,8 @@ $_css_property_shorthand: (
 /// @param {string} $property_name
 /// @return {string} *
 @function _convert_property_name_to_css($property_name) {
-	@return map.get($_css_property_shorthand, $property_name);
+	$converted: map.get($_css_property_shorthand, $property_name);
+	@return if($converted, $converted, $property_name);
 }
 
 
@@ -635,7 +642,8 @@ $_css_property_shorthand: (
 /// )
 /// 
 /// @param {map} $font_sizes
-@mixin _parabolic_font_sizes($font_sizes) {
+/// @param {boolean} $as_self
+@mixin _parabolic_font_sizes($font_sizes, $as_self: false) {
 	$boiled_sizes: _boil_font_sizes($font_sizes);
 	$first_breakpoint_name: util.map_first_key($breakpoints);
 	
@@ -679,24 +687,35 @@ $_css_property_shorthand: (
 				}
 				
 				// Create placeholder selectors for use with font() mixin
-				@if cc.get(font_properties_mixin) {
+				@if not cc.get(font_properties_auto_output) {
 					$selector: #{'%' + $selector};
 				}
 				
 				@include b($media_query) {
-					#{$selector} {
-						@each $key, $value in $properties {
-							$css_prop: _convert_property_name_to_css($key);
-							$value: util.truncate_clamp($value);
-							#{$css_prop}: $value;
-							// TODO: does not work with 0 or single value
-							// TODO: fixed font size doesn't work with tracking
+					@if not $as_self {
+						#{$selector} {
+							@include _output_properties($properties);
 						}
+					} @else {
+						@include _output_properties($properties);
 					}
 				}
 				
 				$prop_index: $prop_index + 1;
 			}
 		}
+	}
+}
+
+
+/// Output font properties
+/// @param {map} $properties
+@mixin _output_properties($properties) {
+	@each $key, $value in $properties {
+		$css_prop: _convert_property_name_to_css($key);
+		$value: util.truncate_clamp($value);
+		#{$css_prop}: $value;
+		// TODO: does not work with 0 or single value
+		// TODO: fixed font size doesn't work with tracking
 	}
 }
