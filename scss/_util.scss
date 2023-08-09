@@ -877,9 +877,13 @@
 
 /// Get constant
 /// @param {string} $key
+/// @param {boolean} $suppress_error
 /// @return {mixed} *
-@function const($key) {
-	@if not map.has_key(cc.get(constants), $key) {
+@function const($key, $suppress_error: false) {
+	@if
+		not $suppress_error
+		and not map.has_key(cc.get(constants), $key)
+	{
 		@error 'Unknown constant: #{$key}';
 	}
 	
