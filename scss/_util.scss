@@ -746,6 +746,14 @@
 }
 
 
+/// Convert HTML entities for encoded background SVGs
+/// @param {string} $svg
+/// @return {string} *
+@function encode_svg($svg) {
+	@return 'data:image/svg+xml;charset=utf8,' + convert_html_entities($svg);
+}
+
+
 /// Convert HTML characters to entities
 /// 
 /// This only converts what is essential to get background images working:
