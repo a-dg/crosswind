@@ -809,8 +809,8 @@
 		);
 	}
 	
-	$list_a: ();
-	$list_b: ();
+	$list_a: null;
+	$list_b: null;
 	$is_before_split: true;
 	
 	@each $item in $input {
@@ -818,8 +818,14 @@
 			$is_before_split: false;
 		} @else {
 			@if $is_before_split {
+				@if meta.type_of($list_a) != list {
+					$list_a: ();
+				}
 				$list_a: list.append($list_a, $item, $separator: space);
 			} @else {
+				@if meta.type_of($list_b) != list {
+					$list_b: ();
+				}
 				$list_b: list.append($list_b, $item, $separator: space);
 			}
 		}

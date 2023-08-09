@@ -506,7 +506,11 @@ $_gutter: ();
 		}
 		
 		@include b($media_query) {
-			grid-template-columns: repeat($column_count, 1fr);
+			grid-template-columns: if(
+				$column_count != 1,
+				repeat($column_count, 1fr),
+				1fr
+			);
 			--grid-items: #{$column_count};
 		}
 	}
@@ -647,7 +651,11 @@ $_gutter: ();
 				$order: map.get($split_column_row_order, b);
 				
 				// Split params to separate row from column
-				$split_column_row: util.split_list($column_row, $delimiter_row);
+				$split_column_row: if(
+					$column_row and list.length($column_row),
+					util.split_list($column_row, $delimiter_row),
+					()
+				);
 				$column: map.get($split_column_row, a);
 				$row: map.get($split_column_row, b);
 				
