@@ -199,6 +199,7 @@ span.i-label {
 	.outlier {
 		// full width
 		@include one((
+			// zo: -1,
 			zo: 2,
 		));
 	}
