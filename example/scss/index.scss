@@ -10,18 +10,35 @@
 
 .r-grid {
 	display: grid;
-	grid-template-columns: repeat(24, 1fr);
+	grid-template-columns: repeat(19, minmax(0, 1fr));
 	align-items: flex-start;
-	gap: 20px;
+	// gap: 20px;
+	padding: 20px;
+	font-size: 14px;
+	
+	span {
+		font-weight: bold;
+		font-size: 32px;
+	}
+	
 	> * {
 		display: grid;
 		grid-template-columns: 1fr;
+		padding-inline: 20px;
+		border-left: 1px solid #ddd;
+		
+		hr {
+			margin-inline: -20px;
+		}
+		
 		> div {
-			width: 80%;
+			// width: 80%;
 			height: 100px;
-			background: #f00;
-			&:nth-child(2) {
-				background: #0f0;
+			background: #fbb;
+			padding: 10px;
+			
+			&:nth-child(2 of div) {
+				background: #bbf;
 				order: 1;
 			}
 		}
@@ -66,9 +83,9 @@
 }
 
 $_sizes: (
-	medium: 30px,
-	large: 60px,
-	default: 100px,
+	small: 30px,
+	medium: 60px,
+	large: 100px,
 );
 
 $_scale: (
