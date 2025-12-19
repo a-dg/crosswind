@@ -52,16 +52,18 @@ $_gutter: ();
 // TODO: keep clamp values separated as long as possible, so they can be used
 // individually for calculations (or figure out how to separate them)
 
-/// Get gutter width
+/// Get flexible width
 /// @param {string} $property: x, y, outer
 /// @param {boolean} $invert
 /// @param {boolean} $as_list
 /// @param {map} $gutter_set
 /// @param {string} $caller
 /// @return {number | calculation} *
-@function gutter($property, $invert: false, $as_list: false, $gutter_set: $_gutter, $caller: '') {
+@function grow($property, $invert: false, $as_list: false, $gutter_set: $_gutter, $caller: '') {
 	$gutter_value: map.get($gutter_set, $property);
 	@if not $gutter_value {
+		@debug '$gutter_set (#{meta.type_of($gutter_set)}):';
+		@debug $gutter_set;
 		@error 'Unknown gutter property: #{$property}';
 	}
 	
@@ -199,12 +201,12 @@ $_gutter: ();
 @function grid_element_width(
 	$column_span,
 	$total_columns,
-	$gutter_width: gutter(x, $as_list: true),
+	$gutter_width: grow(x, $as_list: true),
 	$is_negative: false,
 	$include_external_gutter: false
 ) {
 	
-	// TODO: not sure I like gutter() in the args
+	// TODO: not sure I like grow() in the args
 	
 	// TODO: none of this math works when CSS variables are used
 	
@@ -239,6 +241,16 @@ $_gutter: ();
 	
 	$leftover_gutter_space: util.subtract_lists($remaining_gutter_space, $spanned_gutter_space);
 	
+	// @debug '$remaining_gutter_space (#{meta.type_of($remaining_gutter_space)}):';
+	// @debug $remaining_gutter_space;
+	
+	// @debug '$spanned_gutter_space (#{meta.type_of($spanned_gutter_space)}):';
+	// @debug $spanned_gutter_space;
+	
+	// @debug '$leftover_gutter_space (#{meta.type_of($leftover_gutter_space)}):';
+	// @debug $leftover_gutter_space;
+	
+	
 	// When numbers go negative, we have to reverse the clamp() list to put min
 	// and max values in the right order
 	@if
@@ -260,7 +272,7 @@ $_gutter: ();
 
 
 // TODO: make this work with $offset_columns and $element_columns as map
-// TODO: compare this with grid_float, because the same logic could be used
+// TODO: compare this with teeter, because the same logic could be used
 /// Calculate offset of element within grid system
 /// @param {int} $offset_columns: Number of columns to shift
 /// @param {int} $element_columns: Element width in columns
@@ -269,7 +281,7 @@ $_gutter: ();
 @function grid_element_offset(
 	$offset_columns,
 	$element_columns,
-	$gutter_width: gutter(x, $as_list: true)
+	$gutter_width: grow(x, $as_list: true)
 ) {
 	$multiplier: calc($offset_columns / $element_columns);
 	$offset_percent: util.truncate(100% * $multiplier);
@@ -449,6 +461,10 @@ $_gutter: ();
 
 
 @function _build_gutter($min, $max) {
+	// @debug '_build_gutter';
+	// @debug '$min: ' + $min;
+	// @debug '$max: ' + $max;
+	// TODO: should this use util.trunx()?
 	@return (
 		$min,
 		(util.truncate(calc($max / $content_max_width)) * 100vw),
@@ -755,6 +771,7 @@ $_gutter: ();
 			grid-#{$type}: list.nth($params, 2) / $span list.nth($params, 1);
 			@if $type == column {
 				#{cc.get(content_width_prop)}: #{list.nth($params, 1)};
+				#{cc.get(content_offset_prop)}: #{list.nth($params, 2) - 1};
 			}
 		}
 	}
@@ -770,105 +787,105 @@ $_gutter: ();
 }
 
 
-/// Float element within grid
+/// Teeter element within grid
 /// - Explicit container width
-/// - Optionally implicit float offset
+/// - Optionally implicit teeter offset
 /// 
 /// @param {string} $direction
 /// @param {int} $in ($container_column_count): Number of columns occupied by
 ///   containing element
-/// @param {int} $width ($float_column_count): Width of floated element
-/// @param {int} $offset ($float_offset_columns): Positive integer, -1 = auto
-@mixin grid_float($direction, $in, $width, $offset: -1) {
+/// @param {int} $width ($teeter_column_count): Width of teetered element
+/// @param {int} $offset ($teeter_offset_columns): Positive integer, -1 = auto
+@mixin teeter_non_responsive($direction, $in, $width, $offset: -1) {
 	$opposite_direction: if($direction == right, left, right);
 	$container_column_count: $in;
-	$float_column_count: $width;
-	$float_offset_columns: $offset;
+	$teeter_column_count: $width;
+	$teeter_offset_columns: $offset;
 	
 	// TODO: add support for responsive params
 	// $container_column_count: (
 	// 	md: 8,
 	// 	lg: 6,
 	// ),
-	// $float_column_count: (
+	// $teeter_column_count: (
 	// 	md: 4,
 	// 	lg: 3,
 	// ),
 	
-	// TODO: $float_offset_columns doesn't really make sense, looks like it might have an off by one error
+	// TODO: $teeter_offset_columns doesn't really make sense, looks like it might have an off by one error
 	
-	// Calculate width of floated element
-	$float_width: util.truncate(
-		calc(($float_column_count / $container_column_count) * 100%)
+	// Calculate width of teetered element
+	$teeter_width: util.truncate(
+		calc(($teeter_column_count / $container_column_count) * 100%)
 	);
-	$float_width_factor: util.truncate(
-		calc(($container_column_count - $float_column_count) / $container_column_count)
+	$teeter_width_factor: util.truncate(
+		calc(($container_column_count - $teeter_column_count) / $container_column_count)
 	);
 	
-	$gutter_float: gutter(x, $as_list: true);
-	$gutter_float_width: util.list_to_clamp(util.operate_list($gutter_float, $multiply: $float_width_factor));
+	$gutter_teeter: grow(x, $as_list: true);
+	$gutter_teeter_width: util.list_to_clamp(util.operate_list($gutter_teeter, $multiply: $teeter_width_factor));
 	
 	float: $direction;
-	width: calc($float_width - $gutter_float_width);
-	margin-#{$opposite_direction}: gutter(x);
+	width: calc($teeter_width - $gutter_teeter_width);
+	margin-#{$opposite_direction}: grow(x);
 	
-	$previous_float_offset_percentage: null;
-	$previous_gutter_float_offset: null;
+	$previous_teeter_offset_percentage: null;
+	$previous_gutter_teeter_offset: null;
 	
 	@each $breakpoint, $columns in cc.get(grid_columns) {
 		
 		// TODO: consider removing this auto calculation and making it a required parameter
-		// Set float offset automatically when not specified, assuming the content
-		// area is centered, and we want to send the floated element all the way to
+		// Set teeter offset automatically when not specified, assuming the content
+		// area is centered, and we want to send the teetered element all the way to
 		// the edge of the grid
-		@if $float_offset_columns == -1 {
-			$float_offset_columns: math.floor(
+		@if $teeter_offset_columns == -1 {
+			$teeter_offset_columns: math.floor(
 				calc(($columns - $container_column_count) / 2)
 			);
 		}
 		
-		// What percentage of the content area width is the float offset?
-		$float_offset_factor: calc($float_offset_columns / $container_column_count);
-		$float_offset_percentage: util.truncate($float_offset_factor * -100%);
+		// What percentage of the content area width is the teeter offset?
+		$teeter_offset_factor: calc($teeter_offset_columns / $container_column_count);
+		$teeter_offset_percentage: util.truncate($teeter_offset_factor * -100%);
 		
-		$gutter_float_offset: util.list_to_clamp(util.operate_list($gutter_float, $multiply: $float_offset_factor));
+		$gutter_teeter_offset: util.list_to_clamp(util.operate_list($gutter_teeter, $multiply: $teeter_offset_factor));
 		
 		// Prevent repeating rules
 		@if (
-			$float_offset_percentage != $previous_float_offset_percentage
-			or $gutter_float_offset != $previous_gutter_float_offset
+			$teeter_offset_percentage != $previous_teeter_offset_percentage
+			or $gutter_teeter_offset != $previous_gutter_teeter_offset
 		) {
 			@include b($breakpoint) {
-				@if not util.is_zero($float_offset_percentage) {
-					margin-#{$direction}: calc($float_offset_percentage - $gutter_float_offset);
+				@if not util.is_zero($teeter_offset_percentage) {
+					margin-#{$direction}: calc($teeter_offset_percentage - $gutter_teeter_offset);
 				} @else {
 					margin-#{$direction}: 0;
 				}
 			}
-			$previous_float_offset_percentage: $float_offset_percentage;
-			$previous_gutter_float_offset: $gutter_float_offset;
+			$previous_teeter_offset_percentage: $teeter_offset_percentage;
+			$previous_gutter_teeter_offset: $gutter_teeter_offset;
 		}
 	}
 
 }
 
 
-/// Float element within grid
+/// Teeter element within grid
 /// - Implicit container width
-/// - Explicit float offset
+/// - Explicit teeter offset
 /// 
-/// Advantages over grid_float():
-/// - Don't need to know the width of the floated element's container
+/// Advantages over teeter_non_responsive():
+/// - Don't need to know the width of the teetered element's container
 /// - Possibly less generated CSS?
 /// 
 /// Disdvantages:
-/// - Must specify the float offset explicitly
-/// - No automatically extending floated element to edge of grid
+/// - Must specify the teeter offset explicitly
+/// - No automatically extending teetered element to edge of grid
 /// 
 /// @param {string | map} $direction
-/// @param {int | map} $width ($float_column_count): Width of floated element
-/// @param {int | map} $offset ($float_offset_columns): Positive integer
-@mixin grid_float_auto_container($direction, $width, $offset: 0) {
+/// @param {int | map} $width ($teeter_column_count): Width of teetered element
+/// @param {int | map} $offset ($teeter_offset_columns): Positive integer
+@mixin teeter_auto_container($direction, $width, $offset: 0) {
 	$first_breakpoint_name: util.map_first_key($breakpoints);
 	
 	// Convert single values to maps
@@ -888,20 +905,20 @@ $_gutter: ();
 		);
 	}
 	
-	$float_column_count: $width;
-	$float_offset_columns: $offset;
+	$teeter_column_count: $width;
+	$teeter_offset_columns: $offset;
 	
 	@each $breakpoint in map.keys($breakpoints) {
 		@if
 			map.has_key($direction, $breakpoint)
-			or map.has_key($float_offset_columns, $breakpoint)
+			or map.has_key($teeter_offset_columns, $breakpoint)
 		{
 			@include b($breakpoint) {
 				@if map.has_key($direction, $breakpoint) {
-					$float_direction: map.get($direction, $breakpoint);
-					$opposite_direction: if($float_direction == right, left, right);
-					float: $float_direction;
-					margin-#{$opposite_direction}: gutter(x);
+					$teeter_direction: map.get($direction, $breakpoint);
+					$opposite_direction: if($teeter_direction == right, left, right);
+					float: $teeter_direction;
+					margin-#{$opposite_direction}: grow(x);
 				}
 				
 				// For every breakpoint that has either a direction or offset specified,
@@ -910,26 +927,26 @@ $_gutter: ();
 				// breakpoint that is explicitly defined for that breakpoint.
 				$smaller_direction: downstairs_neighbor_breakpoint(map.keys($direction), $breakpoint);
 				$offset_direction: map.get($direction, $smaller_direction);
-				$smaller_offset: downstairs_neighbor_breakpoint(map.keys($float_offset_columns), $breakpoint);
-				$offset_columns: map.get($float_offset_columns, $smaller_offset);
+				$smaller_offset: downstairs_neighbor_breakpoint(map.keys($teeter_offset_columns), $breakpoint);
+				$offset_columns: map.get($teeter_offset_columns, $smaller_offset);
 				
 				@if util.is_zero($offset_columns) {
 					margin-#{$offset_direction}: 0;
 				} @else {
 					$offset_factor: calc($offset_columns / var(#{cc.get(content_width_prop)}));
 					$offset_percentage: calc(($offset_columns * -100%) / var(#{cc.get(content_width_prop)}));
-					margin-#{$offset_direction}: calc($offset_percentage - (gutter(x) * util.truncate($offset_factor)));
+					margin-#{$offset_direction}: calc($offset_percentage - (grow(x) * util.truncate($offset_factor)));
 				}
 			}
 		}
 		
-		// Calculate width of floated element
-		@if map.has_key($float_column_count, $breakpoint) {
+		// Calculate width of teetered element
+		@if map.has_key($teeter_column_count, $breakpoint) {
 			@include b($breakpoint) {
-				$float_columns: map.get($float_column_count, $breakpoint);
-				$float_width: calc(($float_columns * 100%) / var(#{cc.get(content_width_prop)}));
-				$float_width_factor: calc(1 - ($float_columns / var(#{cc.get(content_width_prop)})));
-				width: calc($float_width - (gutter(x) * $float_width_factor));
+				$teeter_columns: map.get($teeter_column_count, $breakpoint);
+				$teeter_width: calc(($teeter_columns * 100%) / var(#{cc.get(content_width_prop)}));
+				$teeter_width_factor: calc(1 - ($teeter_columns / var(#{cc.get(content_width_prop)})));
+				width: calc($teeter_width - (grow(x) * $teeter_width_factor));
 			}
 		}
 	}

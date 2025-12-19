@@ -20,10 +20,25 @@
 		@error 'Value for convert_to_number() should be a number or a string';
 	}
 	
+	$first_character: string.slice($value, 1, 1);
+	$second_character: string.slice($value, 2, 2);
+	$numbers: ('0': 0, '1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9);
+	$is_negative: (
+		$first_character == '-'
+		and list.index(map.keys($numbers), $second_character)
+	);
+	
+	@if meta.type_of($value) == string {
+		@if
+			not list.index(map.keys($numbers), $first_character)
+			and not $is_negative
+		{
+			@return $value;
+		}
+	}
+	
 	$result: 0;
 	$digits: 0;
-	$is_negative: string.slice($value, 1, 1) == '-';
-	$numbers: ('0': 0, '1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9);
 	
 	@for $i from if($is_negative, 2, 1) through string.length($value) {
 		$character: string.slice($value, $i, $i);
@@ -698,7 +713,7 @@
 		$separator: list.separator($value);
 		$result: ();
 		@each $list_item in $value {
-			$result: list.append($result, truncate($list_item), $separator);
+			$result: list.append($result, trunx($list_item), $separator);
 		}
 		@return $result;
 	}
@@ -944,6 +959,7 @@
 /// )
 /// 
 /// @param {map} $sizes
+/// @param {boolean} $with_rounding
 /// @return {map} *
 @function create_intermediate_sizes($sizes, $with_rounding: true) {
 	@if list.length(map.keys($sizes)) == 1 {

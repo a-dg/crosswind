@@ -7,3 +7,198 @@
 @include crosswind.init(settings.$all_settings);
 
 @include meta.load_css('app');
+
+.r-grid {
+	display: grid;
+	grid-template-columns: repeat(24, 1fr);
+	align-items: flex-start;
+	gap: 20px;
+	> * {
+		display: grid;
+		grid-template-columns: 1fr;
+		> div {
+			width: 80%;
+			height: 100px;
+			background: #f00;
+			&:nth-child(2) {
+				background: #0f0;
+				order: 1;
+			}
+		}
+	}
+}
+
+// oy (outer y): margin-top, margin-bottom
+// ot (outer top): margin-top
+// ob (outer bottom): margin-bottom
+// oc (outer collapse): collapse margin on adjacent elements
+// or (outer reduce): reduce margin on adjacent elements
+// os (outer scale): scale margin
+
+// Prevent inheritance on rhythm properties
+// https://developer.mozilla.org/en-US/docs/Web/CSS/@property
+@property --\=oy {
+	syntax: '<length>';
+	inherits: false;
+	initial-value: 0px;
+}
+@property --\=oc {
+	syntax: '<length>';
+	inherits: false;
+	initial-value: 0px;
+}
+@property --\=or {
+	syntax: '<length>';
+	inherits: false;
+	initial-value: 0px;
+}
+@property --\=os {
+	syntax: '<number>';
+	inherits: false;
+	initial-value: 1;
+}
+
+:root {
+	--\=oy: 0px; // Block margin
+	--\=oc: 0px; // Margin collapse
+	--\=or: 0px; // Margin reduce
+	--\=os: 1;   // Margin scale
+}
+
+$_sizes: (
+	medium: 30px,
+	large: 60px,
+	default: 100px,
+);
+
+$_scale: (
+	0: 0,
+	05: 0.5,
+	1: 1,
+	15: 1.5,
+	2: 2,
+);
+
+// Top margin for any pattern is:
+// ([top (or block) margin] - [margin collapse] - [margin reduce]) * scale
+// TODO: scale should consider the previous element's margin, otherwise a value
+// of 0 will only reduce the top margin of the second element, not necessarily
+// remove bottom margin from the first element
+$_margin_top: calc(
+	(
+		var(--\=ot, var(--\=oy, 0px))
+		- var(--\=oc, 0px)
+		- var(--\=or, 0px)
+	) * var(--\=os, 1)
+);
+
+// Bottom margin for any pattern is:
+// [bottom (or block) margin]
+$_margin_bottom: var(--\=ob, var(--\=oy));
+
+[class*="=o-"] {
+	margin-top: $_margin_top;
+	margin-bottom: $_margin_bottom;
+}
+[class*="=ot-"] {
+	margin-top: $_margin_top;
+}
+[class*="=ob-"] {
+	margin-bottom: $_margin_bottom;
+}
+
+// Define block spacing first
+@each $name, $value in $_sizes {
+	.\=o-#{$name} {
+		--\=oy: #{$value};        // Block margin
+		--\=oc-2: #{$value};      // Margin collapse for current element
+		
+		// Prevent item without a reduce class from being reduced without its
+		// permission by setting its reduce value to the same as its native value
+		// --\=or-2: #{$value};      // Margin reduce for current element
+		
+		+ [class*="=o"] {
+			--\=oc-1: #{$value};    // Margin collapse for previous element
+			// --\=or-1: #{$value};      // Margin reduce for previous element (preventative)
+		}
+		+ :is([class*="=o-reduce"], [class*="=ot-reduce"]) {
+			--\=oy-1: #{$value};    // Block margin for previous element
+		}
+	}
+}
+
+// Define top and bottom spacing second, to override block spacing
+@each $name, $value in $_sizes {
+	.\=ot-#{$name} {
+		--\=ot: #{$value};        // Top margin
+		--\=oc-2: #{$value};      // Margin collapse for current element
+		// --\=or-2: #{$value};      // Margin reduce for current element (preventative)
+	}
+	.\=ob-#{$name} {
+		--\=ob: #{$value};        // Bottom margin
+		+ [class*="=o"] {
+			--\=oc-1: #{$value};    // Margin collapse for previous element
+			// --\=or-1: #{$value};    // Margin reduce for previous element (preventative)
+		}
+		+ :is([class*="=o-reduce"], [class*="=ot-reduce"]) {
+			--\=oy-1: #{$value};    // Block margin for previous element
+		}
+	}
+}
+
+// Define margin reduce
+@each $name, $value in $_sizes {
+	.\=o-reduce-#{$name} {
+		--\=or-2: #{$value};
+		+ [class*="=o-reduce"] {
+			--\=or-1: #{$value};
+		}
+	}
+	.\=ot-reduce-#{$name} {
+		--\=or-2: #{$value};
+	}
+	.\=ob-reduce-#{$name} {
+		+ [class*="=o-reduce"] {
+			--\=or-1: #{$value};
+		}
+	}
+}
+
+
+[class*="=o"] {
+	& + & {
+		// --\=oc: 
+		// 		max(
+		// 			calc(
+		// 				var(--\=oc-2)
+		// 				- var(--\=oc-1)
+		// 			),
+		// 			var(--\=oc-2)
+		// 			)
+		// 	;
+		--\=oc: min(
+			var(--\=oc-1),
+			var(--\=oc-2)
+		);
+	}
+}
+
+:is([class*="=o-reduce"], [class*="=ob-reduce"]) {
+	+ :is([class*="=o-reduce"], [class*="=ot-reduce"]) {
+		// --\=or: calc(
+		// 	(
+		// 		var(--\=ot, var(--\=oy))
+		// 		- max(var(--\=or-1, 0px), var(--\=or-2, 0px))
+		// 	)
+		// );
+		--\=or: calc(
+			max(var(--\=ob-1, var(--\=oy-1)), var(--\=ot, var(--\=oy)))
+			- max(var(--\=or-1, 0px), var(--\=or-2, 0px))
+		);
+		// --\=or: calc(
+		// 	(
+		// 		max(var(--\=or-1, 0px), var(--\=or-2, 0px))
+		// 	)
+		// );
+	}
+}

@@ -22,7 +22,7 @@ $settings: (
 		h1: (
 			sm: 20px,
 			// ch: 36px fixed,
-			lg: 40px, // TODO: this doesn't work after fixed keyword
+			lg: 60px, // TODO: this doesn't work after fixed keyword
 			// xl: 70px,
 			signature: sans_bold_upper,
 		),
@@ -35,8 +35,8 @@ $settings: (
 		'h1.snap': (
 			sm: 24px,
 			ch: 44px snap 24px,
-			yl: 36px,
-			signature: sans_bold_upper,
+			yl: 60px,
+			signature: sans_light_upper,
 		),
 		// 'h1.fixed-last': (
 		// 	sm: 24px,
@@ -59,7 +59,7 @@ $settings: (
 		// ),
 	),
 	
-	font_properties: (
+	font_signatures: (
 		default: (
 			// family: default,
 			leading: 5.5 1.3,
@@ -80,7 +80,7 @@ $settings: (
 			// family: default,
 			weight: 300,
 			leading: 1.8 1.6,
-			tracking: 0.15em 0.05em,
+			tracking: 0.5em 0.05em,
 			case: uppercase,
 		),
 	),

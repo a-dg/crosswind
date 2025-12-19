@@ -78,7 +78,13 @@ $settings: (
 	// TODO: use same base gutter values for all gutter types
 	gutter_flexible_min_x: 16px,
 	gutter_flexible_max_x: 28px,
+	gutter_flexible: (
+		x: 16px 28px,
+		y: 28px 40px,
+		outer: 40px 60px,
+	),
 	
 	content_width_prop: --content-width,
+	content_offset_prop: --content-offset,
 	
 );

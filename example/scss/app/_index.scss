@@ -1,3 +1,5 @@
+@use 'sass:string';
+
 @use '../../../lib/breakbeat/scss' as *;
 @use '../../../scss' as *;
 @use '../../../scss/config' as cc;
@@ -14,6 +16,7 @@
 body {
 	margin: 0;
 	padding: 0;
+	padding-bottom: 80px;
 	font-size: 24px;
 	font-variant-ligatures: none;
 }
@@ -31,7 +34,8 @@ body {
 
 h1 {
 	margin: 4em 0 1em 0;
-	padding: 0 gutter(outer);
+	margin-top: 80px;
+	padding: 0 grow(outer);
 	text-align: center;
 }
 
@@ -58,7 +62,7 @@ span.i-label {
 	text-align: center;
 	
 	@include b(lg) {
-		color: color(cement);
+		// color: color(cement);
 	}
 }
 
@@ -147,6 +151,36 @@ span.i-label {
 
 
 
+// *-fill is the number of columns required to reach the edge of the grid
+[class*="cross-left"] {
+	--cross-left-fill: var(--content-offset);
+}
+[class*="cross-right"] {
+	--cross-right-fill: calc(
+		var(--grid-columns) - (var(--content-width) + var(--content-offset))
+	);
+}
+
+@each $direction in (left, right) {
+	[class*="cross-#{$direction}"] {
+		--cross-#{$direction}-edge: calc(
+			var(--column-gutter-width)
+			* var(--cross-#{$direction}-count, var(--cross-#{$direction}-fill))
+			* -1
+		);
+		margin-#{$direction}: var(--cross-#{$direction}-edge);
+	}
+	
+	// TODO: prevent crossing more columns than are available
+	@for $i from 0 through 11 {
+		.cross-#{$direction}-#{$i} {
+			--cross-#{$direction}-count: #{$i};
+		}
+	}
+}
+
+
+
 .col-6 {
 	@include all((
 		zo: 6,
@@ -155,20 +189,27 @@ span.i-label {
 		ch: 6 4,
 	));
 	
-	.hang-r {
+	.hang-right {
 		@include one((
 			ch: 9 4,
 		));
 	}
-	.hang-l {
+	.hang-left {
 		@include one((
 			ch: 9,
 		));
 	}
 	
 	.nine-in-six {
-		width: grid_element_width(9, 6);
-		@include content_width(9);
+		margin-right: calc(
+			(
+				(
+					var(--grid-max-width) + var(--grid-gap-x)
+				) / var(--grid-columns)
+			) * (var(--content-width) / -2)
+		);
+		// width: grid_element_width(9, 6);
+		// @include content_width(9);
 	}
 	.unhang.six-in-nine {
 		// margin: 0 !important;
@@ -189,6 +230,10 @@ span.i-label {
 .col-8-4-custom {
 	// TODO: make this configurable through a mixin
 	grid-template-columns: grid_element_width(8, 12) auto;
+	
+	// @include each((
+	// 	zo: (7, 5),
+	// ));
 	
 	> :nth-child(2n) {
 		.i-label {

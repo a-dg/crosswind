@@ -1,6 +1,6 @@
 <div class="breakpoint-detector">
 	<!-- <div class="progress"></div> -->
-	<?
+	<?php
 	$breakpoints = [
 		'zo',
 		'tn',
@@ -13,9 +13,9 @@
 		'yl',
 	];
 	?>
-	<? foreach ($breakpoints as $breakpoint): ?>
+	<?php foreach ($breakpoints as $breakpoint): ?>
 		<span class="<?= $breakpoint ?>"><?= $breakpoint ?></span>
-	<? endforeach; ?>
+	<?php endforeach; ?>
 </div>
 
 

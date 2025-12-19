@@ -22,11 +22,14 @@ $_css_property_shorthand: (
 	leading: line-height,
 	tracking: letter-spacing,
 	word: word-spacing,
+	numerals: font-variant-numeric,
 );
 
 
 @mixin init_typography {
-	@include _parabolic_font_sizes(cc.get(font_sizes));
+	@if cc.get(font_properties_auto_output) {
+		@include _parabolic_font_sizes(cc.get(font_sizes));
+	}
 }
 
 
@@ -34,9 +37,13 @@ $_css_property_shorthand: (
 /// @param {string} $key
 @mixin font($key) {
 	$sizes: map.get(cc.get(font_sizes), $key);
-	@include _parabolic_font_sizes((
-		$key: $sizes,
-	), true);
+	@if $sizes {
+		@include _parabolic_font_sizes((
+			$key: $sizes,
+		), true);
+	} @else {
+		@warn 'Undefined font size selector: #{$key}';
+	}
 }
 
 
@@ -75,7 +82,7 @@ $_css_property_shorthand: (
 /// 
 /// For non-linear scaling, use _parabolic_font_sizes()
 /// 
-/// @param {map} param
+/// @param {map} $set
 /// @return {number | calculation} Fixed size or clamp()
 @function _fancy_font_size($set) {
 	$min: util.map_first_value($set);
@@ -205,12 +212,31 @@ $_css_property_shorthand: (
 /// @param {map} $sizes: Min and max font sizes for signature
 /// @return {map} *
 @function _get_props_for_sig($signature, $sizes) {
-	$font_properties: map.get(cc.get(font_properties), $signature);
+	$font_properties: map.get(cc.get(font_signatures), $signature);
 	@if $font_properties == null {
 		$font_properties: ();
 		@warn 'Undefined font signature: #{$signature}';
 	}
+	
+	$font_properties: _inherit_props($signature, $font_properties);
+	$font_properties: map.remove($font_properties, inherit);
 	@return _homogenize_prop_units($font_properties, $sizes);
+}
+
+
+/// Inherit properties from parent signature
+/// @param {string} $signature
+/// @param {map} $props
+/// @return {type} *
+@function _inherit_props($signature, $props) {
+	$inherit_name: map.get($props, inherit);
+	@if not $inherit_name {
+		@return $props;
+	}
+	
+	$inherit_map: map.get(cc.get(font_signatures), #{$inherit_name});
+	$props: map.merge(_inherit_props($inherit_name, $inherit_map), $props);
+	@return $props;
 }
 
 
@@ -224,12 +250,9 @@ $_css_property_shorthand: (
 	$first_font_size: util.map_first_value($sizes);
 	$last_font_size: util.map_last_value($sizes);
 	
-	// TODO: tracking is not calculated correctly, em units appear to use the
-	// base font size for calculation, rather than the current font size
-	
 	@each $propery_name, $property_values in $font_properties {
 		@if meta.type_of($property_values) != list {
-			// Pass single value through untouched
+			// Implicitly pass single value through untouched
 			// This could be a fixed value for leading (like 1.2), or tracking
 			// (like 0.05em), or a string for font family or case conversion
 		}
@@ -248,12 +271,25 @@ $_css_property_shorthand: (
 		@else {
 			$unit_prop: math.unit(list.nth($property_values, 1));
 			$unit_font: math.unit($first_font_size);
+			
 			@if $unit_prop != $unit_font {
 				$font_unit_props: ();
-				@each $item in $property_values {
-					$converted: util.convert_units($item, $from: $unit_prop, $to: $unit_font);
+				
+				@for $i from 1 through list.length($property_values) {
+					$value: list.nth($property_values, $i);
+					$converted: util.convert_units($value, $from: $unit_prop, $to: $unit_font);
+					
+					// Adjust the property value according to the corresponding font size,
+					// since unit conversions are based on font_size_base, not the font
+					// size for the current selector
+					$font_size: list.nth(map.values($sizes), $i);
+					$converted: util.truncate(calc(
+						$converted * ($font_size / cc.get(font_size_base))
+					), 3);
+					
 					$font_unit_props: list.append($font_unit_props, $converted);
 				}
+				
 				$font_properties: map.set($font_properties, $propery_name, $font_unit_props);
 			}
 		}
@@ -269,7 +305,7 @@ $_css_property_shorthand: (
 /// @return {map} *
 @function _gather_extreme_font_sizes($signature, $sizes) {
 	
-	// TODO: this probably won't work with keywords
+	// TODO: this definitely won't work with keywords
 	$smallest_font_size: util.map_lowest($sizes, true);
 	$largest_font_size: util.map_highest($sizes, true);
 	$extremes: (
@@ -308,13 +344,13 @@ $_css_property_shorthand: (
 ///   lg: 1.3,
 /// )
 /// 
-/// @param {map} $fuckin_props
+/// @param {map} $nice_props
 /// @return {number | calculation} *
-@function _boil_fancy_props($fuckin_props) {
-	$low_breakpoint: util.map_first_key($fuckin_props);
-	$high_breakpoint: util.map_last_key($fuckin_props);
-	$low_value: util.map_first_value($fuckin_props);
-	$high_value: util.map_last_value($fuckin_props);
+@function _boil_fancy_props($nice_props) {
+	$low_breakpoint: util.map_first_key($nice_props);
+	$high_breakpoint: util.map_last_key($nice_props);
+	$low_value: util.map_first_value($nice_props);
+	$high_value: util.map_last_value($nice_props);
 	
 	@if (
 		meta.type_of($low_value) == list
@@ -366,7 +402,7 @@ $_css_property_shorthand: (
 @function _boil_font_sizes($font_sizes) {
 	$boiled: ();
 	$first_breakpoint_name: util.map_first_key($breakpoints);
-	$default_signature_name: util.map_first_key(cc.get(font_properties));
+	$default_signature_name: util.map_first_key(cc.get(font_signatures));
 	
 	@each $selector, $sizes in $font_sizes {
 		$signature: $default_signature_name;
@@ -493,12 +529,12 @@ $_css_property_shorthand: (
 						$size: list.nth($size, 3);
 					}
 					
-					$fancy_as_fuck_font_size: _fancy_font_size((
+					$very_fancy_font_size: _fancy_font_size((
 						$breakpoint: $size,
 						$next_breakpoint: $next_size,
 					));
 					
-					$boiled: map.set($boiled, $signature, $selector, $breakpoint, size, $fancy_as_fuck_font_size);
+					$boiled: map.set($boiled, $signature, $selector, $breakpoint, size, $very_fancy_font_size);
 				}
 				
 				$size_index: $size_index + 1;
@@ -549,12 +585,17 @@ $_css_property_shorthand: (
 					$font_size_high: $font_size_value;
 				}
 				
+				$position_low: 0;
+				$position_high: 0;
+				$position_denominator: ($signature_high - $signature_low);
+				@if not util.is_zero($position_denominator) {
 				$position_low: 1 - calc(
-					($signature_high - $font_size_low) / ($signature_high - $signature_low)
+						($signature_high - $font_size_low) / $position_denominator
 				);
 				$position_high: 1 - calc(
-					($signature_high - $font_size_high) / ($signature_high - $signature_low)
+						($signature_high - $font_size_high) / $position_denominator
 				);
+				}
 				
 				@each $property_name, $property_values in $font_properties {
 					
@@ -652,6 +693,11 @@ $_css_property_shorthand: (
 			$prop_count: list.length(map.keys($specs));
 			$prop_index: 1;
 			
+			// Create placeholder selectors for use with font() mixin
+			@if not cc.get(font_properties_auto_output) {
+				$selector: #{'%' + $selector};
+			}
+			
 			@each $breakpoint, $properties in $specs {
 				$media_query: null;
 				
@@ -684,11 +730,6 @@ $_css_property_shorthand: (
 					} @else {
 						$media_query: $breakpoint;
 					}
-				}
-				
-				// Create placeholder selectors for use with font() mixin
-				@if not cc.get(font_properties_auto_output) {
-					$selector: #{'%' + $selector};
 				}
 				
 				@include b($media_query) {

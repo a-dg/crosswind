@@ -198,8 +198,8 @@ $_inset_variant_keyword: apply;
 
 
 /// Build map of all variant colors, with recursive inheritance
+/// @param {string} $variant_name
 /// @param {map} $variant_map
-/// @param {boolean} $is_default
 /// @return {map} *
 @function _build_variant_map($variant_name, $variant_map) {
 	$map: ();
