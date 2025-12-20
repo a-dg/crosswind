@@ -69,17 +69,23 @@
 	inherits: false;
 	initial-value: 0px;
 }
-@property --\=os {
+@property --\=ost {
+	syntax: '<number>';
+	inherits: false;
+	initial-value: 1;
+}
+@property --\=osb {
 	syntax: '<number>';
 	inherits: false;
 	initial-value: 1;
 }
 
 :root {
-	--\=oy: 0px; // Block margin
-	--\=oc: 0px; // Margin collapse
-	--\=or: 0px; // Margin reduce
-	--\=os: 1;   // Margin scale
+	--\=oy: 0px;  // Block margin
+	--\=oc: 0px;  // Margin collapse
+	--\=or: 0px;  // Margin reduce
+	--\=ost: 1;   // Margin scale (top)
+	--\=osb: 1;   // Margin scale (bottom)
 }
 
 $_sizes: (
@@ -96,22 +102,21 @@ $_scale: (
 	2: 2,
 );
 
-// Top margin for any pattern is:
-// ([top (or block) margin] - [margin collapse] - [margin reduce]) * scale
-// TODO: scale should consider the previous element's margin, otherwise a value
-// of 0 will only reduce the top margin of the second element, not necessarily
-// remove bottom margin from the first element
+// Top margin: ([top margin] - [collapse] - [reduce]) * scale_top
+// Developer API: --rot-scale, --ro-scale (falls back to internal --\=ost)
 $_margin_top: calc(
 	(
 		var(--\=ot, var(--\=oy, 0px))
 		- var(--\=oc, 0px)
 		- var(--\=or, 0px)
-	) * var(--\=os, 1)
+	) * var(--rot-scale, var(--ro-scale, var(--\=ost, 1)))
 );
 
-// Bottom margin for any pattern is:
-// [bottom (or block) margin]
-$_margin_bottom: var(--\=ob, var(--\=oy));
+// Bottom margin: [bottom margin] * scale_bottom
+// Developer API: --rob-scale, --ro-scale (falls back to internal --\=osb)
+$_margin_bottom: calc(
+	var(--\=ob, var(--\=oy, 0px)) * var(--rob-scale, var(--ro-scale, var(--\=osb, 1)))
+);
 
 [class*="=o-"] {
 	margin-top: $_margin_top;
@@ -178,6 +183,20 @@ $_margin_bottom: var(--\=ob, var(--\=oy));
 		+ [class*="=o-reduce"] {
 			--\=or-1: #{$value};
 		}
+	}
+}
+
+// Define margin scale
+@each $name, $value in $_scale {
+	.\=o-scale-#{$name} {
+		--\=ost: #{$value};
+		--\=osb: #{$value};
+	}
+	.\=ot-scale-#{$name} {
+		--\=ost: #{$value};
+	}
+	.\=ob-scale-#{$name} {
+		--\=osb: #{$value};
 	}
 }
 
